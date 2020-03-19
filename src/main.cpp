@@ -3,18 +3,21 @@
 #include <fstream>
 #include <iostream>
 
-#include "celestronprotocol.h"
+#include "Celestron.h"
+
 
 // Main program
 //============================================================================
 int main(int argc, char **argv){
-    if (ConnectTel("/dev/ttyUSB0") == -1) {
+
+    Celestron mount;
+    if (!mount.connect("/dev/ttyUSB0")) {
         std::cerr << "Can't find NexStar Mount in /dev/ttyUSB0" << std::endl;
         return 0;
     }
 
-    
-    
+    FirmwareInfo firmware;
+    mount.getFirmware(&firmware);
 
     return 0;
 }
