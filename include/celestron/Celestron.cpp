@@ -29,7 +29,7 @@
 /* Serial communication utilities */
 typedef fd_set telfds;
 
-static int writen(int _fd, char* _ptr, int _nbytes) {
+static int writen(int _fd, const char* _ptr, int _nbytes) {
     int nleft, nwritten;
     nleft = _nbytes;
     while (nleft > 0) {
@@ -85,17 +85,9 @@ static int readn(int _fd, char *_ptr, int _nbytes, int _sec) {
     return (_nbytes - nleft);
 }
 
-void hex_dump(char* _buf, const char *_data, int _size) {
-    for (int i = 0; i < _size; i++)
-        sprintf(_buf + 3 * i, "%02X ", (unsigned char)_data[i]);
-
-    if (_size > 0)
-        _buf[3 * _size - 1] = '\0';
-}
-
 // Send a command to the mount. Return the number of bytes received or 0 if
 // case of error
-int Celestron::send_command(    char *_cmd, int _cmd_len, 
+int Celestron::send_command(    const char *_cmd, int _cmd_len, 
                                 char *_resp, int _resp_len ) {
     int nbytes = _resp_len;
 
@@ -229,20 +221,20 @@ bool Celestron::getFirmware(FirmwareInfo* _info) {
     char version[8], model[16], RAVersion[8], DEVersion[8];
     bool isGem;
 
-    printf("Getting controller version...");
+    printf("Getting controller version...\n");
     if (!getVersion(version, 8))
         return false;
     _info->Version = version;
     _info->controllerVersion = atof(version);
 
-    printf("Getting controller variant...");
+    printf("Getting controller variant...\n");
     _info->controllerVariant = ISNEXSTAR;
     getVariant(&(_info->controllerVariant));
 
     if (((_info->controllerVariant == ISSTARSENSE) &&
           _info->controllerVersion >= MINSTSENSVER) ||
          (_info->controllerVersion >= 2.2) ) {
-        printf("Getting controller model...");
+        printf("Getting controller model...\n");
         if (!getModel(model, 16, &isGem))
             return false;
         _info->Model = model;
@@ -253,17 +245,17 @@ bool Celestron::getFirmware(FirmwareInfo* _info) {
         _info->isGem = false;
     }
 
-    printf("Getting RA firmware version...");
+    printf("Getting RA firmware version...\n");
     if (!getDevFirmware(CELESTRON_DEV_RA, RAVersion, 8))
         return false;
     _info->RAFirmware = RAVersion;
 
-    printf("Getting DEC firmware version...");
+    printf("Getting DEC firmware version...\n");
     if (!getDevFirmware(CELESTRON_DEV_DEC, DEVersion, 8))
         return false;
     _info->DEFirmware = DEVersion;
 
-    printf("Firmware Info HC Ver %s model %s %s %s mount, HW Ver %s",
+    printf("Firmware Info HC Ver %s model %s %s %s mount, HW Ver %s\n",
             _info->Version.c_str(),
             _info->Model.c_str(),
             _info->controllerVariant == ISSTARSENSE ? "StarSense" : "NexStar",
@@ -278,9 +270,9 @@ bool Celestron::getVersion(char* _version, int _size) {
     if (!send_command("V", 1, response, 3))
         return false;
 
-    snprintf(_version, _size, "%d.%02d", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
+    snprintf(_version, _size, "%d.%02d\n", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
 
-    printf("Controller version: %s", _version);
+    printf("Controller version: %s\n", _version);
     return true;
 }
 
@@ -329,11 +321,11 @@ bool Celestron::getModel(char* _model, int _size, bool* _isGem) {
     int m = static_cast<uint8_t>(response[0]);
     if (models.find(m) != models.end()) {
         strncpy(_model, models[m].c_str(), _size);
-        printf("Mount model: %s", _model);
+        printf("Mount model: %s\n", _model);
     }
     else {
         strncpy(_model, "Unknown", _size);
-        printf("Unrecognized model (%d).", _model);
+        printf("Unrecognized model %s.\n", _model);
     }
 
     // use model# to detect the GEMs
@@ -361,10 +353,10 @@ bool Celestron::getDevFirmware(int _dev, char* _version, int _size) {
 
     switch (rlen) {
         case 2:
-            snprintf(_version, _size, "%01d.0", static_cast<uint8_t>(response[0]));
+            snprintf(_version, _size, "%01d.0\n", static_cast<uint8_t>(response[0]));
             break;
         case 3:
-            snprintf(_version, _size, "%d.%02d", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
+            snprintf(_version, _size, "%d.%02d\n", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
             break;
         default:
             return false;
@@ -397,7 +389,7 @@ void getSexComponents(double value, int *d, int *m, int *s) {
 }
 
 bool Celestron::setLocation(double _longitude, double _latitude) {
-    printf("Setting location (%.3f,%.3f)", _longitude, _latitude);
+    printf("Setting location (%.3f,%.3f)\n", _longitude, _latitude);
 
     // Convert from INDI standard to regular east/west -180 to 180
     if (_longitude > 180)
