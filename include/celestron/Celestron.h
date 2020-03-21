@@ -24,7 +24,7 @@ public:
     Celestron();
     virtual ~Celestron();
 
-    bool        connect(const std::string& _portName = "/dev/ttyUSB0");
+    bool        connect(const char* _portName);
     void        disconnect();
 
     bool        echo();

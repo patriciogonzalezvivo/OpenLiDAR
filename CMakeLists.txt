@@ -35,5 +35,5 @@ include_directories(
   ${RPLIDAR_SDK_PATH}/src
 )
 
-add_executable (lScanner "src/main.cpp" ${RPLIDAR_SDK_SRC} ${CELESTRON_DRIVER_SRC})
+add_executable (lScanner "src/main.cpp" "src/Scanner.cpp" ${RPLIDAR_SDK_SRC} ${CELESTRON_DRIVER_SRC})
 target_link_libraries (lScanner ${PCL_LIBRARIES})

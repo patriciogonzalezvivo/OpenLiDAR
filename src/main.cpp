@@ -1,37 +1,38 @@
 
 #include <string>
-#include <fstream>
-#include <iostream>
 
-#include <unistd.h>
+#include "Scanner.h"
 
-#include "Celestron.h"
-
+#include <pcl/io/ply_io.h>
+#include <pcl/point_types.h>
 
 // Main program
 //============================================================================
 int main(int argc, char **argv){
 
-    Celestron mount;
-    if (!mount.connect("/dev/ttyUSB0")) {
-        std::cerr << "Can't find NexStar Mount in /dev/ttyUSB0" << std::endl;
-        return 0;
+    Scanner scanner;
+    if (scanner.connect(argv[1], argv[2]) {
+        std::vector<glm::vec3> points = scanner.scan(SR_9);
+
+        if (points.size() > 0) {
+            // Declare Cloud data
+            pcl::PointCloud<pcl::PointXYZ>::Ptr cloud( new pcl::PointCloud<pcl::PointXYZ> );
+            cloud->width    = points.size();
+            cloud->height   = 1;
+            cloud->is_dense = true;
+            cloud->points.resize (points.size());
+
+            for (size_t i = 0; i < points.size(); i++) {
+                cloud->points[i].x = points[i].x;
+                cloud->points[i].y = points[i].y;
+                cloud->points[i].z = points[i].z;
+            }
+
+            pcl::io::savePLYFile ("point_cloud.ply", *cloud, false);
+        }
+
+        scanner.disconnect();
     }
-
-    // FirmwareInfo firmware;
-    // mount.getFirmware(&firmware);
-
-    // mount.move(CELESTRON_E, SR_6);
-
-    mount.slewAzAlt(0,0);
-    double az, alt;
-    while (mount.isSlewing()) {
-        usleep(1000);
-        mount.getAzAlt(&az, &alt);
-        std::cout << "az:  " << az << " alt: " << alt << std::endl;
-    }
-
-    // mount.stop(CELESTRON_E);
 
     return 0;
 }
