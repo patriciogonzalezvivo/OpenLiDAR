@@ -6,28 +6,18 @@
 #include <iostream>
 #include <unistd.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 
 #ifndef MOUNT_OFFSET
-#define MOUNT_OFFSET_CM 10.0 
+#define MOUNT_OFFSET_MM 100.0 
 #endif
 
 #ifndef _countof
 #define _countof(_Array) (int)(sizeof(_Array) / sizeof(_Array[0]))
 #endif
-
-// static inline void delay(_word_size_t ms){
-//     while (ms>=1000){
-//         usleep(1000*1000);
-//         ms-=1000;
-//     };
-//     if (ms!=0)
-//         usleep(ms*1000);
-// }
-
-using namespace rp::standalone::rplidar;
 
 bool checkRPLIDARHealth(RPlidarDriver * _drv) {
     u_result     op_result;
@@ -58,17 +48,16 @@ void ctrlc(int)
     ctrl_c_pressed = true;
 }
 
-
 Scanner::Scanner() : 
     m_az(0.0),
     m_alt(0.0),
+    m_mount(NULL),
     m_lidar(NULL), 
     m_scanning(false) {
-
 }
 
 Scanner::~Scanner(){
-
+    disconnect();
 }
 
 bool Scanner::connect(const char* _celestronPort, const char* _rplidarPort) {
@@ -77,155 +66,178 @@ bool Scanner::connect(const char* _celestronPort, const char* _rplidarPort) {
     // --------------------------------------------------------
 
     // Connecting to the Celestron Mount
-    if (!m_mount.connect(_celestronPort)) {
-        std::cerr << "Can't find Celestron Mount in " << _celestronPort << std::endl;
-        return false;
-    }
-    // Get mount information
-    FirmwareInfo firmware;
-    m_mount.getFirmware(&firmware);
+    if (!m_mount) {
+        m_mount = new Celestron();
 
-    // Stop any movement on the mount
-    m_mount.abort()
+        if (!m_mount->connect(_celestronPort)) {
+            std::cerr << "Can't find Celestron Mount in " << _celestronPort << std::endl;
+            // return false;
+            delete m_mount;
+            m_mount = NULL;
+        }
+        else {
+            // Stop any movement on the mount
+            m_mount->abort();
+
+            // Get mount information
+            FirmwareInfo firmware;
+            m_mount->getFirmware(&firmware);
+        }
+    }
     
 
     //  LIDAR
     // -------------------------------------------------------
 
-    // Connecting to RPLiDAR device
-    _u32         baudrateArray[2] = {115200, 256000};
-    u_result     op_result;
-
-    bool useArgcBaudrate = false;
-    std::cout << "RPLIDAR SDK Version: " << RPLIDAR_SDK_VERSION std::endl;
-
-    // create the driver instance
-	m_lidar = RPlidarDriver::CreateDriver(DRIVER_TYPE_SERIALPORT);
     if (!m_lidar) {
-        std::cerr << "insufficent memory loading RPLiDAR" << std::endl;
-        return false;
-    }
-    
-    // make connection...
-    bool connectSuccess = false;
-    rplidar_response_device_info_t devinfo;
-    size_t baudRateArraySize = (sizeof(baudrateArray))/ (sizeof(baudrateArray[0]));
-    for(size_t i = 0; i < baudRateArraySize; ++i) {
+        // Connecting to RPLiDAR device
+        _u32         baudrateArray[2] = {115200, 256000};
+        u_result     op_result;
 
-        if (!m_lidar)
-            m_lidar = RPlidarDriver::CreateDriver(DRIVER_TYPE_SERIALPORT);
+        std::cout << "RPLIDAR SDK Version: " << RPLIDAR_SDK_VERSION << std::endl;
 
-        if (IS_OK(m_lidar->connect(_rplidarPort, baudrateArray[i]))) {
-            op_result = m_lidar->getDeviceInfo(devinfo);
+        // make connection...
+        bool connectSuccess = false;
+        rplidar_response_device_info_t devinfo;
+        size_t baudRateArraySize = (sizeof(baudrateArray))/ (sizeof(baudrateArray[0]));
 
-            if (IS_OK(op_result)) {
-                connectSuccess = true;
-                break;
+        for(size_t i = 0; i < baudRateArraySize; ++i) {
+
+            if (!m_lidar)
+                m_lidar = RPlidarDriver::CreateDriver(DRIVER_TYPE_SERIALPORT);
+
+            if (IS_OK(m_lidar->connect(_rplidarPort, baudrateArray[i]))) {
+                op_result = m_lidar->getDeviceInfo(devinfo);
+
+                if (IS_OK(op_result)) {
+                    connectSuccess = true;
+                    break;
+                }
+                else {
+                    delete m_lidar;
+                    m_lidar = NULL;
+                }
             }
-            else {
+        }
+        
+        if (!connectSuccess) {
+            std::cerr << "Can't find RPLiDAR in " << _rplidarPort << std::endl;
+            delete m_lidar;
+            m_lidar = NULL;
+        }
+        else {
+            // print out the device serial number, firmware and hardware version number..
+            printf("RPLIDAR S/N: ");
+            for (int i = 0; i < 16 ;++i)
+                printf("%02X", devinfo.serialnum[i]);
+
+            printf("\n"
+                    "Firmware Ver: %d.%02d\n"
+                    "Hardware Rev: %d\n"
+                    , devinfo.firmware_version>>8
+                    , devinfo.firmware_version & 0xFF
+                    , (int)devinfo.hardware_version);
+
+            // check health...
+            if (!checkRPLIDARHealth(m_lidar)) {
                 delete m_lidar;
                 m_lidar = NULL;
             }
         }
     }
-    
-    if (!connectSuccess) {
-        std::cerr << "Can't find RPLiDAR in " << _rplidarPort << std::endl;
-        return false;
-    }
 
-    // print out the device serial number, firmware and hardware version number..
-    printf("RPLIDAR S/N: ");
-    for (int pos = 0; pos < 16 ;++pos) {
-        printf("%02X", devinfo.serialnum[pos]);
-    }
-
-    printf("\n"
-            "Firmware Ver: %d.%02d\n"
-            "Hardware Rev: %d\n"
-            , devinfo.firmware_version>>8
-            , devinfo.firmware_version & 0xFF
-            , (int)devinfo.hardware_version);
-
-    // check health...
-    if (!checkRPLIDARHealth(m_lidar))
-        return false;
-
-    return true;
+    return (m_lidar != NULL);// && (m_mount != NULL);
 }
 
 void Scanner::disconnect() {
-    m_mount.disconnect();
+    if (m_mount) {
+        m_mount->disconnect();
+        delete m_mount;
+        m_mount = NULL;
+    }
 
-    if (m_lidar)
+    if (m_lidar) {
         RPlidarDriver::DisposeDriver(m_lidar);
-    m_lidar = NULL;
+        m_lidar = NULL;
+    }
 }
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr Scanner::scan(CELESTRON_SLEW_RATE _rate) {
+std::vector<glm::vec3> Scanner::scan(CELESTRON_SLEW_RATE _rate) {
     std::vector<glm::vec3> points;
 
     // Point the Celestron Mount to 0.0 azimuth 0.0 altitud.
     m_az = 0.0;
     m_alt = 0.0;
-    m_mount.slewAzAlt(m_az, m_alt);
-    std::cout << "az:  " << az << " alt: " << alt << std::endl;
-
-    // Wait until the mount stop slewing
-    while (mount.isSlewing()) {
-        usleep(1000);
-        m_mount.getAzAlt(&m_az, &m_alt);
+    if (m_mount) {
+        m_mount->slewAzAlt(m_az, m_alt);
         std::cout << "az:  " << m_az << " alt: " << m_alt << std::endl;
+
+        // Wait until the mount stop slewing
+        while (m_mount->isSlewing()) {
+            usleep(1000);
+            m_mount->getAzAlt(&m_az, &m_alt);
+            std::cout << "az:  " << m_az << " alt: " << m_alt << std::endl;
+        }
+
+        // Move the mount EAST at the speed specify by the user (_rate)
+        m_mount->move(CELESTRON_E, _rate);
     }
 
-    // Move the mount EAST at the speed specify by the user (_rate)
-    m_mount.move(CELESTRON_E, _rate);
+    if (m_lidar) {
+        // Start motor...
+        u_result op_result;
+        signal(SIGINT, ctrlc);
+        m_lidar->startMotor();
 
-    // Start motor...
-    signal(SIGINT, ctrlc);
-    m_lidar->startMotor();
+        // start scan...
+        m_lidar->startScan(0,1);
+        m_scanning = true;
 
-    // start scan...
-    m_lidar->startScan(0,1);
-    m_scanning = true;
+        // fetch result and print it out...
+        while (m_scanning && m_az < 180) {
 
-    // fetch result and print it out...
-    double az_rad;
-    while (m_scanning) {
-        // Get mount azimuth angle
-        m_mount.getAzAlt(&m_az, &m_alt);
-        std::cout << "az:  " << m_az << " alt: " << m_alt << std::endl;
-        az_rad = glm::radians(m_az);
+            // Get mount azimuth angle
+            if (m_mount) m_mount->getAzAlt(&m_az, &m_alt);
+            else m_az += 1.;
 
-        glm::quat lng = glm::angleAxis(az_rad, glm::vec3(0.0,1.0,0.0));
-        // glm::quat lat = glm::angleAxis(az_rad, glm::vec3(1.0,1.0,0.0));
+            std::cout << "az:  " << m_az << " alt: " << m_alt << std::endl;
+            glm::quat lng = glm::angleAxis(float(glm::radians(m_az)), glm::vec3(0.0,1.0,0.0));
 
-        rplidar_response_measurement_node_hq_t nodes[8192];
-        size_t   count = _countof(nodes);
+            rplidar_response_measurement_node_hq_t nodes[8192];
+            size_t   count = _countof(nodes);
 
-        op_result = m_lidar->grabScanDataHq(nodes, count);
-        if (IS_OK(op_result)) {
-            m_lidar->ascendScanData(nodes, count);
-            for (size_t pos = 0; pos < count ; ++pos) {
-                double angle = nodes[pos].angle_z_q14 * 90.f / (1 << 14)
-                double distance = nodes[pos].dist_mm_q2/4.0f;
-                char quality = nodes[pos].quality;
+            op_result = m_lidar->grabScanDataHq(nodes, count);
+            if (IS_OK(op_result)) {
+                m_lidar->ascendScanData(nodes, count);
+                for (size_t i = 0; i < count ; ++i) {
+                    float angle = nodes[i].angle_z_q14 * 90.f / (1 << 14);
+                    float distance = nodes[i].dist_mm_q2 / 1000.f / (1 << 2);
+                    char quality = nodes[i].quality;
 
-                // printf("%s theta: %03.2f Dist: %08.2f Q: %d \n", 
-                //     ( nodes[pos].flag & RPLIDAR_RESP_MEASUREMENT_SYNCBIT ) ?"S ":"  ", 
-                //     (   angle ), 
-                //         distamce,
-                //         quality );
+                    // if (quality >= 127) 
+                    {
+                        glm::quat lat = glm::angleAxis(glm::radians(angle), glm::vec3(1.0,0.0,0.0));
+                        glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, distance));
+
+                        points.push_back(pos);
+                    }
+
+                    // printf("%s theta: %03.2f Dist: %08.2f Q: %d \n", 
+                    //     ( nodes[i].flag & RPLIDAR_RESP_MEASUREMENT_SYNCBIT ) ?"S ":"  ", 
+                    //     (   angle ), 
+                    //         distance,
+                    //         quality );
+
+                }
             }
+
+            if (ctrl_c_pressed)
+                m_scanning = false;
         }
 
-        if (ctrl_c_pressed){
-            m_scanning;
-        }
+        m_lidar->stop();
+        m_lidar->stopMotor();
     }
 
-    m_lidar->stop();
-    m_lidar->stopMotor();
-
-
+    return points;
 }

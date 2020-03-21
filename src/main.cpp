@@ -11,10 +11,13 @@
 int main(int argc, char **argv){
 
     Scanner scanner;
-    if (scanner.connect(argv[1], argv[2]) {
+    if (scanner.connect(argv[1], argv[2])) {
+        std::cout << "Start Scanning" << std::endl;
         std::vector<glm::vec3> points = scanner.scan(SR_9);
 
+        std::cout << "Got " << points.size() << " points" << std::endl;
         if (points.size() > 0) {
+
             // Declare Cloud data
             pcl::PointCloud<pcl::PointXYZ>::Ptr cloud( new pcl::PointCloud<pcl::PointXYZ> );
             cloud->width    = points.size();
@@ -28,6 +31,7 @@ int main(int argc, char **argv){
                 cloud->points[i].z = points[i].z;
             }
 
+            std::cout << "Saving points" << std::endl;
             pcl::io::savePLYFile ("point_cloud.ply", *cloud, false);
         }
 
