@@ -8,11 +8,11 @@
 
 using namespace rp::standalone::rplidar;
 
-class Scanner {
+class OpenLiDAR {
 public:
 
-    Scanner();
-    virtual ~Scanner();
+    OpenLiDAR();
+    virtual ~OpenLiDAR();
 
     bool    connect(const char* _celestronPort, const char* _rplidarPort);
     void    disconnect();

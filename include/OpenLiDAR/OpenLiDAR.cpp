@@ -1,4 +1,4 @@
-#include "Scanner.h"
+#include "OpenLiDAR.h"
 
 #include "rplidar.h"
 
@@ -53,14 +53,7 @@ bool checkRPLIDARHealth(RPlidarDriver * _drv) {
     }
 }
 
-#include <signal.h>
-bool ctrl_c_pressed;
-void ctrlc(int)
-{
-    ctrl_c_pressed = true;
-}
-
-Scanner::Scanner() : 
+OpenLiDAR::OpenLiDAR() : 
     m_az(0.0),
     m_alt(0.0),
     m_mount(NULL),
@@ -68,11 +61,11 @@ Scanner::Scanner() :
     m_scanning(false) {
 }
 
-Scanner::~Scanner(){
+OpenLiDAR::~OpenLiDAR(){
     disconnect();
 }
 
-bool Scanner::connect(const char* _celestronPort, const char* _rplidarPort) {
+bool OpenLiDAR::connect(const char* _celestronPort, const char* _rplidarPort) {
 
     // MOUNT
     // --------------------------------------------------------
@@ -161,7 +154,7 @@ bool Scanner::connect(const char* _celestronPort, const char* _rplidarPort) {
     return (m_lidar != NULL);// && (m_mount != NULL);
 }
 
-void Scanner::disconnect() {
+void OpenLiDAR::disconnect() {
     if (m_mount) {
         m_mount->disconnect();
         delete m_mount;
@@ -174,7 +167,7 @@ void Scanner::disconnect() {
     }
 }
 
-std::vector<glm::vec3> Scanner::scan(CELESTRON_SLEW_RATE _rate) {
+std::vector<glm::vec3> OpenLiDAR::scan(CELESTRON_SLEW_RATE _rate) {
     std::vector<glm::vec3> points;
 
     m_az = 0.0;
@@ -194,7 +187,6 @@ std::vector<glm::vec3> Scanner::scan(CELESTRON_SLEW_RATE _rate) {
     if (m_lidar) {
         // Start motor...
         u_result op_result;
-        signal(SIGINT, ctrlc);
         m_lidar->startMotor();
 
         // start scan...
@@ -221,7 +213,7 @@ std::vector<glm::vec3> Scanner::scan(CELESTRON_SLEW_RATE _rate) {
                     float distance = nodes[i].dist_mm_q2 / 1000.f / (1 << 2); // Meters
                     char quality = nodes[i].quality;
 
-                    // if (quality > 0) 
+                    // if (quality > 0)
                     {
                         glm::quat lat = glm::angleAxis(glm::radians(angle), glm::vec3(1.0,0.0,0.0));
                         glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, -distance) + glm::vec3(MOUNT_OFFSET_X, MOUNT_OFFSET_Y, MOUNT_OFFSET_Z));
@@ -239,9 +231,6 @@ std::vector<glm::vec3> Scanner::scan(CELESTRON_SLEW_RATE _rate) {
             }
 
             std::cout << "az:  " << m_az << " alt: " << m_alt << " points: " << points.size() << std::endl;
-
-            if (ctrl_c_pressed)
-                m_scanning = false;
         }
 
         m_lidar->stop();
@@ -255,7 +244,7 @@ std::vector<glm::vec3> Scanner::scan(CELESTRON_SLEW_RATE _rate) {
     return points;
 }
 
-bool Scanner::reset() {
+bool OpenLiDAR::reset() {
     if (m_mount) {
         m_mount->move(CELESTRON_E, SR_9);
         while (m_az < MOUNT_TURN + 10) {
