@@ -503,6 +503,34 @@ bool Celestron::isSlewing() {
     return response[0] != '0';
 }
 
+bool Celestron::gotoRADec(double _ra, double _dec) {
+    slewRADec(_ra, _dec);
+
+    // Wait until the mount stop slewing
+    double ra, dec;
+    while (isSlewing()) {
+        usleep(1000);
+        getRADec(&ra, &dec);
+        // std::cout << "az:  " << ra << " alt: " << dec << std::endl;
+    }
+
+    return ((ra == _ra) && (dec == _dec));
+}
+
+bool Celestron::gotoAzAlt(double _az, double _alt) {
+    slewAzAlt(_az, _alt);
+
+    // Wait until the mount stop slewing
+    double az, alt;
+    while (isSlewing()) {
+        usleep(1000);
+        getAzAlt(&az, &alt);
+        // std::cout << "az:  " << az << " alt: " << alt << std::endl;
+    }
+
+    return ((az == _az) && (alt == _alt));
+}
+
 bool Celestron::sync(double _ra, double _dec){
     char cmd[20];
     sprintf(cmd, "s%08X,%08X", dd2pnex(_ra*15), dd2pnex(_dec));

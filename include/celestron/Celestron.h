@@ -38,6 +38,9 @@ public:
     bool        stop(CELESTRON_DIRECTION _dir);
     bool        abort();
 
+    bool        gotoRADec(double _ra, double _dec);
+    bool        gotoAzAlt(double _az, double _alt);
+
     bool        getFirmware(FirmwareInfo* _info);
     bool        getVersion(char* _version, int _size);
     bool        getVariant(char* _variant);
