@@ -20,8 +20,7 @@ int main(int argc, char **argv){
     OpenLiDAR scanner;
     if (scanner.connect()) {
         std::cout << "Start Scanning" << std::endl;
-        // Scan 75% loop at half speed
-        std::vector<glm::vec3> points = scanner.scan(0.75, .5);
+        std::vector<glm::vec3> points = scanner.scan(0.9, .75);
 
         std::cout << "Got " << points.size() << " points" << std::endl;
         if (points.size() > 0) {
