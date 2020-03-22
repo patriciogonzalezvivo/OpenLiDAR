@@ -12,6 +12,7 @@
 #include <sys/select.h> 
 
 #include <map>
+#include <string>
 
 #define NULL_PTR(x) (x *)0
 #define MAX_RESP_SIZE   20
@@ -217,50 +218,41 @@ bool Celestron::wakeup() {
     return send_command("y#", 2, response, 1);
 }
 
-bool Celestron::getFirmware(FirmwareInfo* _info) {
+bool Celestron::printFirmware() {
     char version[8], model[16], RAVersion[8], DEVersion[8];
-    bool isGem;
+    bool isGem = false;
 
     printf("Getting controller version...\n");
     if (!getVersion(version, 8))
         return false;
-    _info->Version = version;
-    _info->controllerVersion = atof(version);
+    float controllerVersion = atof(version);
 
     printf("Getting controller variant...\n");
-    _info->controllerVariant = ISNEXSTAR;
-    getVariant(&(_info->controllerVariant));
+    char controllerVariant = ISNEXSTAR;
+    getVariant(&controllerVariant);
 
-    if (((_info->controllerVariant == ISSTARSENSE) &&
-          _info->controllerVersion >= MINSTSENSVER) ||
-         (_info->controllerVersion >= 2.2) ) {
+    if (((controllerVariant == ISSTARSENSE) &&
+          controllerVersion >= MINSTSENSVER) ||
+         (controllerVersion >= 2.2) ) {
         printf("Getting controller model...\n");
         if (!getModel(model, 16, &isGem))
             return false;
-        _info->Model = model;
-        _info->isGem = isGem;
-    }
-    else {
-        _info->Model = "Unknown";
-        _info->isGem = false;
     }
 
     printf("Getting RA firmware version...\n");
     if (!getDevFirmware(CELESTRON_DEV_RA, RAVersion, 8))
         return false;
-    _info->RAFirmware = RAVersion;
 
     printf("Getting DEC firmware version...\n");
     if (!getDevFirmware(CELESTRON_DEV_DEC, DEVersion, 8))
         return false;
-    _info->DEFirmware = DEVersion;
 
     printf("Firmware Info HC Ver %s model %s %s %s mount, HW Ver %s\n",
-            _info->Version.c_str(),
-            _info->Model.c_str(),
-            _info->controllerVariant == ISSTARSENSE ? "StarSense" : "NexStar",
-            _info->isGem ? "GEM" : "Fork",
-            _info->RAFirmware.c_str());
+            version,
+            model,
+            controllerVariant == ISSTARSENSE ? "StarSense" : "NexStar",
+            isGem ? "GEM" : "Fork",
+            RAVersion);
 
     return true;
 }

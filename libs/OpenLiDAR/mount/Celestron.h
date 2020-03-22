@@ -1,23 +1,9 @@
 #pragma once
 
-#include <string>
-
-typedef enum { GPS_OFF, GPS_ON } CELESTRON_GPS_STATUS;
 typedef enum { SR_1, SR_2, SR_3, SR_4, SR_5, SR_6, SR_7, SR_8, SR_9 } CELESTRON_SLEW_RATE;
 typedef enum { TRACKING_OFF, TRACK_ALTAZ, TRACK_EQN, TRACK_EQS } CELESTRON_TRACK_MODE;
 typedef enum { RA_AXIS, DEC_AXIS } CELESTRON_AXIS;
 typedef enum { CELESTRON_N, CELESTRON_S, CELESTRON_W, CELESTRON_E } CELESTRON_DIRECTION;
-typedef enum { FW_MODEL, FW_VERSION, FW_GPS, FW_RA, FW_DEC } CELESTRON_FIRMWARE;
-
-typedef struct {
-    std::string Model;
-    std::string Version;
-    std::string RAFirmware;
-    std::string DEFirmware;
-    float controllerVersion;
-    char controllerVariant;
-    bool isGem;
-} FirmwareInfo;
 
 class Celestron {
 public:
@@ -41,7 +27,7 @@ public:
     bool        gotoRADec(double _ra, double _dec);
     bool        gotoAzAlt(double _az, double _alt);
 
-    bool        getFirmware(FirmwareInfo* _info);
+    bool        printFirmware();
     bool        getVersion(char* _version, int _size);
     bool        getVariant(char* _variant);
     bool        getModel(char* _model, int _size, bool* _isGem);

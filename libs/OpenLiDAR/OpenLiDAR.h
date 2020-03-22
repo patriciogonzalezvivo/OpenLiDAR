@@ -3,10 +3,8 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "Celestron.h"
-#include "rplidar.h"
-
-using namespace rp::standalone::rplidar;
+#include "mount/Celestron.h"
+#include "sensor/RPLidar.h"
 
 class OpenLiDAR {
 public:
@@ -27,7 +25,7 @@ protected:
     double          m_alt;
 
     Celestron*      m_mount;
-    RPlidarDriver*  m_lidar;
+    RPLidar*        m_lidar;
 
     bool            m_scanning;
 };
