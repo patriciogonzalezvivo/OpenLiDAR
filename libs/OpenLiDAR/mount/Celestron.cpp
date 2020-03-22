@@ -131,7 +131,6 @@ int Celestron::send_passthrough(  int _dest, int _cmd_id,
 }
 
 Celestron::Celestron() :
-    m_slewRate(0),
     m_fd(0) {
 }
 

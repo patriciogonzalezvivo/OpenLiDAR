@@ -18,7 +18,7 @@ public:
 
     bool    isScanning() { return m_scanning; }
 
-    std::vector<glm::vec3> scan(CELESTRON_SLEW_RATE _rate);
+    std::vector<glm::vec3> scan(float _loop = 0.5, float _speed = 0.5);
     bool    reset();
 
 protected:

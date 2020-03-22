@@ -58,6 +58,5 @@ private:
     int         send_command(const char *_cmd, int _cmd_len, char *_resp, int _resp_len);
     int         send_passthrough(int _dest, int _cmd_id, const char *_payload, int _payload_len, char *_response, int _response_len);
 
-    int         m_slewRate;     /* Rate for slew request in StartSlew */
     int         m_fd = 0;
 };

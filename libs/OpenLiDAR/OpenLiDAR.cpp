@@ -85,7 +85,7 @@ bool OpenLiDAR::connect() {
                 }
             }
         }
-        
+
         if (lidar_port == -1) {
             std::cerr << "Can't find Sensor port" << std::endl;
             delete m_lidar;
@@ -145,7 +145,10 @@ void OpenLiDAR::disconnect() {
     }
 }
 
-std::vector<glm::vec3> OpenLiDAR::scan(CELESTRON_SLEW_RATE _rate) {
+std::vector<glm::vec3> OpenLiDAR::scan(float _loop, float _speed) {
+    CELESTRON_SLEW_RATE rate = CELESTRON_SLEW_RATE(ceil(_speed * SR_9));
+    int max_angle = ceil(360 * _loop);
+
     std::vector<glm::vec3> points;
 
     m_az = 0.0;
@@ -158,8 +161,8 @@ std::vector<glm::vec3> OpenLiDAR::scan(CELESTRON_SLEW_RATE _rate) {
         if ((az != m_az) && (alt != m_alt))
             m_mount->gotoAzAlt(m_az, m_alt);
 
-        // Move the mount WEST at the speed specify by the user (_rate)
-        m_mount->move(CELESTRON_W, _rate);
+        // Move the mount WEST at the speed specify by the user (rate)
+        m_mount->move(CELESTRON_W, rate);
     }
     else
         std::cout << "Mount connection lost" << std::endl;
@@ -173,7 +176,7 @@ std::vector<glm::vec3> OpenLiDAR::scan(CELESTRON_SLEW_RATE _rate) {
         size_t   count;
 
         // fetch result and print it out...
-        while (m_scanning && m_az < MOUNT_TURN) {
+        while (m_scanning && m_az < max_angle) {
             // Get mount azimuth angle
             m_mount->getAzAlt(&m_az, &m_alt);
             glm::quat lng = glm::angleAxis(float(glm::radians(-m_az)), glm::vec3(0.0,1.0,0.0));
@@ -205,11 +208,9 @@ std::vector<glm::vec3> OpenLiDAR::scan(CELESTRON_SLEW_RATE _rate) {
 bool OpenLiDAR::reset() {
     if (m_mount) {
         m_mount->move(CELESTRON_E, SR_9);
-        while (m_az < MOUNT_TURN + 10) {
+        while (m_az > 5.) {
             usleep(1000);
             m_mount->getAzAlt(&m_az, &m_alt);
-            if (m_az < 2.0)
-                break;
         }
         m_mount->stop(CELESTRON_E);
     }
