@@ -18,6 +18,21 @@ The STL model is based on [this thingiverse project](https://www.thingiverse.com
 
 # Installation
 
+Clone this repository:
+
+```bash
+git clone https://github.com/patriciogonzalezvivo/OpenLiDAR.git
+```
+
+Install dependencies:
+
+```bash
+sudo apt install cmake libpcl-dev libglm-dev
+```
+
+
+Give your user permission to access the USB ports:
+
 ```bash
 sudo usermod -a -G dialout $USER
 ```
