@@ -2,7 +2,7 @@
 
 Open platform for automating LiDAR scanns with DIY devices. 
 
-The hardware setup basically consist on an affordable 360 LiDAR sensor attached to a mount that spins it around in a control way. The `OpenLiDAR.h` class reflect this configuration, although for my personal setup I'm using a [RPLiDAR A1](https://www.dfrobot.com/search-RPLIDAR.html) together with a [Motorize Celestron Telescope Mount](https://www.ebay.com/itm/Celestron-Astro-Fi-Computerized-GoTo-Mount-Complete-Mount-NEW/402029171407?_trkparms=aid%3D111001%26algo%3DREC.SEED%26ao%3D1%26asc%3D20160811114145%26meid%3Dac0b70c81d164dd9bf6b6775530718f0%26pid%3D100667%26rk%3D2%26rkt%3D8%26mehot%3Dnone%26sd%3D303235523326%26itm%3D402029171407%26pmt%3D0%26noa%3D1%26pg%3D2334524&_trksid=p2334524.c100667.m2042) I'm designing the library to be easy to extend and modularize with the hope others will contribute their own configurations.
+The hardware setup basically consist on an affordable 360 LiDAR sensor attached to a mount that spins it around in a control way. The `OpenLiDAR.h` class reflect this configuration, although for my personal setup I'm using a [RPLiDAR A1](https://www.dfrobot.com/search-RPLIDAR.html) together with a [Motorize Celestron Telescope Mount](https://www.ebay.com/sch/i.html?_from=R40&_trksid=p2334524.m570.l1313.TR4.TRC0.A0.H0.Xcelestron+mount.TRS1&_nkw=celestron+mount&_sacat=0&LH_TitleDesc=0&_osacat=0&_odkw=celestron+goto) I'm designing the library to be easy to extend and modularize with the hope others will contribute their own configurations.
 
 ## My setup
 
