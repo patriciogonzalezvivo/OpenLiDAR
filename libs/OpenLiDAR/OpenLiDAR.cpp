@@ -47,20 +47,13 @@ bool OpenLiDAR::connect(const char* _celestronPort, const char* _rplidarPort) {
 
         if (!m_mount->connect(_celestronPort)) {
             std::cerr << "Can't find Celestron Mount in " << _celestronPort << std::endl;
-            // return false;
             delete m_mount;
             m_mount = NULL;
         }
-        else {
-            // Stop any movement on the mount
-            m_mount->abort();
-
-            // Get mount information
+        else
             m_mount->printFirmware();
-        }
     }
     
-
     //  LIDAR
     // -------------------------------------------------------
     if (!m_lidar) {
@@ -68,17 +61,14 @@ bool OpenLiDAR::connect(const char* _celestronPort, const char* _rplidarPort) {
 
         if (!m_lidar->connect(_rplidarPort)) {
             std::cerr << "Can't find RPLidar Sensor in " << _rplidarPort << std::endl;
-            // return false;
             delete m_lidar;
             m_lidar = NULL;
         }
-        else {
-            // Get mount information
+        else 
             m_lidar->printFirmware();
-        }
     }
 
-    return (m_lidar != NULL);// && (m_mount != NULL);
+    return (m_lidar != NULL) && (m_mount != NULL);
 }
 
 void OpenLiDAR::disconnect() {
