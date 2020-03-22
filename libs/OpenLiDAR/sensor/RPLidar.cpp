@@ -41,18 +41,22 @@ RPLidar::~RPLidar() {
 }
 
 bool RPLidar::connect(const char* _portName) {
+    // Connecting to RPLiDAR device
+    _u32         baudrateArray[2] = {115200, 256000};
+    u_result     op_result;
+
     std::cout << "RPLIDAR SDK Version: " << RPLIDAR_SDK_VERSION << std::endl;
 
-    // Attempt to connect at different rates
-    _u32   baudrateArray[2] = {115200, 256000};
+    // make connection...
+    rplidar_response_device_info_t devinfo;
     size_t baudRateArraySize = (sizeof(baudrateArray))/ (sizeof(baudrateArray[0]));
+
     for (size_t i = 0; i < baudRateArraySize; ++i) {
         if (!m_driver)
             m_driver = RPlidarDriver::CreateDriver(DRIVER_TYPE_SERIALPORT);
 
         if (IS_OK(m_driver->connect(_portName, baudrateArray[i]))) {
-            rplidar_response_device_info_t devinfo;
-            u_result op_result = m_driver->getDeviceInfo(devinfo);
+            op_result = m_driver->getDeviceInfo(devinfo);
 
             if (IS_OK(op_result)) {
                 m_connected = true;

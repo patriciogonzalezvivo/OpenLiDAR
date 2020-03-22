@@ -76,16 +76,21 @@ bool OpenLiDAR::connect() {
     // -------------------------------------------------------
     if (!m_lidar) {
         m_lidar = new RPLidar();
-
         for (int i = 0; i < TOTAL_PORTS; i++) {
             if (mount_port != i) {
                 if (m_lidar->connect(ports[i])) {
-                    lidar_port = -1;
+                    lidar_port = i;
                     m_lidar->printFirmware();
                     break;
                 }
             }
-        }            
+        }
+        
+        if (lidar_port == -1) {
+            std::cerr << "Can't find Sensor port" << std::endl;
+            delete m_lidar;
+            m_lidar = NULL;
+        }        
     }
 
     return (m_lidar != NULL) && (m_mount != NULL);
