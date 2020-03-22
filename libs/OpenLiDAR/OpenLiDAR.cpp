@@ -36,6 +36,41 @@ OpenLiDAR::~OpenLiDAR(){
     disconnect();
 }
 
+bool OpenLiDAR::connect() {
+
+    // MOUNT
+    // --------------------------------------------------------
+
+    // Connecting to the Celestron Mount
+    if (!m_mount) {
+        m_mount = new Celestron();
+
+        if (!m_mount->autoconnect()) {
+            std::cerr << "Can't find Celestron Mount port" << std::endl;
+            delete m_mount;
+            m_mount = NULL;
+        }
+        else
+            m_mount->printFirmware();
+    }
+    
+    //  LIDAR
+    // -------------------------------------------------------
+    if (!m_lidar) {
+        m_lidar = new RPLidar();
+
+        if (!m_lidar->autoconnect()) {
+            std::cerr << "Can't find RPLidar Sensor port " << std::endl;
+            delete m_lidar;
+            m_lidar = NULL;
+        }
+        else 
+            m_lidar->printFirmware();
+    }
+
+    return (m_lidar != NULL) && (m_mount != NULL);
+}
+
 bool OpenLiDAR::connect(const char* _celestronPort, const char* _rplidarPort) {
 
     // MOUNT

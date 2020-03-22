@@ -7,7 +7,7 @@ typedef enum { TRACKING_OFF, TRACK_ALTAZ, TRACK_EQN, TRACK_EQS } CELESTRON_TRACK
 typedef enum { RA_AXIS, DEC_AXIS } CELESTRON_AXIS;
 typedef enum { CELESTRON_N, CELESTRON_S, CELESTRON_W, CELESTRON_E } CELESTRON_DIRECTION;
 
-class Celestron : public Driver{
+class Celestron : public Driver {
 public:
     Celestron();
     virtual ~Celestron();

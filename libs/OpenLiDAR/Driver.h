@@ -16,7 +16,7 @@ public:
     Driver(): m_connected(false) {}
     virtual ~Driver() {};
 
-    virtual bool    connect() {
+    virtual bool    autoconnect() {
         for (int i = 0; i < TOTAL_PORTS; i++) {
             if (connect(ports[i])) {
                 return true;
@@ -26,12 +26,9 @@ public:
         return false;
     };
 
-    virtual bool    connect(const char* _portName) { 
-        std::cout << "IMPLEMENT CONNECT" << std::endl;
-        return false; 
-    };
-    virtual void    disconnect() {};
-    virtual bool    printFirmware() { return false; };
+    virtual bool    connect(const char* _portName) = 0;
+    virtual void    disconnect() = 0;
+    virtual bool    printFirmware() = 0;
 
 protected:
     bool m_connected;
