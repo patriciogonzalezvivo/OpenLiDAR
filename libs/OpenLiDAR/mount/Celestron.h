@@ -1,11 +1,13 @@
 #pragma once
 
+#include "../Driver.h"
+
 typedef enum { SR_1, SR_2, SR_3, SR_4, SR_5, SR_6, SR_7, SR_8, SR_9 } CELESTRON_SLEW_RATE;
 typedef enum { TRACKING_OFF, TRACK_ALTAZ, TRACK_EQN, TRACK_EQS } CELESTRON_TRACK_MODE;
 typedef enum { RA_AXIS, DEC_AXIS } CELESTRON_AXIS;
 typedef enum { CELESTRON_N, CELESTRON_S, CELESTRON_W, CELESTRON_E } CELESTRON_DIRECTION;
 
-class Celestron {
+class Celestron : public Driver{
 public:
     Celestron();
     virtual ~Celestron();
@@ -58,6 +60,4 @@ private:
 
     int         m_slewRate;     /* Rate for slew request in StartSlew */
     int         m_fd = 0;
-
-    bool        m_connected;
 };

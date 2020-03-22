@@ -31,8 +31,7 @@ bool checkRPLIDARHealth(RPlidarDriver * _drv) {
 }
 
 RPLidar::RPLidar():
-m_driver(NULL),
-m_connected(false)
+m_driver(NULL)
 {
 
 }

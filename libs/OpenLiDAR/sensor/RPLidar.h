@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Driver.h"
 #include "rplidar.h"
 
 #ifndef RPLIDAR_MAXSAMPLES
@@ -13,7 +14,7 @@ struct LidarSample {
 
 using namespace rp::standalone::rplidar;
 
-class RPLidar {
+class RPLidar : public Driver {
 public:
 
     RPLidar();
@@ -32,6 +33,4 @@ public:
 protected:
     rplidar_response_measurement_node_hq_t m_nodes[RPLIDAR_MAXSAMPLES];
     RPlidarDriver*  m_driver;
-
-    bool m_connected;
 };
