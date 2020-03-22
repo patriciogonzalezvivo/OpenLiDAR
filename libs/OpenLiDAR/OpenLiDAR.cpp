@@ -24,6 +24,15 @@
 #define MOUNT_TURN 200.0
 #endif
 
+#ifndef TOTAL_PORTS 
+#define TOTAL_PORTS 2
+#endif
+
+static char* ports[TOTAL_PORTS] = {
+    (char*)"/dev/ttyUSB0", 
+    (char*)"/dev/ttyUSB1"
+};
+
 OpenLiDAR::OpenLiDAR() : 
     m_az(0.0),
     m_alt(0.0),
@@ -38,6 +47,9 @@ OpenLiDAR::~OpenLiDAR(){
 
 bool OpenLiDAR::connect() {
 
+    int mount_port = -1;
+    int lidar_port = -1;
+
     // MOUNT
     // --------------------------------------------------------
 
@@ -45,13 +57,19 @@ bool OpenLiDAR::connect() {
     if (!m_mount) {
         m_mount = new Celestron();
 
-        if (!m_mount->autoconnect()) {
+        for (int i = 0; i < TOTAL_PORTS; i++) {
+            if (m_mount->connect(ports[i])) {
+                mount_port = i;
+                m_mount->printFirmware();
+                break;
+            }
+        }
+
+        if (mount_port == -1) {
             std::cerr << "Can't find Celestron Mount port" << std::endl;
             delete m_mount;
             m_mount = NULL;
         }
-        else
-            m_mount->printFirmware();
     }
     
     //  LIDAR
@@ -59,13 +77,15 @@ bool OpenLiDAR::connect() {
     if (!m_lidar) {
         m_lidar = new RPLidar();
 
-        if (!m_lidar->autoconnect()) {
-            std::cerr << "Can't find RPLidar Sensor port " << std::endl;
-            delete m_lidar;
-            m_lidar = NULL;
-        }
-        else 
-            m_lidar->printFirmware();
+        for (int i = 0; i < TOTAL_PORTS; i++) {
+            if (mount_port != i) {
+                if (m_lidar->connect(ports[i])) {
+                    lidar_port = -1;
+                    m_lidar->printFirmware();
+                    break;
+                }
+            }
+        }            
     }
 
     return (m_lidar != NULL) && (m_mount != NULL);
@@ -136,6 +156,8 @@ std::vector<glm::vec3> OpenLiDAR::scan(CELESTRON_SLEW_RATE _rate) {
         // Move the mount WEST at the speed specify by the user (_rate)
         m_mount->move(CELESTRON_W, _rate);
     }
+    else
+        std::cout << "Mount connection lost" << std::endl;
 
     if (m_lidar) {
         // Start motor...
@@ -169,6 +191,8 @@ std::vector<glm::vec3> OpenLiDAR::scan(CELESTRON_SLEW_RATE _rate) {
         if (m_mount)
             m_mount->stop(CELESTRON_W);
     }
+    else
+        std::cout << "Sensor connection lost" << std::endl;
 
     return points;
 }
