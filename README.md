@@ -1,3 +1,5 @@
+![](images/00.gif)
+
 # OpenLiDAR
 
 Open platform for automating LiDAR scanns with DIY devices. 
