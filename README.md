@@ -5,20 +5,12 @@
 * [RPLiDAR A1/A2/A3](https://www.dfrobot.com/search-RPLIDAR.html) depending your needs and budge
 * 3D Print the model on the `models/` folder
 
-## About NexStar 
+## Drivers
 
 The `Celestron` driver sends [serial commands to the Celestron HandController](http://www.nexstarsite.com/download/manuals/NexStarCommunicationProtocolV1.2.zip) though the Mini-USB port at the bottom of it.
-
-Most of this part of the code is scrapped from [INDI framework](https://github.com/jochym/indi-base/blob/master/libindi/obsolete/celestronprotocol.h).
-
-## About the 3D model to print
-
-The STL model is based on [this thingiverse project](https://www.thingiverse.com/thing:3970110) by [Robotics Weekends](https://www.thingiverse.com/Robotics_Weekends/about)
-
 
 # Installation
 
 ```bash
-sudo usermod -a -G tty $USER
 sudo usermod -a -G dialout $USER
 ```
