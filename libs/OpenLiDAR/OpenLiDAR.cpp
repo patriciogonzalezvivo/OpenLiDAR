@@ -114,13 +114,13 @@ std::vector<glm::vec3> OpenLiDAR::scan(CELESTRON_SLEW_RATE _rate) {
         while (m_scanning && m_az < MOUNT_TURN) {
             // Get mount azimuth angle
             m_mount->getAzAlt(&m_az, &m_alt);
-            glm::quat lng = glm::angleAxis(float(glm::radians(m_az)), glm::vec3(0.0,1.0,0.0));
+            glm::quat lng = glm::angleAxis(float(glm::radians(-m_az)), glm::vec3(0.0,1.0,0.0));
 
             
             if (m_lidar->getSamples(samples, count)) {
                 for (size_t i = 0; i < count ; ++i) {
-                    glm::quat lat = glm::angleAxis(glm::radians(samples[i].theta), glm::vec3(1.0,0.0,0.0));
-                    glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, -samples[i].distance) + glm::vec3(MOUNT_OFFSET_X, MOUNT_OFFSET_Y, MOUNT_OFFSET_Z));
+                    glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
+                    glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + glm::vec3(MOUNT_OFFSET_X, MOUNT_OFFSET_Y, MOUNT_OFFSET_Z));
                     points.push_back(pos);
                 }
             }
