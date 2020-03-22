@@ -18,7 +18,7 @@ float leaf_size = 0.01f; // m
 int main(int argc, char **argv){
 
     OpenLiDAR scanner;
-    if (scanner.connect()) {
+    if (scanner.connect(argv[1], argv[2])) {
         std::cout << "Start Scanning" << std::endl;
         std::vector<glm::vec3> points = scanner.scan(SR_7);
 
