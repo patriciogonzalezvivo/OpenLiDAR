@@ -52,8 +52,9 @@ int main(int argc, char **argv){
     OpenLiDAR scanner;
     if (scanner.connect()) {
         std::cout << "Start Scanning" << std::endl;
+
         // Scan 75% loop at half speed
-        std::vector<glm::vec4> points = scanner.scan(.9, .75);
+        std::vector<glm::vec4> points = scanner.scan(loop, speed);
         float time_end = points[points.size()-1].w;
 
         std::cout << "Got " << points.size() << " points" << std::endl;
