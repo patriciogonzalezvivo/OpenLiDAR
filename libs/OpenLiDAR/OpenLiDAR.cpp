@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <iostream>
 
+#include "tools.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/quaternion.hpp"
@@ -145,11 +147,12 @@ void OpenLiDAR::disconnect() {
     }
 }
 
-std::vector<glm::vec3> OpenLiDAR::scan(float _loop, float _speed) {
+std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
     CELESTRON_SLEW_RATE rate = CELESTRON_SLEW_RATE(ceil(_speed * SR_9));
     int max_angle = ceil(360 * _loop);
+    double time_start = getElapsedSeconds();
 
-    std::vector<glm::vec3> points;
+    std::vector<glm::vec4> points;
 
     m_az = 0.0;
     m_alt = 0.0;
@@ -181,16 +184,32 @@ std::vector<glm::vec3> OpenLiDAR::scan(float _loop, float _speed) {
             m_mount->getAzAlt(&m_az, &m_alt);
             glm::quat lng = glm::angleAxis(float(glm::radians(-m_az)), glm::vec3(0.0,1.0,0.0));
 
-            
             if (m_lidar->getSamples(samples, count)) {
                 for (size_t i = 0; i < count ; ++i) {
                     glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
                     glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + glm::vec3(MOUNT_OFFSET_X, MOUNT_OFFSET_Y, MOUNT_OFFSET_Z));
-                    points.push_back(pos);
+                    float time = getElapsedSeconds() - time_start;
+                    points.push_back( glm::vec4(pos, time) );
                 }
             }
 
-            std::cout << "az:  " << m_az << " alt: " << m_alt << " points: " << points.size() << std::endl;
+
+            // Delete previous line
+            const std::string deleteLine = "\e[2K\r\e[1A";
+            std::cout << deleteLine;
+
+            int pct = (m_az/max_angle) * 100;
+            
+            std::cout << "// [ ";
+            for (int i = 0; i < 50; i++) {
+                if (i < pct/2) {
+                    std::cout << "#";
+                }
+                else {
+                    std::cout << ".";
+                }
+            }
+            std::cout << " ] az: " << m_az << " alt: " << m_alt << " pts: " << points.size() << std::endl;
         }
 
         m_lidar->stop();
