@@ -17,10 +17,16 @@ public:
 
     bool    isScanning() { return m_scanning; }
 
+    void    setOffsetX(float _x) { m_offset.x = _x; }
+    void    setOffsetY(float _y) { m_offset.x = _y; }
+    void    setOffsetZ(float _z) { m_offset.x = -_z; }
+    glm::vec3   getOffset() { return m_offset; }
+
     std::vector<glm::vec4> scan(float _loop = 0.5, float _speed = 0.5);
     bool    reset();
 
 protected:
+    glm::vec3       m_offset;
     double          m_az;
     double          m_alt;
 

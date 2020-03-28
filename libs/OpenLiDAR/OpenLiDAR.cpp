@@ -10,32 +10,17 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-#ifndef MOUNT_OFFSET_X
-#define MOUNT_OFFSET_X 0.06
-#endif
+// #ifndef TOTAL_PORTS 
+// #define TOTAL_PORTS 2
+// #endif
 
-#ifndef MOUNT_OFFSET_Y
-#define MOUNT_OFFSET_Y 0.0
-#endif
-
-#ifndef MOUNT_OFFSET_Z
-#define MOUNT_OFFSET_Z -0.12
-#endif
-
-#ifndef MOUNT_TURN
-#define MOUNT_TURN 200.0
-#endif
-
-#ifndef TOTAL_PORTS 
-#define TOTAL_PORTS 2
-#endif
-
-static char* ports[TOTAL_PORTS] = {
-    (char*)"/dev/ttyUSB0", 
-    (char*)"/dev/ttyUSB1"
-};
+// static char* ports[TOTAL_PORTS] = {
+//     (char*)"/dev/ttyUSB0", 
+//     (char*)"/dev/ttyUSB1"
+// };
 
 OpenLiDAR::OpenLiDAR() : 
+    m_offset(0.06, 0.0, -0.12),
     m_az(0.0),
     m_alt(0.0),
     m_mount(NULL),
@@ -138,7 +123,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
             if (m_lidar->getSamples(samples, count)) {
                 for (size_t i = 0; i < count ; ++i) {
                     glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
-                    glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + glm::vec3(MOUNT_OFFSET_X, MOUNT_OFFSET_Y, MOUNT_OFFSET_Z));
+                    glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + m_offset);
                     points.push_back( glm::vec4(pos, time) );
                 }
             }

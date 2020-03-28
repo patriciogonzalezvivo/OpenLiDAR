@@ -45,6 +45,8 @@ std::string getUniqueFileName( const std::string& _originalName, const std::stri
 // Main program
 //============================================================================
 int main(int argc, char **argv){
+    OpenLiDAR scanner;
+
     std::string portMount = "/dev/ttyUSB0";
     std::string portLidar = "/dev/ttyUSB1";
     std::string filename = "point_cloud";
@@ -52,6 +54,7 @@ int main(int argc, char **argv){
     float speed = 0.75f;
     float leaf = 0.01f; // m
     bool bNormal = false;
+
 
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
@@ -90,11 +93,23 @@ int main(int argc, char **argv){
             else
                 std::cout << "Argument '" << argument << "' should be followed by a the leaf size (expressed in meters) for the voxel grid. Default is" << leaf << std::endl;
         }
+        else if ( std::string(argv[i]) == "--offsetX" ) {
+            if (++i < argc)
+                scanner.setOffsetX( toFloat(std::string(argv[i])) );
+        }
+        else if ( std::string(argv[i]) == "--offsetY" ) {
+            if (++i < argc)
+                scanner.setOffsetY( toFloat(std::string(argv[i])) );
+        }
+        else if ( std::string(argv[i]) == "--offsetZ" ) {
+            if (++i < argc)
+                scanner.setOffsetZ( toFloat(std::string(argv[i])) );
+        }
         else if ( std::string(argv[i]) == "--normals" )
             bNormal = true;
     }
 
-    OpenLiDAR scanner;
+    
     if (scanner.connect(portMount.c_str(), portLidar.c_str())) {
         std::cout << "Start Scanning" << std::endl;
 
@@ -155,7 +170,7 @@ int main(int argc, char **argv){
 
         std::cout << "Reset scanner" << std::endl;
         scanner.reset();
-        // scanner.disconnect();
+        scanner.disconnect();
     }
 
     return 0;
