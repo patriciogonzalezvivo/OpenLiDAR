@@ -70,17 +70,34 @@ std::string getUniqueFileName( const std::string& _originalName) {
 // Main program
 //============================================================================
 int main(int argc, char **argv){
-    float loop = 0.9f;
-    float speed = 0.75f;
-    float leaf = 0.01f; // m
     std::string portMount = "/dev/ttyUSB0";
     std::string portLidar = "/dev/ttyUSB1";
     std::string filename = "point_cloud";
+    float loop = 0.9f;
+    float speed = 0.75f;
+    float leaf = 0.01f; // m
+    bool bNormal = false;
 
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
 
-        if ( std::string(argv[i]) == "--loop" ) {
+        if ( std::string(argv[i]) == "--mount" ) {
+            if (++i < argc)
+                portMount = std::string(argv[i]);
+            else
+                std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the mount device. Default is " << portMount << std::endl;
+        }
+        else if ( std::string(argv[i]) == "--lidar" ) {
+            if (++i < argc)
+                portLidar = std::string(argv[i]);
+            else
+                std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the lidar device. Default is " << portLidar << std::endl;
+        }
+        else if ( std::string(argv[i]) == "--out" ) {
+            if (++i < argc)
+                filename = std::string(argv[i]);
+        }
+        else if ( std::string(argv[i]) == "--loop" ) {
             if (++i < argc)
                 loop = toFloat(std::string(argv[i]));
             else
@@ -98,22 +115,8 @@ int main(int argc, char **argv){
             else
                 std::cout << "Argument '" << argument << "' should be followed by a the leaf size (expressed in meters) for the voxel grid. Default is" << leaf << std::endl;
         }
-        else if ( std::string(argv[i]) == "--mount" ) {
-            if (++i < argc)
-                portMount = std::string(argv[i]);
-            else
-                std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the mount device. Default is " << portMount << std::endl;
-        }
-        else if ( std::string(argv[i]) == "--lidar" ) {
-            if (++i < argc)
-                portLidar = std::string(argv[i]);
-            else
-                std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the lidar device. Default is " << portLidar << std::endl;
-        }
-        else if ( std::string(argv[i]) == "--out" ) {
-            if (++i < argc)
-                filename = std::string(argv[i]);
-        }
+        else if ( std::string(argv[i]) == "--normals" )
+            bNormal = true;
     }
 
     OpenLiDAR scanner;
@@ -146,26 +149,34 @@ int main(int argc, char **argv){
                 vg_filter.setLeafSize (leaf, leaf, leaf);
                 pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZRGB> );
                 vg_filter.filter(*cloud_filtered);
-                cloud = cloud_filtered;
+                *cloud = *cloud_filtered;
             }
             
-            // // Normal estimation*
-            pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> n;
-            pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
-            pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
-            tree->setInputCloud (cloud);
-            n.setInputCloud (cloud);
-            n.setSearchMethod (tree);
-            n.setKSearch (10);
-            n.compute (*normals);
-
-            // Concatenate the XYZ and normal fields*
-            pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointXYZRGBNormal>);
-            pcl::concatenateFields (*cloud, *normals, *cloud_with_normals);
-
             filename = getUniqueFileName(filename);
-            std::cout << "Saving points on " << filename << std::endl;
-            pcl::io::savePLYFile(filename, *cloud_with_normals, false);
+
+            if (bNormal) {
+                std::cout << "Estimating normals" << std::endl;
+                // // Normal estimation*
+                pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> n;
+                pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
+                pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
+                tree->setInputCloud (cloud);
+                n.setInputCloud (cloud);
+                n.setSearchMethod (tree);
+                n.setKSearch (10);
+                n.compute (*normals);
+
+                // Concatenate the XYZ and normal fields*
+                pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+                pcl::concatenateFields (*cloud, *normals, *cloud_with_normals);
+
+                std::cout << "Saving points on " << filename << std::endl;
+                pcl::io::savePLYFile(filename, *cloud_with_normals, false);
+            }
+            else {
+                std::cout << "Saving points on " << filename << std::endl;
+                pcl::io::savePLYFile(filename, *cloud, false);
+            }
         }
 
         std::cout << "Reset scanner" << std::endl;
