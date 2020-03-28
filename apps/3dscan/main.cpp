@@ -11,22 +11,60 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 
-// glm::vec3 hsv2rgb(const glm::vec3& _hsb) {
-//     glm::vec3 rgb = glm::clamp(   glm::abs(glm::mod(  glm::vec3(_hsb.x) * glm::vec3(6.) + glm::vec3(0., 4., 2.), 
-//                                                     glm::vec3(6.)) - glm::vec3(3.) ) - glm::vec3(1.),
-//                                 glm::vec3(0.),
-//                                 glm::vec3(1.));
-//     #ifdef HSV2RGB_SMOOTH
-//     rgb = rgb*rgb*(3. - 2. * rgb);
-//     #endif
-//     return glm::vec3(_hsb.z) * glm::mix(glm::vec3(1.), rgb, _hsb.y);
-// }
+glm::vec3 hsv2rgb(const glm::vec3& _hsb) {
+    glm::vec3 rgb = glm::clamp(   glm::abs(glm::mod(    glm::vec3(_hsb.x) * glm::vec3(6.) + glm::vec3(0., 4., 2.), 
+                                                        glm::vec3(6.)) - glm::vec3(3.) ) - glm::vec3(1.),
+                                glm::vec3(0.),
+                                glm::vec3(1.));
+    #ifdef HSV2RGB_SMOOTH
+    rgb = rgb*rgb*(3. - 2. * rgb);
+    #endif
+    return glm::vec3(_hsb.z) * glm::mix(glm::vec3(1.), rgb, _hsb.y);
+}
 
-glm::vec3 hue(float _hue) {
-    float R = abs(_hue * 6 - 3) - 1;
-    float G = 2 - abs(_hue * 6 - 2);
-    float B = 2 - abs(_hue * 6 - 4);
-    return glm::clamp(glm::vec3(R,G,B), glm::vec3(0.0), glm::vec3(1.0));
+glm::vec3 toRGB(    double _hue,         // _hue in radians 
+                    double _saturation, // satuation 0.0 = gray, 1.0 = saturated
+                    double _value       // _value     
+                ) 
+{
+    int i;
+    double f, p, q, t, r, g, b;
+    if ( _saturation <= 1.0/256.0 ) {
+        r = _value;
+        g = _value;
+        b = _value;
+    }
+    else  {
+        _hue *= 3.0 / M_PI;  // (6.0 / 2.0 * M_PI);
+        i = (int)floor(_hue);
+        if ( i < 0 || i > 5 ) {
+            _hue = fmod(_hue,6.0);
+            if ( _hue < 0.0 )
+                _hue += 6.0;
+            i = (int)floor(_hue);
+        }    
+        f = _hue - i;    
+        p = _value * ( 1.0 - _saturation);
+        q = _value * ( 1.0 - ( _saturation * f) );
+        t = _value * ( 1.0 - ( _saturation * ( 1.0 - f) ) );
+        switch( i) {
+            case 0:
+                r = _value; g = t; b = p; break;      
+            case 1:
+                r = q; g = _value; b = p; break;
+            case 2:
+                r = p; g = _value; b = t; break;
+            case 3:
+                r = p; g = q; b = _value; break;
+            case 4:
+                r = t; g = p; b = _value; break;
+            case 5:
+                r = _value; g = p; b = q; break;      
+            default:
+                r = 0; g = 0; b = 0; break; // to keep lint quiet
+        }
+    }
+    return glm::vec3(r,g,b);
 }
 
 uint32_t packRGB(uint8_t _r, uint8_t _g, uint8_t _b) {
@@ -141,7 +179,7 @@ int main(int argc, char **argv){
                 cloud->points[i].x = points[i].x;
                 cloud->points[i].y = points[i].y;
                 cloud->points[i].z = points[i].z;
-                cloud->points[i].rgb = packRGB(hue(points[i].w/time_end));
+                cloud->points[i].rgb = packRGB( toRGB( (points[i].w/time_end) * M_PI * 2.0, 1.0, 1.0 ));
             }
 
             if (leaf > 0.0) {
