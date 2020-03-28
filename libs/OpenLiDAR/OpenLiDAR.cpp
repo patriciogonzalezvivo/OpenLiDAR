@@ -158,7 +158,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
                     std::cout << ".";
                 }
             }
-            std::cout << " ] sec: " << time << " az: " << m_az << " alt: " << m_alt << " pts: " << points.size() << std::endl;
+            std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << " pts: " << points.size() << std::endl;
         }
 
         m_lidar->stop();

@@ -16,3 +16,21 @@ double getElapsedSeconds() {
     }
     return double(temp.tv_sec) + double(temp.tv_nsec/1000000000.);
 }
+
+std::string toMMSS(int _secs) {
+    int hour = _secs/3600;
+    _secs = _secs%3600;
+    int min = _secs/60;
+    _secs = _secs%60;
+    int sec = _secs;
+    return toString(min, 0, 2, '0') + ":" + toString(sec, 0, 2, '0');
+}
+
+std::string toHHMMSS(int _secs) {
+    int hour = _secs/3600;
+    _secs = _secs%3600;
+    int min = _secs/60;
+    _secs = _secs%60;
+    int sec = _secs;
+    return toString(hour, 0, 2, '0') + ":" + toString(min, 0, 2, '0') + ":" + toString(sec, 0, 2, '0');
+}
