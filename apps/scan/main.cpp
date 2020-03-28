@@ -72,7 +72,7 @@ std::string getUniqueFileName( const std::string& _originalName) {
 int main(int argc, char **argv){
     float loop = 0.9f;
     float speed = 0.75f;
-    float leaf = 0.01f; // m
+    float leaf = 0.0f; // m
     std::string portMount = "/dev/ttyUSB0";
     std::string portLidar = "/dev/ttyUSB1";
     std::string filename = "point_cloud";
@@ -96,7 +96,7 @@ int main(int argc, char **argv){
             if (++i < argc)
                 leaf = toFloat(std::string(argv[i]));
             else
-                std::cout << "Argument '" << argument << "' should be followed by a the leaf size (expressed in meters) for the voxel grid. Default is " << leaf << std::endl;
+                std::cout << "Argument '" << argument << "' should be followed by a the leaf size (expressed in meters) for the voxel grid. Default is" << leaf << std::endl;
         }
         else if ( std::string(argv[i]) == "--mount" ) {
             if (++i < argc)
@@ -140,26 +140,29 @@ int main(int argc, char **argv){
                 cloud->points[i].z = points[i].z;
                 cloud->points[i].rgb = packRGB(hue(points[i].w/time_end));
             }
-            
-            pcl::VoxelGrid<pcl::PointXYZRGB> vg_filter;
-            vg_filter.setInputCloud (cloud);
-            vg_filter.setLeafSize (leaf, leaf, leaf);
-            pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZRGB> );
-            vg_filter.filter(*cloud_filtered);
 
+            if (leaf > 0.0) {
+                pcl::VoxelGrid<pcl::PointXYZRGB> vg_filter;
+                vg_filter.setInputCloud (cloud);
+                vg_filter.setLeafSize (leaf, leaf, leaf);
+                pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZRGB> );
+                vg_filter.filter(*cloud_filtered);
+                cloud = cloud_filtered;
+            }
+            
             // // Normal estimation*
             pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> n;
             pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
             pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
-            tree->setInputCloud (cloud_filtered);
-            n.setInputCloud (cloud_filtered);
+            tree->setInputCloud (cloud);
+            n.setInputCloud (cloud);
             n.setSearchMethod (tree);
             n.setKSearch (10);
             n.compute (*normals);
 
             // Concatenate the XYZ and normal fields*
             pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointXYZRGBNormal>);
-            pcl::concatenateFields (*cloud_filtered, *normals, *cloud_with_normals);
+            pcl::concatenateFields (*cloud, *normals, *cloud_with_normals);
 
             filename = getUniqueFileName(filename);
             std::cout << "Saving points on " << filename << std::endl;

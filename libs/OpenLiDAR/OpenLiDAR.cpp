@@ -200,7 +200,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
 
             int pct = (m_az/max_angle) * 100;
             
-            std::cout << "// [ ";
+            std::cout << " [ ";
             for (int i = 0; i < 50; i++) {
                 if (i < pct/2) {
                     std::cout << "#";
