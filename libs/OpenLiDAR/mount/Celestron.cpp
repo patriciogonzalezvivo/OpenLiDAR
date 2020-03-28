@@ -141,7 +141,7 @@ Celestron::~Celestron() {
 bool Celestron::connect(const char* _port) {
     struct termios tty;
 
-    fprintf(stderr, "Connecting to port: %s\n", _port);
+    // fprintf(stderr, "Connecting to port: %s\n", _port);
 
     if (m_fd != 0)
         return false;
