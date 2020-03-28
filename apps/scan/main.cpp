@@ -11,8 +11,6 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 
-const float LEAF_SIZE = 0.01f; // m
-
 glm::vec3 hsv2rgb(const glm::vec3& _hsb) {
     glm::vec3 rgb = glm::clamp(   glm::abs(glm::mod(  glm::vec3(_hsb.x) * glm::vec3(6.) + glm::vec3(0., 4., 2.), 
                                                     glm::vec3(6.)) - glm::vec3(3.) ) - glm::vec3(1.),
@@ -45,12 +43,47 @@ float toFloat(const std::string& _string) {
 int main(int argc, char **argv){
     float loop = 0.9f;
     float speed = 0.75f;
+    float leaf = 0.01f; // m
+    std::string portMount = "/dev/ttyUSB0";
+    std::string portLidar = "/dev/ttyUSB1";
 
-    if (argc > 1) loop = toFloat(std::string(argv[1]));
-    if (argc > 2) speed = toFloat(std::string(argv[2]));
+    for (int i = 1; i < argc ; i++) {
+        std::string argument = std::string(argv[i]);
+
+        if ( std::string(argv[i]) == "--loop" ) {
+            if (++i < argc)
+                loop = toFloat(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a the porcentage (expres in a number between 0.0 to 1.0) of a full turn. Default is " << loop << std::endl;
+        }
+        else if ( std::string(argv[i]) == "--speed" ) {
+            if (++i < argc)
+                speed = toFloat(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a the speed (expressed in a number between 0.0 to 1.0) of the speed of the scan. Default is " << speed << std::endl;
+        }
+        else if ( std::string(argv[i]) == "--leaf" ) {
+            if (++i < argc)
+                leaf = toFloat(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a the leaf size (expressed in meters) for the voxel grid. Default is " << leaf << std::endl;
+        }
+        else if ( std::string(argv[i]) == "--mount" ) {
+            if (++i < argc)
+                portMount = std::string(argv[i]);
+            else
+                std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the mount device. Default is " << portMount << std::endl;
+        }
+        else if ( std::string(argv[i]) == "--lidar" ) {
+            if (++i < argc)
+                portLidar = std::string(argv[i]);
+            else
+                std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the lidar device. Default is " << portLidar << std::endl;
+        }
+    }
 
     OpenLiDAR scanner;
-    if (scanner.connect()) {
+    if (scanner.connect(portMount.c_str(), portLidar.c_str())) {
         std::cout << "Start Scanning" << std::endl;
 
         // Scan 75% loop at half speed
@@ -76,7 +109,7 @@ int main(int argc, char **argv){
             
             pcl::VoxelGrid<pcl::PointXYZRGB> vg_filter;
             vg_filter.setInputCloud (cloud);
-            vg_filter.setLeafSize (LEAF_SIZE, LEAF_SIZE, LEAF_SIZE);
+            vg_filter.setLeafSize (leaf, leaf, leaf);
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZRGB> );
             vg_filter.filter(*cloud_filtered);
 
