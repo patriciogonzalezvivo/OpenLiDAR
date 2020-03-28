@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-project(scan)
+project(3dscan)
 
 # PCL
 find_package(PCL 1.2 REQUIRED)
@@ -36,5 +36,5 @@ include_directories(
     ${OPENLIDAR_PATH}
 )
 
-add_executable (scan "apps/scan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
-target_link_libraries (scan ${PCL_LIBRARIES})
+add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
+target_link_libraries (3dscan ${PCL_LIBRARIES})

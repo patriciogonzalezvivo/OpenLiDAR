@@ -170,7 +170,7 @@ int main(int argc, char **argv){
 
         std::cout << "Reset scanner" << std::endl;
         scanner.reset();
-        scanner.disconnect();
+        // scanner.disconnect();
     }
 
     return 0;

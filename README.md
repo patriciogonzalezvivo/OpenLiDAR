@@ -57,10 +57,10 @@ sudo usermod -a -G dialout $USER
 
 Ecosystem of apps to scann and process LiDAR data.
 
-### Scan
+### `3dscan`
 
-Makes a 360 scan. To run you need to the USB addresses of the Celestron mount (first argument) and the RPLiDAR sensor (second argument). In linux systems they are given by the order you plug them. (TODO: I'm working on automatic that)
+Makes a 3D lidar scan. To run you need to the USB addresses of the Celestron mount (first argument) and the RPLiDAR sensor (second argument). In linux systems they are given by the order you plug them. (TODO: I'm working on automatic that)
 
 ```bash
-./scan /dev/ttyUSB0 /dev/ttyUSB1
+./3dscan --mount /dev/ttyUSB1 --lidar /dev/ttyUSB1 -speed 0.9 --loop 0.5 --leaf 0.01 --out point_cloud
 ```
