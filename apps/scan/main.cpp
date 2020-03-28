@@ -72,7 +72,7 @@ std::string getUniqueFileName( const std::string& _originalName) {
 int main(int argc, char **argv){
     float loop = 0.9f;
     float speed = 0.75f;
-    float leaf = 0.0f; // m
+    float leaf = 0.01f; // m
     std::string portMount = "/dev/ttyUSB0";
     std::string portLidar = "/dev/ttyUSB1";
     std::string filename = "point_cloud";
@@ -124,7 +124,6 @@ int main(int argc, char **argv){
         std::vector<glm::vec4> points = scanner.scan(loop, speed);
         float time_end = points[points.size()-1].w;
 
-        std::cout << "Got " << points.size() << " points" << std::endl;
         if (points.size() > 0) {
 
             // Declare Cloud data
