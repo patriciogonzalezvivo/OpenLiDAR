@@ -62,7 +62,7 @@ bool OpenLiDAR::connect() {
         for (int i = 0; i < TOTAL_PORTS; i++) {
             if (m_mount->connect(ports[i])) {
                 mount_port = i;
-                m_mount->printFirmware();
+                // m_mount->printFirmware();
                 break;
             }
         }
@@ -82,7 +82,7 @@ bool OpenLiDAR::connect() {
             if (mount_port != i) {
                 if (m_lidar->connect(ports[i])) {
                     lidar_port = i;
-                    m_lidar->printFirmware();
+                    // m_lidar->printFirmware();
                     break;
                 }
             }

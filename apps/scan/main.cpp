@@ -11,15 +11,22 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 
-glm::vec3 hsv2rgb(const glm::vec3& _hsb) {
-    glm::vec3 rgb = glm::clamp(   glm::abs(glm::mod(  glm::vec3(_hsb.x) * glm::vec3(6.) + glm::vec3(0., 4., 2.), 
-                                                    glm::vec3(6.)) - glm::vec3(3.) ) - glm::vec3(1.),
-                                glm::vec3(0.),
-                                glm::vec3(1.));
-    #ifdef HSV2RGB_SMOOTH
-    rgb = rgb*rgb*(3. - 2. * rgb);
-    #endif
-    return glm::vec3(_hsb.z) * glm::mix(glm::vec3(1.), rgb, _hsb.y);
+// glm::vec3 hsv2rgb(const glm::vec3& _hsb) {
+//     glm::vec3 rgb = glm::clamp(   glm::abs(glm::mod(  glm::vec3(_hsb.x) * glm::vec3(6.) + glm::vec3(0., 4., 2.), 
+//                                                     glm::vec3(6.)) - glm::vec3(3.) ) - glm::vec3(1.),
+//                                 glm::vec3(0.),
+//                                 glm::vec3(1.));
+//     #ifdef HSV2RGB_SMOOTH
+//     rgb = rgb*rgb*(3. - 2. * rgb);
+//     #endif
+//     return glm::vec3(_hsb.z) * glm::mix(glm::vec3(1.), rgb, _hsb.y);
+// }
+
+glm::vec3 hue(float _hue) {
+    float R = abs(_hue * 6 - 3) - 1;
+    float G = 2 - abs(_hue * 6 - 2);
+    float B = 2 - abs(_hue * 6 - 4);
+    return glm::clamp(glm::vec3(R,G,B), glm::vec3(0.0), glm::vec3(1.0));
 }
 
 uint32_t packRGB(uint8_t _r, uint8_t _g, uint8_t _b) {
@@ -37,6 +44,28 @@ float toFloat(const std::string& _string) {
     return x;
 }
 
+/// like sprintf "% 4d" or "% 4f" format, in this example width=4, fill=' '
+template <class T>
+inline std::string toString(const T& _value, int _width, char _fill) {
+    std::ostringstream out;
+    out << std::fixed << std::setfill(_fill) << std::setw(_width) << _value;
+    return out.str();
+}
+
+bool doFileExist(const char *_fileName) {
+    std::ifstream infile(_fileName);
+    return infile.good();
+}
+
+std::string getUniqueFileName( const std::string& _originalName) {
+    std::string filename = _originalName + ".ply";
+    int index = 0;
+    while ( doFileExist( filename.c_str() ) ) {
+        filename = _originalName + "_" + toString(index, 3, '0') + ".ply";
+    }
+    return filename;
+}
+
 
 // Main program
 //============================================================================
@@ -46,6 +75,7 @@ int main(int argc, char **argv){
     float leaf = 0.01f; // m
     std::string portMount = "/dev/ttyUSB0";
     std::string portLidar = "/dev/ttyUSB1";
+    std::string filename = "point_cloud";
 
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
@@ -80,6 +110,10 @@ int main(int argc, char **argv){
             else
                 std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the lidar device. Default is " << portLidar << std::endl;
         }
+        else if ( std::string(argv[i]) == "--out" ) {
+            if (++i < argc)
+                filename = std::string(argv[i]);
+        }
     }
 
     OpenLiDAR scanner;
@@ -104,7 +138,7 @@ int main(int argc, char **argv){
                 cloud->points[i].x = points[i].x;
                 cloud->points[i].y = points[i].y;
                 cloud->points[i].z = points[i].z;
-                cloud->points[i].rgb = packRGB(hsv2rgb(glm::vec3(points[i].w/time_end, 1., 1.)));
+                cloud->points[i].rgb = packRGB(hue(points[i].w/time_end));
             }
             
             pcl::VoxelGrid<pcl::PointXYZRGB> vg_filter;
@@ -127,8 +161,9 @@ int main(int argc, char **argv){
             pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointXYZRGBNormal>);
             pcl::concatenateFields (*cloud_filtered, *normals, *cloud_with_normals);
 
-            std::cout << "Saving points" << std::endl;
-            pcl::io::savePLYFile ("point_cloud.ply", *cloud_with_normals, false);
+            filename = getUniqueFileName(filename);
+            std::cout << "Saving points on " << filename << std::endl;
+            pcl::io::savePLYFile(filename, *cloud_with_normals, false);
         }
 
         std::cout << "Reset scanner" << std::endl;

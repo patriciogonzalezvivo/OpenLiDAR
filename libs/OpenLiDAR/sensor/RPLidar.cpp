@@ -45,7 +45,7 @@ bool RPLidar::connect(const char* _portName) {
     _u32         baudrateArray[2] = {115200, 256000};
     u_result     op_result;
 
-    std::cout << "RPLIDAR SDK Version: " << RPLIDAR_SDK_VERSION << std::endl;
+    // std::cout << "RPLIDAR SDK Version: " << RPLIDAR_SDK_VERSION << std::endl;
 
     // make connection...
     rplidar_response_device_info_t devinfo;
