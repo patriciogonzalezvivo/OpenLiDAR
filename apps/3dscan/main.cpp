@@ -11,70 +11,6 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 
-glm::vec3 hsv2rgb(const glm::vec3& _hsb) {
-    glm::vec3 rgb = glm::clamp(   glm::abs(glm::mod(    glm::vec3(_hsb.x) * glm::vec3(6.) + glm::vec3(0., 4., 2.), 
-                                                        glm::vec3(6.)) - glm::vec3(3.) ) - glm::vec3(1.),
-                                glm::vec3(0.),
-                                glm::vec3(1.));
-    #ifdef HSV2RGB_SMOOTH
-    rgb = rgb*rgb*(3. - 2. * rgb);
-    #endif
-    return glm::vec3(_hsb.z) * glm::mix(glm::vec3(1.), rgb, _hsb.y);
-}
-
-glm::vec3 toRGB(    double _hue,         // _hue in radians 
-                    double _saturation, // satuation 0.0 = gray, 1.0 = saturated
-                    double _value       // _value     
-                ) 
-{
-    int i;
-    double f, p, q, t, r, g, b;
-    if ( _saturation <= 1.0/256.0 ) {
-        r = _value;
-        g = _value;
-        b = _value;
-    }
-    else  {
-        _hue *= 3.0 / M_PI;  // (6.0 / 2.0 * M_PI);
-        i = (int)floor(_hue);
-        if ( i < 0 || i > 5 ) {
-            _hue = fmod(_hue,6.0);
-            if ( _hue < 0.0 )
-                _hue += 6.0;
-            i = (int)floor(_hue);
-        }    
-        f = _hue - i;    
-        p = _value * ( 1.0 - _saturation);
-        q = _value * ( 1.0 - ( _saturation * f) );
-        t = _value * ( 1.0 - ( _saturation * ( 1.0 - f) ) );
-        switch( i) {
-            case 0:
-                r = _value; g = t; b = p; break;      
-            case 1:
-                r = q; g = _value; b = p; break;
-            case 2:
-                r = p; g = _value; b = t; break;
-            case 3:
-                r = p; g = q; b = _value; break;
-            case 4:
-                r = t; g = p; b = _value; break;
-            case 5:
-                r = _value; g = p; b = q; break;      
-            default:
-                r = 0; g = 0; b = 0; break; // to keep lint quiet
-        }
-    }
-    return glm::vec3(r,g,b);
-}
-
-uint32_t packRGB(uint8_t _r, uint8_t _g, uint8_t _b) {
-    return ((uint32_t)_r << 16 | (uint32_t)_g << 8 | (uint32_t)_b);   
-}
-
-uint32_t packRGB(const glm::vec3& _color) {
-    return packRGB(_color.r*255, _color.g*255, _color.b*255);
-}
-
 float toFloat(const std::string& _string) {
     float x = 0;
     std::istringstream cur(_string);
@@ -95,11 +31,11 @@ bool doFileExist(const char *_fileName) {
     return infile.good();
 }
 
-std::string getUniqueFileName( const std::string& _originalName) {
-    std::string filename = _originalName + ".ply";
+std::string getUniqueFileName( const std::string& _originalName, const std::string& _extension) {
+    std::string filename = _originalName + "." + _extension;
     int index = 0;
     while ( doFileExist( filename.c_str() ) ) {
-        filename = _originalName + "_" + toString(index, 3, '0') + ".ply";
+        filename = _originalName + "_" + toString(index, 3, '0') + "." + _extension;
         index++;
     }
     return filename;
@@ -165,12 +101,11 @@ int main(int argc, char **argv){
         // Scan 75% loop at half speed
         std::vector<glm::vec4> points = scanner.scan(loop, speed);
         float time_end = points[points.size()-1].w;
-        std::cout << "Scanning finish after " << time_end << "secs." << std::endl;
 
         if (points.size() > 0) {
 
             // Declare Cloud data
-            pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud( new pcl::PointCloud<pcl::PointXYZRGB> );
+            pcl::PointCloud<pcl::PointXYZ>::Ptr cloud( new pcl::PointCloud<pcl::PointXYZ> );
             cloud->width    = points.size();
             cloud->height   = 1;
             cloud->is_dense = true;
@@ -180,26 +115,25 @@ int main(int argc, char **argv){
                 cloud->points[i].x = points[i].x;
                 cloud->points[i].y = points[i].y;
                 cloud->points[i].z = points[i].z;
-                cloud->points[i].rgb = packRGB( toRGB( (points[i].w/time_end) * M_PI * 2.0, 1.0, 1.0 ));
             }
 
             if (leaf > 0.0) {
-                pcl::VoxelGrid<pcl::PointXYZRGB> vg_filter;
+                pcl::VoxelGrid<pcl::PointXYZ> vg_filter;
                 vg_filter.setInputCloud (cloud);
                 vg_filter.setLeafSize (leaf, leaf, leaf);
-                pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZRGB> );
+                pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZ> );
                 vg_filter.filter(*cloud_filtered);
                 *cloud = *cloud_filtered;
             }
             
-            filename = getUniqueFileName(filename);
+            filename = getUniqueFileName(filename, "ply");
 
             if (bNormal) {
                 std::cout << "Estimating normals" << std::endl;
                 // // Normal estimation*
-                pcl::NormalEstimation<pcl::PointXYZRGB, pcl::Normal> n;
+                pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> n;
                 pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
-                pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
+                pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
                 tree->setInputCloud (cloud);
                 n.setInputCloud (cloud);
                 n.setSearchMethod (tree);
@@ -207,7 +141,7 @@ int main(int argc, char **argv){
                 n.compute (*normals);
 
                 // Concatenate the XYZ and normal fields*
-                pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointXYZRGBNormal>);
+                pcl::PointCloud<pcl::PointNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointNormal>);
                 pcl::concatenateFields (*cloud, *normals, *cloud_with_normals);
 
                 std::cout << "Saving points on " << filename << std::endl;
