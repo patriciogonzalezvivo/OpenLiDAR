@@ -62,6 +62,7 @@ std::string getUniqueFileName( const std::string& _originalName) {
     int index = 0;
     while ( doFileExist( filename.c_str() ) ) {
         filename = _originalName + "_" + toString(index, 3, '0') + ".ply";
+        index++;
     }
     return filename;
 }
