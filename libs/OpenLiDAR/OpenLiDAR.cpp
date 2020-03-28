@@ -47,57 +47,6 @@ OpenLiDAR::~OpenLiDAR(){
     disconnect();
 }
 
-bool OpenLiDAR::connect() {
-
-    int mount_port = -1;
-    int lidar_port = -1;
-
-    // MOUNT
-    // --------------------------------------------------------
-
-    // Connecting to the Celestron Mount
-    if (!m_mount) {
-        m_mount = new Celestron();
-
-        for (int i = 0; i < TOTAL_PORTS; i++) {
-            if (m_mount->connect(ports[i])) {
-                mount_port = i;
-                // m_mount->printFirmware();
-                break;
-            }
-        }
-
-        if (mount_port == -1) {
-            std::cerr << "Can't find Celestron Mount port" << std::endl;
-            delete m_mount;
-            m_mount = NULL;
-        }
-    }
-    
-    //  LIDAR
-    // -------------------------------------------------------
-    if (!m_lidar) {
-        m_lidar = new RPLidar();
-        for (int i = 0; i < TOTAL_PORTS; i++) {
-            if (mount_port != i) {
-                if (m_lidar->connect(ports[i])) {
-                    lidar_port = i;
-                    // m_lidar->printFirmware();
-                    break;
-                }
-            }
-        }
-
-        if (lidar_port == -1) {
-            std::cerr << "Can't find Sensor port" << std::endl;
-            delete m_lidar;
-            m_lidar = NULL;
-        }        
-    }
-
-    return (m_lidar != NULL) && (m_mount != NULL);
-}
-
 bool OpenLiDAR::connect(const char* _celestronPort, const char* _rplidarPort) {
 
     // MOUNT
@@ -180,6 +129,8 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
 
         // fetch result and print it out...
         while (m_scanning && m_az < max_angle) {
+            float time = float(getElapsedSeconds() - time_start);
+
             // Get mount azimuth angle
             m_mount->getAzAlt(&m_az, &m_alt);
             glm::quat lng = glm::angleAxis(float(glm::radians(-m_az)), glm::vec3(0.0,1.0,0.0));
@@ -188,11 +139,9 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
                 for (size_t i = 0; i < count ; ++i) {
                     glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
                     glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + glm::vec3(MOUNT_OFFSET_X, MOUNT_OFFSET_Y, MOUNT_OFFSET_Z));
-                    float time = getElapsedSeconds() - time_start;
                     points.push_back( glm::vec4(pos, time) );
                 }
             }
-
 
             // Delete previous line
             const std::string deleteLine = "\e[2K\r\e[1A";
@@ -209,7 +158,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
                     std::cout << ".";
                 }
             }
-            std::cout << " ] az: " << m_az << " alt: " << m_alt << " pts: " << points.size() << std::endl;
+            std::cout << " ] sec: " << time << " az: " << m_az << " alt: " << m_alt << " pts: " << points.size() << std::endl;
         }
 
         m_lidar->stop();

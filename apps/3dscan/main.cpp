@@ -165,6 +165,7 @@ int main(int argc, char **argv){
         // Scan 75% loop at half speed
         std::vector<glm::vec4> points = scanner.scan(loop, speed);
         float time_end = points[points.size()-1].w;
+        std::cout << "Scanning finish after " << time_end << "secs." << std::endl;
 
         if (points.size() > 0) {
 

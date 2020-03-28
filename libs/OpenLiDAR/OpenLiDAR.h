@@ -12,7 +12,6 @@ public:
     OpenLiDAR();
     virtual ~OpenLiDAR();
 
-    bool    connect();
     bool    connect(const char* _celestronPort, const char* _rplidarPort);
     void    disconnect();
 
