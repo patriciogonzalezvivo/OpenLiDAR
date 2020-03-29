@@ -50,9 +50,9 @@ int main(int argc, char **argv){
     std::string portMount = "/dev/ttyUSB0";
     std::string portLidar = "/dev/ttyUSB1";
     std::string filename = "point_cloud";
-    float degrees = 180.0f;
+    float degrees = 180.0f; // Half loop
     float speed = 0.75f;
-    float leaf = 0.01f; // m
+    float leaf = 0.01f;     // m
     bool bNormal = false;
 
 

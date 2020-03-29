@@ -20,7 +20,7 @@
 // };
 
 OpenLiDAR::OpenLiDAR() : 
-    m_offset(0.075, 0.0, -0.12),
+    m_offset(0.08, 0.0, -0.12),
     m_az(0.0),
     m_alt(0.0),
     m_mount(NULL),
@@ -193,7 +193,7 @@ bool OpenLiDAR::reset(bool _verbose) {
                         std::cout << ".";
                     }
                 }
-                std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0');
+                std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << std::endl;
             }
         }
         m_mount->stop(CELESTRON_E);
