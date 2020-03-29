@@ -47,8 +47,8 @@ std::string getUniqueFileName( const std::string& _originalName, const std::stri
 int main(int argc, char **argv){
     OpenLiDAR scanner;
 
-    std::string portMount = "/dev/ttyUSB0";
-    std::string portLidar = "/dev/ttyUSB1";
+    std::string portLidar = "/dev/ttyUSB0";
+    std::string portMount = "/dev/ttyUSB1";
     std::string filename = "point_cloud";
     float degrees = 180.0f; // Half loop
     float speed = 0.75f;
@@ -111,7 +111,6 @@ int main(int argc, char **argv){
 
     
     if (scanner.connect(portMount.c_str(), portLidar.c_str())) {
-        std::cout << "Start Scanning" << std::endl;
 
         // Scan 75% degrees at half speed
         std::vector<glm::vec4> points = scanner.scan(degrees, speed);
