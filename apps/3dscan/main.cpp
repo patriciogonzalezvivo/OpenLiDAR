@@ -50,7 +50,7 @@ int main(int argc, char **argv){
     std::string portMount = "/dev/ttyUSB0";
     std::string portLidar = "/dev/ttyUSB1";
     std::string filename = "point_cloud";
-    float loop = 0.9f;
+    float degrees = 180.0f;
     float speed = 0.75f;
     float leaf = 0.01f; // m
     bool bNormal = false;
@@ -75,11 +75,11 @@ int main(int argc, char **argv){
             if (++i < argc)
                 filename = std::string(argv[i]);
         }
-        else if ( std::string(argv[i]) == "--loop" ) {
+        else if ( std::string(argv[i]) == "--degrees" ) {
             if (++i < argc)
-                loop = toFloat(std::string(argv[i]));
+                degrees = toFloat(std::string(argv[i]));
             else
-                std::cout << "Argument '" << argument << "' should be followed by a the porcentage (expres in a number between 0.0 to 1.0) of a full turn. Default is " << loop << std::endl;
+                std::cout << "Argument '" << argument << "' should be followed by a amount of degrees to turn during the scan. Default is " << degrees << std::endl;
         }
         else if ( std::string(argv[i]) == "--speed" ) {
             if (++i < argc)
@@ -113,8 +113,8 @@ int main(int argc, char **argv){
     if (scanner.connect(portMount.c_str(), portLidar.c_str())) {
         std::cout << "Start Scanning" << std::endl;
 
-        // Scan 75% loop at half speed
-        std::vector<glm::vec4> points = scanner.scan(loop, speed);
+        // Scan 75% degrees at half speed
+        std::vector<glm::vec4> points = scanner.scan(degrees, speed);
         float time_end = points[points.size()-1].w;
 
         if (points.size() > 0) {

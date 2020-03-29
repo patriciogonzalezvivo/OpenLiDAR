@@ -20,7 +20,7 @@
 // };
 
 OpenLiDAR::OpenLiDAR() : 
-    m_offset(0.06, 0.0, -0.12),
+    m_offset(0.075, 0.0, -0.12),
     m_az(0.0),
     m_alt(0.0),
     m_mount(NULL),
@@ -81,10 +81,9 @@ void OpenLiDAR::disconnect() {
     }
 }
 
-std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
+std::vector<glm::vec4> OpenLiDAR::scan(float _degree, float _speed, bool _verbose) {
     CELESTRON_SLEW_RATE rate = CELESTRON_SLEW_RATE(ceil(_speed * SR_9));
-    int max_angle = ceil(360 * _loop);
-    double time_start = getElapsedSeconds();
+    double start_time = getElapsedSeconds();
 
     std::vector<glm::vec4> points;
 
@@ -105,6 +104,9 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
         std::cout << "Mount connection lost" << std::endl;
 
     if (m_lidar) {
+        if (_verbose)
+            std::cout << "Start Scanning" << std::endl;
+
         // Start motor...
         m_lidar->start();
         m_scanning = true;
@@ -113,8 +115,8 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
         size_t   count;
 
         // fetch result and print it out...
-        while (m_scanning && m_az < max_angle) {
-            float time = float(getElapsedSeconds() - time_start);
+        while (m_scanning && m_az < _degree) {
+            float time = float(getElapsedSeconds() - start_time);
 
             // Get mount azimuth angle
             m_mount->getAzAlt(&m_az, &m_alt);
@@ -128,22 +130,24 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
                 }
             }
 
-            // Delete previous line
-            const std::string deleteLine = "\e[2K\r\e[1A";
-            std::cout << deleteLine;
+            if (_verbose) {
+                // Delete previous line
+                const std::string deleteLine = "\e[2K\r\e[1A";
+                std::cout << deleteLine;
 
-            int pct = (m_az/max_angle) * 100;
-            
-            std::cout << " [ ";
-            for (int i = 0; i < 50; i++) {
-                if (i < pct/2) {
-                    std::cout << "#";
+                int pct = (m_az/_degree) * 100;
+                
+                std::cout << " [ ";
+                for (int i = 0; i < 50; i++) {
+                    if (i < pct/2) {
+                        std::cout << "#";
+                    }
+                    else {
+                        std::cout << ".";
+                    }
                 }
-                else {
-                    std::cout << ".";
-                }
+                std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << " pts: " << points.size() << std::endl;
             }
-            std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << " pts: " << points.size() << std::endl;
         }
 
         m_lidar->stop();
@@ -158,12 +162,39 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _loop, float _speed) {
     return points;
 }
 
-bool OpenLiDAR::reset() {
+bool OpenLiDAR::reset(bool _verbose) {
     if (m_mount) {
+        double start_time = getElapsedSeconds();
+        double start_az = m_az;
+
+        if (_verbose)
+            std::cout << "Moving mount to original Azimuthal angle" << std::endl;
+
         m_mount->move(CELESTRON_E, SR_9);
         while (m_az > 5.) {
+
             usleep(1000);
             m_mount->getAzAlt(&m_az, &m_alt);
+
+            if (_verbose) {
+                // Delete previous line
+                const std::string deleteLine = "\e[2K\r\e[1A";
+                std::cout << deleteLine;
+
+                int pct = (1.0 - m_az/start_az) * 100;
+                float time = float(getElapsedSeconds() - start_time);
+                
+                std::cout << " [ ";
+                for (int i = 0; i < 50; i++) {
+                    if (i < pct/2) {
+                        std::cout << "#";
+                    }
+                    else {
+                        std::cout << ".";
+                    }
+                }
+                std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0');
+            }
         }
         m_mount->stop(CELESTRON_E);
     }

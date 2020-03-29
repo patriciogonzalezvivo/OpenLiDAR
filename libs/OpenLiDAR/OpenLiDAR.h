@@ -12,18 +12,18 @@ public:
     OpenLiDAR();
     virtual ~OpenLiDAR();
 
-    bool    connect(const char* _celestronPort, const char* _rplidarPort);
-    void    disconnect();
+    bool        connect(const char* _celestronPort, const char* _rplidarPort);
+    void        disconnect();
 
-    bool    isScanning() { return m_scanning; }
+    bool        isScanning() { return m_scanning; }
 
-    void    setOffsetX(float _x) { m_offset.x = _x; }
-    void    setOffsetY(float _y) { m_offset.x = _y; }
-    void    setOffsetZ(float _z) { m_offset.x = -_z; }
+    void        setOffsetX(float _x) { m_offset.x = _x; }
+    void        setOffsetY(float _y) { m_offset.x = _y; }
+    void        setOffsetZ(float _z) { m_offset.x = -_z; }
     glm::vec3   getOffset() { return m_offset; }
 
-    std::vector<glm::vec4> scan(float _loop = 0.5, float _speed = 0.5);
-    bool    reset();
+    std::vector<glm::vec4> scan(float _degree = 180.0, float _speed = 0.5, bool _verbose = true);
+    bool        reset(bool _verbose = true);
 
 protected:
     glm::vec3       m_offset;
