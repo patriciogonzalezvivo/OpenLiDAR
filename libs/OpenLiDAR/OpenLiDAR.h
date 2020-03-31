@@ -5,6 +5,7 @@
 
 #include "mount/Celestron.h"
 #include "sensor/RPLidar.h"
+#include <libgpsmm.h>
 
 class OpenLiDAR {
 public:

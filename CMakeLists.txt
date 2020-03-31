@@ -14,6 +14,13 @@ include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
 add_definitions(${GLM_DEFINITIONS})
 
+# GPS
+find_path(GPS_INCLUDE_DIR NAMES libgpsmm.h)
+find_library(GPS_LIBRARY NAMES gpsmm)
+if(NOT GPS_INCLUDE_DIR OR NOT GPS_LIBRARY)
+    MESSAGE(FATAL_ERROR "Could not find GPS library")
+endif(NOT GPS_INCLUDE_DIR OR NOT GPS_LIBRARY)
+
 # RPLIDAR DRIVER
 set(RPLIDAR_SDK_PATH "libs/rplidar_sdk")
 FILE(GLOB RPLIDAR_SDK_SRC 

@@ -46,8 +46,8 @@ bool OpenLiDAR::connect(const char* _celestronPort, const char* _rplidarPort) {
             delete m_mount;
             m_mount = NULL;
         }
-        // else
-        //     m_mount->printFirmware();
+        else
+            m_mount->printFirmware();
     }
     
     //  LIDAR
@@ -60,8 +60,8 @@ bool OpenLiDAR::connect(const char* _celestronPort, const char* _rplidarPort) {
             delete m_lidar;
             m_lidar = NULL;
         }
-        // else 
-        //     m_lidar->printFirmware();
+        else 
+            m_lidar->printFirmware();
     }
 
     return (m_lidar != NULL) && (m_mount != NULL);

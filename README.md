@@ -65,7 +65,7 @@ Because hardware is not really one of my strengths I decide to reuse existing ha
 Install dependencies:
 
 ```bash
-sudo apt install cmake libpcl-dev libglm-dev
+sudo apt install cmake libpcl-dev libglm-dev gpsd gpsd-clients libgps-dev
 ```
 
 Clone this repository:
