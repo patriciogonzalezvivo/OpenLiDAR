@@ -2,28 +2,65 @@
 
 # OpenLiDAR
 
-Open platform for automating LiDAR scanns with DIY devices. 
+This project goal is to support a wide variety of sensors and controlers so people can construct their own 3D LiDAR Scanner with off-the-shelf devices. 
+Please get in touch if you have a different hardware and want to contribute your solution.
 
-The hardware setup basically consist on an affordable 360 LiDAR sensor attached to a mount that spins it around in a control way. The `OpenLiDAR.h` class reflect this configuration, although for my personal setup I'm using a [RPLiDAR A1](https://www.dfrobot.com/search-RPLIDAR.html) together with a [Motorize Celestron Telescope Mount](https://www.ebay.com/sch/i.html?_from=R40&_trksid=p2334524.m570.l1313.TR4.TRC0.A0.H0.Xcelestron+mount.TRS1&_nkw=celestron+mount&_sacat=0&LH_TitleDesc=0&_osacat=0&_odkw=celestron+goto) I'm designing the library to be easy to extend and modularize with the hope others will contribute their own configurations.
+The general set up consist of an affordable **LiDAR sensor** mounted on a structure that pan it around with presicion and accuracy (we call that **mount**). There are other sensors that will help your scanner to have more or better data like **GPS**, **Magnetometer** and **Camera**  
 
-## My setup
+Supported **LiDAR Sensors**:
+
+| Manufacture | Device | Driver | Range | Outdoors | Angle Resolution | Sample Rate |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `RPLidar.h` | 12m | no | non applicalbe | 8000 |
+| SLAMTECH      | [RPLidar A2](https://www.slamtec.com/en/Lidar/A2) | 'RPLidar.h' | 18m | no | 0.45° ~ 1.35° | 8000 |
+| SLAMTECH      | [RPLidar A3](https://www.slamtec.com/en/Lidar/A3) | 'RPLidar.h' | 25m (indoors) ~ 16 (outdoors) | yes | 0.3375° ~ 0.54° | 16000 |
+| SLAMTECH      | [RPLidar S1](https://www.slamtec.com/en/Lidar/S1) | 'RPLIDAR.h' | 40m | yes | 0.391° | 9200 |
+
+Supported **Mounts**: 
+
+| Manufacture | Device | Driver | 
+| ------------- | ------------- | ------------- | 
+| Celestron     | [NexStar Series](https://www.ebay.com/itm/Celestron-Astro-Fi-Computerized-GoTo-Mount-Complete-Mount-NEW/402029171407?_trkparms=aid%3D111001%26algo%3DREC.SEED%26ao%3D1%26asc%3D20160811114145%26meid%3Dac0b70c81d164dd9bf6b6775530718f0%26pid%3D100667%26rk%3D2%26rkt%3D8%26mehot%3Dnone%26sd%3D303235523326%26itm%3D402029171407%26pmt%3D0%26noa%3D1%26pg%3D2334524&_trksid=p2334524.c100667.m2042) | `Celestron.h` |
+| TBD           | TBD | TBD | 
+
+Supported **GPS**:
+
+| Manufacture | Device |
+| ------------- | ------------- |
+| TBD | TBD |
+
+Supported **Magnetometers**:
+
+| Manufacture | Device |
+| ------------- | ------------- |
+| TBD | TBD |
+
+Supported **Cameras**:
+
+| Manufacture | Device |
+| ------------- | ------------- |
+| TBD | TBD |
+
+
+# Hardware Setups
+
+### Celestron/RPLidarA1 (March 2020)
 
 Because hardware is not really one of my strengths I decide to reuse existing hardware as much as possible. Avoiding 3D printing moving peaces like gears was very important because they tend to introduce error. For that I based my desing on using a motorize telescope mount which robust design have been tested extensivelly while provides maximum presicion and control. As an extra if it's properly calibrated (using their own system based on stars possition) can waranty excelent alignments of your point clouds.
 
-* [RPLiDAR A1/A2/A3](https://www.dfrobot.com/search-RPLIDAR.html) depending your needs and budge (from 99 ~ 600 U$D)
-* [Celestron NexStar GoTo Mount](https://www.ebay.com/itm/Celestron-Astro-Fi-Computerized-GoTo-Mount-Complete-Mount-NEW/402029171407?_trkparms=aid%3D111001%26algo%3DREC.SEED%26ao%3D1%26asc%3D20160811114145%26meid%3Dac0b70c81d164dd9bf6b6775530718f0%26pid%3D100667%26rk%3D2%26rkt%3D8%26mehot%3Dnone%26sd%3D303235523326%26itm%3D402029171407%26pmt%3D0%26noa%3D1%26pg%3D2334524&_trksid=p2334524.c100667.m2042) to spin the RPLiDAR around in 360 degrees with precision (~200 U$D). The `Celestron.h` driver sends [serial commands to the Celestron HandController](http://www.nexstarsite.com/download/manuals/NexStarCommunicationProtocolV1.2.zip) though the Mini-USB port at the bottom of it. Most of that code is based on [INDI Lib](https://github.com/jochym/indi-base/blob/master/libindi/obsolete/celestronprotocol.h).
-* [Celestron compatible dovetail mount](https://www.amazon.com/gp/product/B07LGN4K6L/ref=ppx_yo_dt_b_asin_title_o02_s00?ie=UTF8&psc=1). Non-permanent solution to attach the LiDAR sensor to the Celestron mount.
-* 3D Print the model on the `models/` folder based on [this thingiverse project](https://www.thingiverse.com/thing:3970110) by [Robotics Weekends](https://www.thingiverse.com/Robotics_Weekends/about). This will help you to put it all together.
+
+* [RPLiDAR A1](https://www.dfrobot.com/search-RPLIDAR.html) I decide to go with the cheaper to see what the floor was how I can build it up from their
+* [Celestron NexStar GoTo Mount](https://www.ebay.com/itm/Celestron-Astro-Fi-Computerized-GoTo-Mount-Complete-Mount-NEW/402029171407?_trkparms=aid%3D111001%26algo%3DREC.SEED%26ao%3D1%26asc%3D20160811114145%26meid%3Dac0b70c81d164dd9bf6b6775530718f0%26pid%3D100667%26rk%3D2%26rkt%3D8%26mehot%3Dnone%26sd%3D303235523326%26itm%3D402029171407%26pmt%3D0%26noa%3D1%26pg%3D2334524&_trksid=p2334524.c100667.m2042) to spin the RPLiDAR around in 360 degrees with precision (~200 U$D). 
+* [Celestron compatible dovetail mount](https://www.amazon.com/gp/product/B07LGN4K6L/ref=ppx_yo_dt_b_asin_title_o02_s00?ie=UTF8&psc=1). Non-permanent solution to attach the LiDAR sensor to the Celestron mount. ( ~12 U$D )
+* Design and 3D Print the model `models/celestron_mount/rplidar_A1.stl`. This mount attach to the celestron mount through the dovetail rail, and to the RPLidar A1 and it's driver through screws 
+* [RaspberryPi](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/) to control both the sensor and the mount running OpenLiDAR. I [modify my Celestron mount following this directions in order to derive power from it](https://hackaday.io/project/21088-raspberry-pi-driven-telescope-mount) (35 U$D)
 
 ![](images/IMG_0855.jpeg)
 
-Optional:
 
-* [RaspberryPi](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/) to control both the sensor and the mount running OpenLiDAR. I [modify my Celestron mount following this directions in order to derive power from it](https://hackaday.io/project/21088-raspberry-pi-driven-telescope-mount) (35 U$D)
-* [GPS Hat](https://www.adafruit.com/product/2324) If you want to GeoTag your point clouds (45 U$D)
+# Software setup 
 
-
-# Installation
+## Installation
 
 Install dependencies:
 
@@ -64,3 +101,4 @@ Makes a 3D lidar scan. To run you need to the USB addresses of the Celestron mou
 ```bash
 ./3dscan --mount /dev/ttyUSB1 --lidar /dev/ttyUSB1 -speed 0.9 --loop 0.5 --leaf 0.01 --out point_cloud
 ```
+
