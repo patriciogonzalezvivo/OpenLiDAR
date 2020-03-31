@@ -13,7 +13,7 @@ Supported **LiDAR Sensors**:
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `RPLidar.h` | 12m | no | non applicalbe | 
 | SLAMTECH      | [RPLidar A2](https://www.slamtec.com/en/Lidar/A2) | `RPLidar.h` | 18m | no | 0.45° ~ 1.35° |
-| SLAMTECH      | [RPLidar A3](https://www.slamtec.com/en/Lidar/A3) | `RPLidar.h` | 25m / 16 (in/outdoors) | yes | 0.3375° / 0.54° |
+| SLAMTECH      | [RPLidar A3](https://www.slamtec.com/en/Lidar/A3) | `RPLidar.h` | 25m / 16m (in/outdoors) | yes | 0.3375° / 0.54° |
 | SLAMTECH      | [RPLidar S1](https://www.slamtec.com/en/Lidar/S1) | `RPLidar.h` | 40m | yes | 0.391° |
 
 Supported **Mounts**: 
