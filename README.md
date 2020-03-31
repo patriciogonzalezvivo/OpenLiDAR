@@ -116,14 +116,14 @@ OpenLiDAR `lib/`:
     * RGB and Depth callibration 
 
 
-Console based app `3dscan`:
+Console based `app/3dscan`:
 
 * Choose different output types: PLY, PCD, PNG
 * Geotag PLYs and PCDs based on GPS data
 * Add optional outliers removal
 
 
-GUI app `3dscanx`:
+GUI app `app/3dscanx`:
 
 * TBD
 
