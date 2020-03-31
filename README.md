@@ -96,9 +96,34 @@ Ecosystem of apps to scann and process LiDAR data.
 
 ### `3dscan`
 
-Makes a 3D lidar scan. To run you need to the USB addresses of the Celestron mount (first argument) and the RPLiDAR sensor (second argument). In linux systems they are given by the order you plug them. (TODO: I'm working on automatic that)
+Makes a 3D lidar scan. To run you need to the USB addresses of the Celestron mount (first argument) and the RPLiDAR sensor (second argument). In linux systems they are given by the order you plug them. 
 
 ```bash
-./3dscan --mount /dev/ttyUSB1 --lidar /dev/ttyUSB1 -speed 0.9 --loop 0.5 --leaf 0.01 --out point_cloud
+./3dscan --mount /dev/ttyUSB0 --lidar /dev/ttyUSB1 -speed 0.9 --degrees 180 --leaf 0.01 --normals --out point_cloud
 ```
+
+# ROADMAP
+
+OpenLiDAR `lib/`:
+
+* Auto detect ports for devices
+* Auto suggest offset values based on mount and sensor
+* Multi thread method with callback (specially for creating UI interfaces)
+* Add support for GPS devices
+* Add support for Magnetometers
+* 360 panoramic reconstruction using camera input
+    * Add support for different cameras
+    * RGB and Depth callibration 
+
+
+Console based app `3dscan`:
+
+* Choose different output types: PLY, PCD, PNG
+* Geotag PLYs and PCDs based on GPS data
+* Add optional outliers removal
+
+
+GUI app `3dscanx`:
+
+* TBD
 
