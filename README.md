@@ -9,12 +9,12 @@ The general set up consist of an affordable **LiDAR sensor** mounted on a struct
 
 Supported **LiDAR Sensors**:
 
-| Manufacture | Device | Driver | Range | Outdoors | Angle Resolution | Sample Rate |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `RPLidar.h` | 12m | no | non applicalbe | 8000 |
-| SLAMTECH      | [RPLidar A2](https://www.slamtec.com/en/Lidar/A2) | 'RPLidar.h' | 18m | no | 0.45° ~ 1.35° | 8000 |
-| SLAMTECH      | [RPLidar A3](https://www.slamtec.com/en/Lidar/A3) | 'RPLidar.h' | 25m (indoors) ~ 16 (outdoors) | yes | 0.3375° ~ 0.54° | 16000 |
-| SLAMTECH      | [RPLidar S1](https://www.slamtec.com/en/Lidar/S1) | 'RPLIDAR.h' | 40m | yes | 0.391° | 9200 |
+| Manufacture | Device | Driver | Range | Outdoors | Angle Resolution |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `RPLidar.h` | 12m | no | non applicalbe | 
+| SLAMTECH      | [RPLidar A2](https://www.slamtec.com/en/Lidar/A2) | 'RPLidar.h' | 18m | no | 0.45° ~ 1.35° |
+| SLAMTECH      | [RPLidar A3](https://www.slamtec.com/en/Lidar/A3) | 'RPLidar.h' | 25m (indoors) ~ 16 (outdoors) | yes | 0.3375° ~ 0.54° |
+| SLAMTECH      | [RPLidar S1](https://www.slamtec.com/en/Lidar/S1) | 'RPLidar.h' | 40m | yes | 0.391° |
 
 Supported **Mounts**: 
 
