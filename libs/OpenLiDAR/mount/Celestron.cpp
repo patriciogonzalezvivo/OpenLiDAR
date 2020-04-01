@@ -14,6 +14,8 @@
 #include <map>
 #include <string>
 
+#include "../tools.h"
+
 #define NULL_PTR(x) (x *)0
 #define MAX_RESP_SIZE   20
 #define TIMEOUT 5
@@ -175,6 +177,54 @@ void Celestron::disconnect() {
     if (m_connected)
         close(m_fd);
     m_connected = false;
+}
+
+
+bool Celestron::start(float _speed, bool _verbose) {
+    reset(_verbose);
+
+    CELESTRON_SLEW_RATE rate = CELESTRON_SLEW_RATE(ceil(_speed * SR_9));
+    return move(CELESTRON_W, rate);
+}
+
+bool Celestron::stop() {
+    return stop(CELESTRON_W);
+}
+
+bool Celestron::update() {
+    return getAzAlt(&m_az, &m_alt);
+}
+
+bool Celestron::reset(bool _verbose) {
+    update();
+
+    double start_az = m_az;
+    double start_time = getElapsedSeconds();
+
+    if (_verbose)
+        std::cout << "Moving mount to original Azimuthal angle" << std::endl;
+
+    move(CELESTRON_E, SR_9);
+    while (m_az > 5.) {
+        if (_verbose) {
+            // Delete previous line
+            const std::string deleteLine = "\e[2K\r\e[1A";
+            std::cout << deleteLine;
+
+            int pct = (1.0 - m_az/start_az) * 100;
+            float time = float(getElapsedSeconds() - start_time);
+            
+            std::cout << " [ ";
+            for (int i = 0; i < 50; i++) {
+                if (i < pct/2) std::cout << "#";
+                else std::cout << ".";
+            }
+            std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << std::endl;
+        }
+        usleep(1000);
+        update();
+    }
+    return stop(CELESTRON_E);
 }
 
 bool Celestron::echo() {

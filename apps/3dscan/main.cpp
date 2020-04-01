@@ -50,10 +50,11 @@ int main(int argc, char **argv){
     std::string portLidar = "/dev/ttyUSB0";
     std::string portMount = "/dev/ttyUSB1";
     std::string filename = "point_cloud";
-    float degrees = 180.0f; // Half loop
-    float speed = 0.75f;
+    float toDegree = 180.0f; // Half loop
+    float atSpeed = 0.75f;
     float leaf = 0.01f;     // m
     bool bNormal = false;
+    bool bVerbose = false;
 
 
     for (int i = 1; i < argc ; i++) {
@@ -77,15 +78,15 @@ int main(int argc, char **argv){
         }
         else if ( std::string(argv[i]) == "--degrees" ) {
             if (++i < argc)
-                degrees = toFloat(std::string(argv[i]));
+                toDegree = toFloat(std::string(argv[i]));
             else
-                std::cout << "Argument '" << argument << "' should be followed by a amount of degrees to turn during the scan. Default is " << degrees << std::endl;
+                std::cout << "Argument '" << argument << "' should be followed by a amount of degrees to turn during the scan. Default is " << toDegree << std::endl;
         }
         else if ( std::string(argv[i]) == "--speed" ) {
             if (++i < argc)
-                speed = toFloat(std::string(argv[i]));
+                atSpeed = toFloat(std::string(argv[i]));
             else
-                std::cout << "Argument '" << argument << "' should be followed by a the speed (expressed in a number between 0.0 to 1.0) of the speed of the scan. Default is " << speed << std::endl;
+                std::cout << "Argument '" << argument << "' should be followed by a the speed (expressed in a number between 0.0 to 1.0) of the speed of the scan. Default is " << atSpeed << std::endl;
         }
         else if ( std::string(argv[i]) == "--leaf" ) {
             if (++i < argc)
@@ -93,27 +94,17 @@ int main(int argc, char **argv){
             else
                 std::cout << "Argument '" << argument << "' should be followed by a the leaf size (expressed in meters) for the voxel grid. Default is" << leaf << std::endl;
         }
-        else if ( std::string(argv[i]) == "--offsetX" ) {
-            if (++i < argc)
-                scanner.setOffsetX( toFloat(std::string(argv[i])) );
-        }
-        else if ( std::string(argv[i]) == "--offsetY" ) {
-            if (++i < argc)
-                scanner.setOffsetY( toFloat(std::string(argv[i])) );
-        }
-        else if ( std::string(argv[i]) == "--offsetZ" ) {
-            if (++i < argc)
-                scanner.setOffsetZ( toFloat(std::string(argv[i])) );
-        }
         else if ( std::string(argv[i]) == "--normals" )
             bNormal = true;
+        else if ( std::string(argv[i]) == "--verbose" )
+            bVerbose = true;
     }
 
     
-    if (scanner.connect(portMount.c_str(), portLidar.c_str())) {
+    if (scanner.connect(portLidar.c_str(), portMount.c_str(), bVerbose)) {
 
         // Scan 75% degrees at half speed
-        std::vector<glm::vec4> points = scanner.scan(degrees, speed);
+        std::vector<glm::vec4> points = scanner.scan(toDegree, atSpeed, bVerbose);
         float time_end = points[points.size()-1].w;
 
         if (points.size() > 0) {
@@ -166,9 +157,8 @@ int main(int argc, char **argv){
                 pcl::io::savePLYFile(filename, *cloud, false);
             }
         }
-
-        std::cout << "Reset scanner" << std::endl;
-        scanner.reset();
+        
+        scanner.reset(bVerbose);
         scanner.disconnect();
     }
 

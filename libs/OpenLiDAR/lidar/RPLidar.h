@@ -1,20 +1,15 @@
 #pragma once
 
-#include "../Driver.h"
+#include "Lidar.h"
 #include "rplidar.h"
 
 #ifndef RPLIDAR_MAXSAMPLES
 #define RPLIDAR_MAXSAMPLES 8192
 #endif
 
-struct LidarSample {
-    float theta;
-    float distance;
-};
-
 using namespace rp::standalone::rplidar;
 
-class RPLidar : public Driver {
+class RPLidar : public Lidar {
 public:
 
     RPLidar();

@@ -11,16 +11,16 @@ Supported **LiDAR Sensors**:
 
 | Manufacture | Device | Driver | Range | Outdoors | Angle Resolution |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `RPLidar.h` | 12m | no | non applicalbe | 
-| SLAMTECH      | [RPLidar A2](https://www.slamtec.com/en/Lidar/A2) | `RPLidar.h` | 18m | no | 0.45° ~ 1.35° |
-| SLAMTECH      | [RPLidar A3](https://www.slamtec.com/en/Lidar/A3) | `RPLidar.h` | 25m / 16m (in/outdoors) | yes | 0.3375° / 0.54° |
-| SLAMTECH      | [RPLidar S1](https://www.slamtec.com/en/Lidar/S1) | `RPLidar.h` | 40m | yes | 0.391° |
+| SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `lidar/RPLidar.h` | 12m | no | non applicalbe | 
+| SLAMTECH      | [RPLidar A2](https://www.slamtec.com/en/Lidar/A2) | `lidar/RPLidar.h` | 18m | no | 0.45° ~ 1.35° |
+| SLAMTECH      | [RPLidar A3](https://www.slamtec.com/en/Lidar/A3) | `lidar/RPLidar.h` | 25m / 16m (in/outdoors) | yes | 0.3375° / 0.54° |
+| SLAMTECH      | [RPLidar S1](https://www.slamtec.com/en/Lidar/S1) | `lidar/RPLidar.h` | 40m | yes | 0.391° |
 
 Supported **Mounts**: 
 
 | Manufacture | Device | Driver | 
 | ------------- | ------------- | ------------- | 
-| Celestron     | [NexStar Series](https://www.ebay.com/itm/Celestron-Astro-Fi-Computerized-GoTo-Mount-Complete-Mount-NEW/402029171407?_trkparms=aid%3D111001%26algo%3DREC.SEED%26ao%3D1%26asc%3D20160811114145%26meid%3Dac0b70c81d164dd9bf6b6775530718f0%26pid%3D100667%26rk%3D2%26rkt%3D8%26mehot%3Dnone%26sd%3D303235523326%26itm%3D402029171407%26pmt%3D0%26noa%3D1%26pg%3D2334524&_trksid=p2334524.c100667.m2042) | `Celestron.h` |
+| Celestron     | [NexStar Series](https://www.ebay.com/itm/Celestron-Astro-Fi-Computerized-GoTo-Mount-Complete-Mount-NEW/402029171407?_trkparms=aid%3D111001%26algo%3DREC.SEED%26ao%3D1%26asc%3D20160811114145%26meid%3Dac0b70c81d164dd9bf6b6775530718f0%26pid%3D100667%26rk%3D2%26rkt%3D8%26mehot%3Dnone%26sd%3D303235523326%26itm%3D402029171407%26pmt%3D0%26noa%3D1%26pg%3D2334524&_trksid=p2334524.c100667.m2042) | `mount/Celestron.h` |
 | TBD           | TBD | TBD | 
 
 Supported **GPS**:
