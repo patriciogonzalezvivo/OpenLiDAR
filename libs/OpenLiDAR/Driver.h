@@ -24,10 +24,11 @@ public:
 
     virtual char*   getPort() {
         for (int i = 0; i < PORTS_TOTAL; i++) {
-            if (connect(PORTS[i], false))
+            bool success = connect(PORTS[i], false);
+            disconnect();
+
+            if (success)
                 return PORTS[i];
-            else
-                disconnect();
         }
 
         return (char*)"NONE";
