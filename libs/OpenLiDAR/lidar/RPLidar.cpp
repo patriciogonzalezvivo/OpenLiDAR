@@ -8,13 +8,15 @@
 #define _countof(_Array) (int)(sizeof(_Array) / sizeof(_Array[0]))
 #endif
 
-bool checkRPLIDARHealth(RPlidarDriver * _drv) {
+bool checkRPLIDARHealth(RPlidarDriver * _drv, bool _verbose) {
     u_result     op_result;
     rplidar_response_device_health_t healthinfo;
 
     op_result = _drv->getHealth(healthinfo);
     if (IS_OK(op_result)) { // the macro IS_OK is the preperred way to judge whether the operation is succeed.
-        printf("RPLidar health status : %d\n", healthinfo.status);
+        if (_verbose)
+            printf("RPLidar health status : %d\n", healthinfo.status);
+            
         if (healthinfo.status == RPLIDAR_STATUS_ERROR) {
             fprintf(stderr, "Error, rplidar internal error detected. Please reboot the device to retry.\n");
             // enable the following code if you want rplidar to be reboot by software
@@ -40,7 +42,7 @@ RPLidar::~RPLidar() {
 
 }
 
-bool RPLidar::connect(const char* _portName) {
+bool RPLidar::connect(const char* _portName, bool _verbose) {
     // Connecting to RPLiDAR device
     _u32         baudrateArray[2] = {115200, 256000};
     u_result     op_result;
@@ -74,8 +76,12 @@ bool RPLidar::connect(const char* _portName) {
         m_driver = NULL;
     }
     else {
+
+        if (_verbose)
+            printFirmware();
+
         // check health...
-        if (!checkRPLIDARHealth(m_driver)) {
+        if (!checkRPLIDARHealth(m_driver, _verbose)) {
             delete m_driver;
             m_driver = NULL;
         }

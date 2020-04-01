@@ -12,6 +12,7 @@ public:
     OpenLiDAR();
     virtual ~OpenLiDAR();
 
+    bool        connect(bool _verbose);
     bool        connect(const char* _lidarPort, const char* _mountPort, bool _verbose);
     void        disconnect();
 

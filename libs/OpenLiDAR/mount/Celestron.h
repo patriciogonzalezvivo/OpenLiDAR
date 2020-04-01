@@ -13,7 +13,7 @@ public:
     virtual ~Celestron();
 
     // Driver Abstract Methods 
-    bool        connect(const char* _portName);
+    bool        connect(const char* _portName, bool _verbose);
     void        disconnect();
     bool        printFirmware();
 

@@ -20,6 +20,42 @@ OpenLiDAR::~OpenLiDAR(){
     disconnect();
 }
 
+bool OpenLiDAR::connect(bool _verbose) {
+
+    char* _mountPort = NULL;
+    char* _lidarPort = NULL;
+
+    if (!m_mount) {
+        m_mount = new Celestron();
+        _mountPort = m_mount->getPort();
+    }
+    
+    if (!m_lidar) {
+        m_lidar = new RPLidar();
+        _lidarPort = m_lidar->getPort();
+    }
+    
+    if (!m_mount->connect(_mountPort, _verbose)) {
+        std::cerr << "Can't find Mount in " << _mountPort << std::endl;
+        delete m_mount;
+        m_mount = NULL;
+    }
+
+    if (!m_lidar->connect(_lidarPort, _verbose)) {
+        std::cerr << "Can't find Sensor in " << _lidarPort << std::endl;
+        delete m_lidar;
+        m_lidar = NULL;
+    }
+#if defined(DEBUG_USING_SIMULATE_DATA)
+    if (m_lidar == NULL || m_mount == NULL)
+        std::cout << "WARNING!!! Basic devices are not connected, data will be simulated." << std::endl;
+
+    return true;
+#endif
+
+    return (m_lidar != NULL) && (m_mount != NULL);
+}
+
 bool OpenLiDAR::connect(const char* _lidarPort, const char* _mountPort, bool _verbose) {
 
     // MOUNT
@@ -29,14 +65,10 @@ bool OpenLiDAR::connect(const char* _lidarPort, const char* _mountPort, bool _ve
     if (!m_mount) {
         m_mount = new Celestron();
 
-        if (!m_mount->connect(_mountPort)) {
+        if (!m_mount->connect(_mountPort, _verbose)) {
             std::cerr << "Can't find Celestron Mount in " << _mountPort << std::endl;
             delete m_mount;
             m_mount = NULL;
-        }
-        else if (_verbose) {
-            m_mount->printFirmware();
-            std::cout << "Mount offset from center " << m_mount->getOffset().x << "," << m_mount->getOffset().y << "," << m_mount->getOffset().z << std::endl;
         }
     }
     
@@ -45,13 +77,11 @@ bool OpenLiDAR::connect(const char* _lidarPort, const char* _mountPort, bool _ve
     if (!m_lidar) {
         m_lidar = new RPLidar();
 
-        if (!m_lidar->connect(_lidarPort)) {
+        if (!m_lidar->connect(_lidarPort, _verbose)) {
             std::cerr << "Can't find RPLidar Sensor in " << _lidarPort << std::endl;
             delete m_lidar;
             m_lidar = NULL;
         }
-        else if (_verbose)
-            m_lidar->printFirmware();
     }
 
 #if defined(DEBUG_USING_SIMULATE_DATA)

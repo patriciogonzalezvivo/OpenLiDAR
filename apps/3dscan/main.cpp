@@ -60,19 +60,7 @@ int main(int argc, char **argv){
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
 
-        if ( std::string(argv[i]) == "--mount" ) {
-            if (++i < argc)
-                portMount = std::string(argv[i]);
-            else
-                std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the mount device. Default is " << portMount << std::endl;
-        }
-        else if ( std::string(argv[i]) == "--lidar" ) {
-            if (++i < argc)
-                portLidar = std::string(argv[i]);
-            else
-                std::cout << "Argument '" << argument << "' should be followed by the serial adrees of the lidar device. Default is " << portLidar << std::endl;
-        }
-        else if ( std::string(argv[i]) == "--out" ) {
+        if ( std::string(argv[i]) == "--out" ) {
             if (++i < argc)
                 filename = std::string(argv[i]);
         }
@@ -101,7 +89,7 @@ int main(int argc, char **argv){
     }
 
     
-    if (scanner.connect(portLidar.c_str(), portMount.c_str(), bVerbose)) {
+    if (scanner.connect(bVerbose)) {
 
         // Scan 75% degrees at half speed
         std::vector<glm::vec4> points = scanner.scan(toDegree, atSpeed, bVerbose);
@@ -157,7 +145,7 @@ int main(int argc, char **argv){
                 pcl::io::savePLYFile(filename, *cloud, false);
             }
         }
-        
+
         scanner.reset(bVerbose);
         scanner.disconnect();
     }

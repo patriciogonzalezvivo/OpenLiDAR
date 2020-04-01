@@ -174,7 +174,7 @@ Celestron::~Celestron() {
     disconnect();
 }
 
-bool Celestron::connect(const char* _port) {
+bool Celestron::connect(const char* _port, bool _verbose) {
     struct termios tty;
 
     // fprintf(stderr, "Connecting to port: %s\n", _port);
@@ -212,6 +212,9 @@ bool Celestron::connect(const char* _port) {
 
         size_t m = static_cast<uint8_t>(response[0]);
         m_offset = CELESTRON_MODELS[m].offset;
+
+        if (_verbose)
+            printFirmware();
     }
 
     return m_connected;
