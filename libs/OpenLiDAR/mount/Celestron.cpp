@@ -29,6 +29,40 @@
 #define CELESTRON_DEV_RA  0x10
 #define CELESTRON_DEV_DEC 0x11
 
+static struct CelestronModel {
+    int index;
+    char* name;
+    glm::vec3 offset;
+} CELESTRON_MODELS[27] {
+    {0, (char*)"UNKNOWN",      glm::vec3(0.0,  0.0, 0.0)},
+    {1, (char*)"GPS Series",   glm::vec3(0.0,  0.0, 0.0)},
+    {2, (char*)"UNKNOWN",      glm::vec3(0.0,  0.0, 0.0)},
+    {3, (char*)"i-Series",     glm::vec3(0.0,  0.0, 0.0)},
+    {4, (char*)"i-Series SE",  glm::vec3(0.0,  0.0, 0.0)},
+    {5, (char*)"CGE",          glm::vec3(0.0,  0.0, 0.0)},
+    {6, (char*)"Advanced GT",  glm::vec3(0.0,  0.0, 0.0)},
+    {7, (char*)"SLT",          glm::vec3(0.08, 0.0, -0.12)},
+    {8, (char*)"UNKNOWN",      glm::vec3(0.0,  0.0, 0.0)},
+    {9, (char*)"CPC",          glm::vec3(0.0,  0.0, 0.0)},
+    {10, (char*)"GT",          glm::vec3(0.0,  0.0, 0.0)},
+    {11, (char*)"4/5 SE",      glm::vec3(0.0,  0.0, 0.0)},
+    {12, (char*)"6/8 SE",      glm::vec3(0.0,  0.0, 0.0)},
+    {13, (char*)"CGE Pro",     glm::vec3(0.0,  0.0, 0.0)},
+    {14, (char*)"CGEM DX",     glm::vec3(0.0,  0.0, 0.0)},
+    {15, (char*)"LCM",         glm::vec3(0.0,  0.0, 0.0)},
+    {16, (char*)"Sky Prodigy", glm::vec3(0.0,  0.0, 0.0)},
+    {17, (char*)"CPC Deluxe",  glm::vec3(0.0,  0.0, 0.0)},
+    {18, (char*)"GT 16",       glm::vec3(0.0,  0.0, 0.0)},
+    {19, (char*)"StarSeeker",  glm::vec3(0.0,  0.0, 0.0)},
+    {20, (char*)"AVX",         glm::vec3(0.0,  0.0, 0.0)},
+    {21, (char*)"Cosmos",      glm::vec3(0.0,  0.0, 0.0)},
+    {22, (char*)"Evolution",   glm::vec3(0.0,  0.0, 0.0)},
+    {23, (char*)"CGX",         glm::vec3(0.0,  0.0, 0.0)},
+    {24, (char*)"CGXL",        glm::vec3(0.0,  0.0, 0.0)},
+    {25, (char*)"Astrofi",     glm::vec3(0.0,  0.0, 0.0)},
+    {26, (char*)"SkyWatcher",  glm::vec3(0.0,  0.0, 0.0)},
+};
+
 /* Serial communication utilities */
 typedef fd_set telfds;
 
@@ -169,6 +203,16 @@ bool Celestron::connect(const char* _port) {
     tcsetattr(m_fd, TCSANOW, &tty);
 
     m_connected = checkConnection();
+
+    if (m_connected) {
+        // extended list of mounts
+        char response[MAX_RESP_SIZE];
+        if (!send_command("m", 1, response, 2))
+            return false;
+
+        size_t m = static_cast<uint8_t>(response[0]);
+        m_offset = CELESTRON_MODELS[m].offset;
+    }
 
     return m_connected;
 }
@@ -327,40 +371,44 @@ bool Celestron::getVariant(char* _variant) {
 
 bool Celestron::getModel(char* _model, int _size, bool* _isGem) {
     // extended list of mounts
-    std::map<int, std::string> models = {
-        {1, "GPS Series"},
-        {3, "i-Series"},
-        {4, "i-Series SE"},
-        {5, "CGE"},
-        {6, "Advanced GT"},
-        {7, "SLT"},
-        {9, "CPC"},
-        {10, "GT"},
-        {11, "4/5 SE"},
-        {12, "6/8 SE"},
-        {13, "CGE Pro"},
-        {14, "CGEM DX"},
-        {15, "LCM"},
-        {16, "Sky Prodigy"},
-        {17, "CPC Deluxe"},
-        {18, "GT 16"},
-        {19, "StarSeeker"},
-        {20, "AVX"},
-        {21, "Cosmos"},
-        {22, "Evolution"},
-        {23, "CGX"},
-        {24, "CGXL"},
-        {25, "Astrofi"},
-        {26, "SkyWatcher"},
-    };
+    // std::map<int, std::string> models = {
+    //     {1, "GPS Series"},
+    //     {3, "i-Series"},
+    //     {4, "i-Series SE"},
+    //     {5, "CGE"},
+    //     {6, "Advanced GT"},
+    //     {7, "SLT"},
+    //     {9, "CPC"},
+    //     {10, "GT"},
+    //     {11, "4/5 SE"},
+    //     {12, "6/8 SE"},
+    //     {13, "CGE Pro"},
+    //     {14, "CGEM DX"},
+    //     {15, "LCM"},
+    //     {16, "Sky Prodigy"},
+    //     {17, "CPC Deluxe"},
+    //     {18, "GT 16"},
+    //     {19, "StarSeeker"},
+    //     {20, "AVX"},
+    //     {21, "Cosmos"},
+    //     {22, "Evolution"},
+    //     {23, "CGX"},
+    //     {24, "CGXL"},
+    //     {25, "Astrofi"},
+    //     {26, "SkyWatcher"},
+    // };
 
     char response[MAX_RESP_SIZE];
     if (!send_command("m", 1, response, 2))
         return false;
 
     int m = static_cast<uint8_t>(response[0]);
-    if (models.find(m) != models.end()) {
-        strncpy(_model, models[m].c_str(), _size);
+    // if (models.find(m) != models.end()) {
+    //     strncpy(_model, models[m].c_str(), _size);
+    //     printf("Mount model: %s\n", _model);
+    // }
+    if (m < 27) {
+        strncpy(_model, CELESTRON_MODELS[m].name, _size);
         printf("Mount model: %s\n", _model);
     }
     else {

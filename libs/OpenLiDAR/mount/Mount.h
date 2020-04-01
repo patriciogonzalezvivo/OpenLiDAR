@@ -6,7 +6,7 @@
 
 class Mount : public Driver {
 public:
-    Mount() : m_offset(0.08, 0.0, -0.12), m_az(0.f), m_alt(0.f) {};
+    Mount() : m_offset(0.0,0.0,0.0), m_az(0.f), m_alt(0.f) {};
     virtual ~Mount() {};
 
     virtual bool    start(float _speed, bool _verbose) = 0;
@@ -24,7 +24,7 @@ public:
         return m_alt; 
     };
 
-    virtual glm::vec3 getOffset() const { return m_offset; }
+    virtual glm::vec3 getOffset() { return m_offset; }
 
 protected:
     glm::vec3   m_offset;

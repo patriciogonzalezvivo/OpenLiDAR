@@ -34,8 +34,10 @@ bool OpenLiDAR::connect(const char* _lidarPort, const char* _mountPort, bool _ve
             delete m_mount;
             m_mount = NULL;
         }
-        else if (_verbose)
+        else if (_verbose) {
             m_mount->printFirmware();
+            std::cout << "Mount offset from center " << m_mount->getOffset().x << "," << m_mount->getOffset().y << "," << m_mount->getOffset().z << std::endl;
+        }
     }
     
     //  LIDAR
@@ -167,7 +169,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
 bool OpenLiDAR::reset(bool _verbose) {
     if (_verbose)
         std::cout << "Reset scanner" << std::endl;
-        
+
     if (m_mount)
         return m_mount->reset(_verbose);
     

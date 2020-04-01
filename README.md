@@ -20,7 +20,8 @@ Supported **Mounts**:
 
 | Manufacture | Device | Driver | 
 | ------------- | ------------- | ------------- | 
-| Celestron     | [NexStar Series](https://www.ebay.com/itm/Celestron-Astro-Fi-Computerized-GoTo-Mount-Complete-Mount-NEW/402029171407?_trkparms=aid%3D111001%26algo%3DREC.SEED%26ao%3D1%26asc%3D20160811114145%26meid%3Dac0b70c81d164dd9bf6b6775530718f0%26pid%3D100667%26rk%3D2%26rkt%3D8%26mehot%3Dnone%26sd%3D303235523326%26itm%3D402029171407%26pmt%3D0%26noa%3D1%26pg%3D2334524&_trksid=p2334524.c100667.m2042) | `mount/Celestron.h` |
+| Celestron     | [NexStar STL Series](https://s3.amazonaws.com/celestron-site-support-files/support_files/NexStar_SLT_manual.pdf) | `mount/Celestron.h` |
+| Celestron     | [NexStar STL Series](https://s3.amazonaws.com/celestron-site-support-files/support_files/NexStar_SLT_manual.pdf) | `mount/Celestron.h` |
 | TBD           | TBD | TBD | 
 
 Supported **GPS**:
