@@ -34,6 +34,11 @@ bool OpenLiDAR::connect(bool _verbose) {
         m_lidar = new RPLidar();
         _lidarPort = m_lidar->getPort();
     }
+
+    if (_verbose) {
+        std::cout << "Mount found at " << _mountPort << std::endl;
+        std::cout << "Lidar found at " << _lidarPort << std::endl;
+    }
     
     if (!m_mount->connect(_mountPort, _verbose)) {
         std::cerr << "Can't find Mount in " << _mountPort << std::endl;
@@ -46,6 +51,7 @@ bool OpenLiDAR::connect(bool _verbose) {
         delete m_lidar;
         m_lidar = NULL;
     }
+    
 #if defined(DEBUG_USING_SIMULATE_DATA)
     if (m_lidar == NULL || m_mount == NULL)
         std::cout << "WARNING!!! Basic devices are not connected, data will be simulated." << std::endl;
