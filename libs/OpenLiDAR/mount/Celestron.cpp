@@ -314,28 +314,28 @@ bool Celestron::printFirmware() {
     char version[8], model[16], RAVersion[8], DEVersion[8];
     bool isGem = false;
 
-    printf("Getting controller version...\n");
+    // printf("Getting controller version...\n");
     if (!getVersion(version, 8))
         return false;
     float controllerVersion = atof(version);
 
-    printf("Getting controller variant...\n");
+    // printf("Getting controller variant...\n");
     char controllerVariant = ISNEXSTAR;
     getVariant(&controllerVariant);
 
     if (((controllerVariant == ISSTARSENSE) &&
           controllerVersion >= MINSTSENSVER) ||
          (controllerVersion >= 2.2) ) {
-        printf("Getting controller model...\n");
+        // printf("Getting controller model...\n");
         if (!getModel(model, 16, &isGem))
             return false;
     }
 
-    printf("Getting RA firmware version...\n");
+    // printf("Getting RA firmware version...\n");
     if (!getDevFirmware(CELESTRON_DEV_RA, RAVersion, 8))
         return false;
 
-    printf("Getting DEC firmware version...\n");
+    // printf("Getting DEC firmware version...\n");
     if (!getDevFirmware(CELESTRON_DEV_DEC, DEVersion, 8))
         return false;
 
@@ -370,50 +370,16 @@ bool Celestron::getVariant(char* _variant) {
 }
 
 bool Celestron::getModel(char* _model, int _size, bool* _isGem) {
-    // extended list of mounts
-    // std::map<int, std::string> models = {
-    //     {1, "GPS Series"},
-    //     {3, "i-Series"},
-    //     {4, "i-Series SE"},
-    //     {5, "CGE"},
-    //     {6, "Advanced GT"},
-    //     {7, "SLT"},
-    //     {9, "CPC"},
-    //     {10, "GT"},
-    //     {11, "4/5 SE"},
-    //     {12, "6/8 SE"},
-    //     {13, "CGE Pro"},
-    //     {14, "CGEM DX"},
-    //     {15, "LCM"},
-    //     {16, "Sky Prodigy"},
-    //     {17, "CPC Deluxe"},
-    //     {18, "GT 16"},
-    //     {19, "StarSeeker"},
-    //     {20, "AVX"},
-    //     {21, "Cosmos"},
-    //     {22, "Evolution"},
-    //     {23, "CGX"},
-    //     {24, "CGXL"},
-    //     {25, "Astrofi"},
-    //     {26, "SkyWatcher"},
-    // };
-
     char response[MAX_RESP_SIZE];
     if (!send_command("m", 1, response, 2))
         return false;
 
     int m = static_cast<uint8_t>(response[0]);
-    // if (models.find(m) != models.end()) {
-    //     strncpy(_model, models[m].c_str(), _size);
-    //     printf("Mount model: %s\n", _model);
-    // }
     if (m < 27) {
         strncpy(_model, CELESTRON_MODELS[m].name, _size);
-        printf("Mount model: %s\n", _model);
     }
     else {
         strncpy(_model, "Unknown", _size);
-        printf("Unrecognized model %s.\n", _model);
     }
 
     // use model# to detect the GEMs
