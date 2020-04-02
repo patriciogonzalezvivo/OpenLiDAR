@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Lidar.h"
+#include "LidarDriver.h"
 #include "rplidar.h"
 
 #ifndef RPLIDAR_MAXSAMPLES
@@ -9,7 +9,7 @@
 
 using namespace rp::standalone::rplidar;
 
-class RPLidar : public Lidar {
+class RPLidar : public LidarDriver {
 public:
 
     RPLidar();

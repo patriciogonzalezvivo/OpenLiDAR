@@ -238,12 +238,8 @@ bool Celestron::stop() {
     return stop(CELESTRON_W);
 }
 
-bool Celestron::update() {
-    return getAzAlt(&m_az, &m_alt);
-}
-
 bool Celestron::reset(bool _verbose) {
-    update();
+    getAzAlt(&m_az, &m_alt);
 
     double start_az = m_az;
     double start_time = getElapsedSeconds();
@@ -269,10 +265,20 @@ bool Celestron::reset(bool _verbose) {
             std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << std::endl;
         }
         usleep(1000);
-        update();
+        getAzAlt(&m_az, &m_alt);
     }
     return stop(CELESTRON_E);
 }
+
+double Celestron::getAz() { 
+    getAzAlt(&m_az, &m_alt);
+    return m_az; 
+}
+
+double Celestron::getAlt() { 
+    getAzAlt(&m_az, &m_alt);
+    return m_alt; 
+};
 
 bool Celestron::echo() {
     char response[MAX_RESP_SIZE];

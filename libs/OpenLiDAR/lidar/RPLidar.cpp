@@ -35,11 +35,10 @@ bool checkRPLIDARHealth(RPlidarDriver * _drv, bool _verbose) {
 RPLidar::RPLidar():
 m_driver(NULL)
 {
-
 }
 
 RPLidar::~RPLidar() {
-
+    disconnect();
 }
 
 bool RPLidar::connect(const char* _portName, bool _verbose) {
@@ -91,7 +90,9 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
 }
 
 void RPLidar::disconnect() {
-    RPlidarDriver::DisposeDriver(m_driver);
+    if (m_connected)
+        RPlidarDriver::DisposeDriver(m_driver);
+
     m_driver = NULL;
 }
 

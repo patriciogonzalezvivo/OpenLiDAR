@@ -31,7 +31,7 @@ public:
                 return PORTS[i];
         }
 
-        return (char*)"NONE";
+        return (char*)"UNKNOWN";
     }
 
 protected:

@@ -89,7 +89,7 @@ int main(int argc, char **argv){
     }
 
     
-    if (scanner.connect(bVerbose)) {
+    if (scanner.connect(RPLIDAR, CELESTRON, bVerbose)) {
 
         // Scan 75% degrees at half speed
         std::vector<glm::vec4> points = scanner.scan(toDegree, atSpeed, bVerbose);

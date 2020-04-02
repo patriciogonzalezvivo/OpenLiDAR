@@ -10,6 +10,9 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 
+#include "mount/Celestron.h"
+#include "lidar/RPLidar.h"
+
 OpenLiDAR::OpenLiDAR() :
     m_mount(NULL),
     m_lidar(NULL), 
@@ -20,38 +23,52 @@ OpenLiDAR::~OpenLiDAR(){
     disconnect();
 }
 
-bool OpenLiDAR::connect(bool _verbose) {
+bool OpenLiDAR::connect(LidarType _lidarType, MountType _mountType, bool _verbose) {
 
-    char* _mountPort = NULL;
-    char* _lidarPort = NULL;
+    if (!m_lidar) {
+        switch (_lidarType)
+        {
+        case RPLIDAR:
+            m_lidar = new RPLidar();
+            break;
+        
+        default:
+            break;
+        }
+        m_lidar = new RPLidar();
+    }
 
     if (!m_mount) {
-        m_mount = new Celestron();
-        _mountPort = m_mount->getPort();
-    }
-    
-    if (!m_lidar) {
-        m_lidar = new RPLidar();
-        _lidarPort = m_lidar->getPort();
+        switch (_mountType) {
+        case CELESTRON:
+            m_mount = new Celestron();
+            break;
+        
+        default:
+            break;
+        }
     }
 
+    char* _mountPort = m_mount->getPort();
+    char* _lidarPort = m_lidar->getPort();
+    
     if (_verbose) {
         std::cout << "Mount found at " << _mountPort << std::endl;
         std::cout << "Lidar found at " << _lidarPort << std::endl;
     }
     
     if (!m_mount->connect(_mountPort, _verbose)) {
-        std::cerr << "Can't find Mount in " << _mountPort << std::endl;
+        std::cerr << "Can't load Mount from " << _mountPort << std::endl;
         delete m_mount;
         m_mount = NULL;
     }
 
     if (!m_lidar->connect(_lidarPort, _verbose)) {
-        std::cerr << "Can't find Sensor in " << _lidarPort << std::endl;
+        std::cerr << "Can't load Sensor from " << _lidarPort << std::endl;
         delete m_lidar;
         m_lidar = NULL;
     }
-    
+
 #if defined(DEBUG_USING_SIMULATE_DATA)
     if (m_lidar == NULL || m_mount == NULL)
         std::cout << "WARNING!!! Basic devices are not connected, data will be simulated." << std::endl;

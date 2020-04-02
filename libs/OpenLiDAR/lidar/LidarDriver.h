@@ -2,15 +2,19 @@
 
 #include "../Driver.h"
 
+enum LidarType {
+    RPLIDAR = 0,
+};
+
 struct LidarSample {
     float theta;
     float distance;
 };
 
-class Lidar : public Driver {
+class LidarDriver : public Driver {
 public:
-    Lidar(): m_height(0.0) {};
-    virtual ~Lidar() {};
+    LidarDriver(): m_height(0.0) {};
+    virtual ~LidarDriver() {};
 
     virtual bool    start() = 0;
     virtual bool    stop() = 0;

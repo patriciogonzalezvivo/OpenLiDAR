@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "mount/Celestron.h"
-#include "lidar/RPLidar.h"
+#include "mount/MountDriver.h"
+#include "lidar/LidarDriver.h"
 #include <libgpsmm.h>
 
 class OpenLiDAR {
@@ -12,7 +12,7 @@ public:
     OpenLiDAR();
     virtual ~OpenLiDAR();
 
-    bool        connect(bool _verbose);
+    bool        connect(LidarType _lidarType, MountType _mountType, bool _verbose);
     bool        connect(const char* _lidarPort, const char* _mountPort, bool _verbose);
     void        disconnect();
 
@@ -22,8 +22,8 @@ public:
     bool        reset(bool _verbose = true);
 
 protected:
-    Mount*          m_mount;
-    Lidar*          m_lidar;
+    MountDriver*    m_mount;
+    LidarDriver*    m_lidar;
 
     bool            m_scanning;
 };
