@@ -40,6 +40,8 @@ void Gpsd::disconnect() {
 bool Gpsd::printFirmware() {
     if (m_connected)
         std::cout << "GPSD" << std::endl;
+    
+    return true;
 }
 
 bool Gpsd::start() {
@@ -75,11 +77,15 @@ bool Gpsd::start() {
         }
     });
     // m_thread.detach();
+
+    return true;
 }
 
 bool Gpsd::stop() {
     m_connected = false;
     m_thread.join();
+
+    return true;
 }
 
 double Gpsd::getLat() {

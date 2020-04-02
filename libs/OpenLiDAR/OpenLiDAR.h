@@ -4,7 +4,7 @@
 
 #include "mount/MountDriver.h"
 #include "lidar/LidarDriver.h"
-#include <libgpsmm.h>
+#include "gps/GpsDriver.h"
 
 class OpenLiDAR {
 public:

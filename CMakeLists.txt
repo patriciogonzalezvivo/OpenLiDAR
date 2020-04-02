@@ -26,6 +26,14 @@ include_directories(
   ${RPLIDAR_SDK_PATH}/src
 )
 
+# GPS
+include_directories(${GPS_INCLUDE_DIRS})
+link_directories(${GPS_LIBRARY_DIRS})
+add_definitions(${GPS_DEFINITIONS})
+
+# Threads
+find_package (Threads)
+
 # OPENLIDAR
 set(OPENLIDAR_PATH "libs/OpenLiDAR")
 FILE(GLOB OPENLIDAR_SRC
@@ -37,5 +45,5 @@ include_directories(
 )
 
 add_definitions(-DDEBUG_USING_SIMULATE_DATA)
-add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
-target_link_libraries (3dscan ${PCL_LIBRARIES})
+add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
+target_link_libraries (3dscan ${PCL_LIBRARIES} ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
