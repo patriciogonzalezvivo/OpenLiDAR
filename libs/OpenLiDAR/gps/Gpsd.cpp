@@ -46,12 +46,11 @@ bool Gpsd::printFirmware() {
 
 bool Gpsd::start() {
     m_thread = std::thread([this]{
+        std::cout << "Starting Thread " << std::endl; 
         while (m_connected) {
-
+            
             if (!m_gps->waiting(GPS_WAITING_TIME)) continue;
-
             struct gps_data_t* gpsd_data;
-
             if ((gpsd_data = m_gps->read()) == nullptr) {
                 std::cerr << "GPSD read error.\n";
                 m_connected = false;
@@ -91,6 +90,10 @@ bool Gpsd::stop() {
 double Gpsd::getLat() {
     double lat = 0.0;
     int total = m_lats.size();
+
+    if (total == 0)
+        return 0.0;
+
     m_mutex.lock();
     for(int i = 0; i < total; i++) {
         lat += m_lats[i];
@@ -102,6 +105,10 @@ double Gpsd::getLat() {
 double Gpsd::getLng() {
     double lng = 0.0;
     int total = m_lngs.size();
+
+    if (total == 0)
+        return 0.0;
+
     m_mutex.lock();
     for(int i = 0; i < total; i++) {
         lng += m_lngs[i];
@@ -113,6 +120,10 @@ double Gpsd::getLng() {
 double Gpsd::getAlt() {
     double alt = 0.0;
     int total = m_alts.size();
+
+    if (total == 0)
+        return 0.0;
+
     m_mutex.lock();
     for(int i = 0; i < total; i++) {
         alt += m_alts[i];

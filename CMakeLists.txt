@@ -1,6 +1,16 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1)
 
-project(3dscan)
+if(${CMAKE_VERSION} VERSION_LESS 3.15)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+else()
+    cmake_policy(VERSION 3.15)
+endif()
+
+project(OpenLiDAR VERSION 0.1
+                  DESCRIPTION "Open 3D LiDAR Scanner "
+                  LANGUAGES CXX)
+
+add_definitions(-DDEBUG_USING_SIMULATE_DATA)
 
 # PCL
 find_package(PCL 1.2 REQUIRED)
@@ -27,9 +37,12 @@ include_directories(
 )
 
 # GPS
-include_directories(${GPS_INCLUDE_DIRS})
-link_directories(${GPS_LIBRARY_DIRS})
-add_definitions(${GPS_DEFINITIONS})
+find_path(GPS_INCLUDE_DIR NAMES libgpsmm.h)
+find_library(GPS_LIBRARY NAMES gps)
+if(NOT GPS_INCLUDE_DIR OR NOT GPS_LIBRARY)
+    MESSAGE(FATAL_ERROR "Could not find GPS library")
+endif(NOT GPS_INCLUDE_DIR OR NOT GPS_LIBRARY)
+message(STATUS "Found GPS: ${GPS_LIBRARY}")
 
 # Threads
 find_package (Threads)
@@ -44,6 +57,8 @@ include_directories(
     ${OPENLIDAR_PATH}
 )
 
-add_definitions(-DDEBUG_USING_SIMULATE_DATA)
 add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
 target_link_libraries (3dscan ${PCL_LIBRARIES} ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable (ol_gps "tests/ol_gps.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
+target_link_libraries (ol_gps ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
