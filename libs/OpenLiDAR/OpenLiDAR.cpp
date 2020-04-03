@@ -189,7 +189,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
         if (m_mount) 
             az = m_mount->getAz();
         #if defined(DEBUG_USING_SIMULATE_DATA)
-        // SIMULATE MOUNT DATA
+        // SIMULATE DATA
         else 
             az += 0.5;
         #endif
@@ -208,7 +208,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
         }
         #if defined(DEBUG_USING_SIMULATE_DATA)
         else {
-            // SIMULATE LIDAR DATA
+            // SIMULATE DATA
             for (int i = 0; i < 8000 ; i++) {
                 glm::quat lat = glm::angleAxis(glm::radians(i * 0.045f), glm::vec3(1.0,0.0,0.0));
                 glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, 1.0) + offset);

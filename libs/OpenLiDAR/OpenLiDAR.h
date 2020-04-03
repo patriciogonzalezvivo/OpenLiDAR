@@ -14,12 +14,13 @@ public:
 
     bool        connect(LidarType _lidarType, MountType _mountType, bool _verbose);
     bool        connect(const char* _lidarPort, const char* _mountPort, bool _verbose);
+    bool        reset(bool _verbose = true);
     void        disconnect();
 
     bool        isScanning() { return m_scanning; }
 
     std::vector<glm::vec4> scan(float _toDegree, float _atSpeed, bool _verbose);
-    bool        reset(bool _verbose = true);
+    GpsDriver*  getGps() { return m_gps; };
 
 protected:
     MountDriver*    m_mount;

@@ -3,7 +3,6 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "OpenLiDAR.h"
 #include "gps/Gpsd.h"
 #include "tools.h"
 
