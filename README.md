@@ -108,7 +108,6 @@ Makes a 3D lidar scan. To run you need to the USB addresses of the Celestron mou
 OpenLiDAR `lib/`:
 
 * Auto detect ports for devices
-* Auto suggest offset values based on mount and sensor
 * Multi thread method with callback (specially for creating UI interfaces)
 * Add support for GPS devices
 * Add support for Magnetometers

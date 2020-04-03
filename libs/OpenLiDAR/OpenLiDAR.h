@@ -24,6 +24,7 @@ public:
 protected:
     MountDriver*    m_mount;
     LidarDriver*    m_lidar;
+    GpsDriver*      m_gps;
 
     bool            m_scanning;
 };

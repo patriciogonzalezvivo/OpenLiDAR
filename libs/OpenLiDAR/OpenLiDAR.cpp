@@ -15,7 +15,8 @@
 
 OpenLiDAR::OpenLiDAR() :
     m_mount(NULL),
-    m_lidar(NULL), 
+    m_lidar(NULL),
+    m_gps(NULL),
     m_scanning(false) {
 }
 
@@ -64,9 +65,15 @@ bool OpenLiDAR::connect(LidarType _lidarType, MountType _mountType, bool _verbos
     }
 
     if (!m_lidar->connect(_lidarPort, _verbose)) {
-        std::cerr << "Can't load Sensor from " << _lidarPort << std::endl;
+        std::cerr << "Can't load LiDAR Sensor from " << _lidarPort << std::endl;
         delete m_lidar;
         m_lidar = NULL;
+    }
+
+    if (!m_gps->connect("localhost", _verbose)) {
+        std::cerr << "Can't load GPS from localhost" << std::endl;
+        delete m_gps;
+        m_gps = NULL;
     }
 
 #if defined(DEBUG_USING_SIMULATE_DATA)
@@ -89,7 +96,7 @@ bool OpenLiDAR::connect(const char* _lidarPort, const char* _mountPort, bool _ve
         m_mount = new Celestron();
 
         if (!m_mount->connect(_mountPort, _verbose)) {
-            std::cerr << "Can't find Celestron Mount in " << _mountPort << std::endl;
+            std::cerr << "Can't load Mount from " << _mountPort << std::endl;
             delete m_mount;
             m_mount = NULL;
         }
@@ -101,10 +108,18 @@ bool OpenLiDAR::connect(const char* _lidarPort, const char* _mountPort, bool _ve
         m_lidar = new RPLidar();
 
         if (!m_lidar->connect(_lidarPort, _verbose)) {
-            std::cerr << "Can't find RPLidar Sensor in " << _lidarPort << std::endl;
+            std::cerr << "Can't load LiDAR Sensor from " << _lidarPort << std::endl;
             delete m_lidar;
             m_lidar = NULL;
         }
+    }
+
+    // GPS
+    // -------------------------------------------------------
+    if (!m_gps->connect("localhost", _verbose)) {
+        std::cerr << "Can't load GPS from localhost" << std::endl;
+        delete m_gps;
+        m_gps = NULL;
     }
 
 #if defined(DEBUG_USING_SIMULATE_DATA)
@@ -129,6 +144,12 @@ void OpenLiDAR::disconnect() {
         delete m_lidar;
         m_lidar = NULL;
     }
+
+    if (m_gps) {
+        m_gps->disconnect();
+        delete m_gps;
+        m_gps = NULL;
+    }
 }
 
 std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _verbose) {
@@ -140,6 +161,10 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
     double az = 0.0;
     double start_time = getElapsedSeconds();
     std::vector<glm::vec4> points;
+
+    // Start GPS
+    if (m_gps)
+        m_gps->start();
 
     // Start motor...
     if (m_mount) {
@@ -215,6 +240,10 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
     // Stop panning 
     if (m_mount)
         m_mount->stop();
+
+    // Stop GPS
+    if (m_gps)
+        m_gps->stop();
 
     return points;
 }

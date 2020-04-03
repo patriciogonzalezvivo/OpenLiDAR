@@ -45,6 +45,10 @@ bool Gpsd::printFirmware() {
 }
 
 bool Gpsd::start() {
+    m_lats.clear();
+    m_lngs.clear();
+    m_alts.clear();
+    
     m_thread = std::thread([this]{
         std::cout << "Starting Thread " << std::endl; 
         while (m_connected) {
