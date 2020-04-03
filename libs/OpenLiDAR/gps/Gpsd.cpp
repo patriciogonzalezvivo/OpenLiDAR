@@ -48,7 +48,7 @@ bool Gpsd::start() {
     m_lats.clear();
     m_lngs.clear();
     m_alts.clear();
-    
+
     m_thread = std::thread([this]{
         std::cout << "Starting Thread " << std::endl; 
         while (m_connected) {
@@ -60,9 +60,10 @@ bool Gpsd::start() {
                 m_connected = false;
             }
 
-            while (((gpsd_data = m_gps->read()) == nullptr) || (gpsd_data->fix.mode < MODE_2D)) {
+            if (((gpsd_data = m_gps->read()) == nullptr) || (gpsd_data->fix.mode < MODE_2D)) {
                 // Do nothing until fix, block execution for 1 second (busy wait mitigation)
                 std::this_thread::sleep_for(std::chrono::seconds(1));
+                continue;
             }
 
             m_mutex.lock();
