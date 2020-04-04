@@ -76,7 +76,7 @@ bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
         _settings.lidarPort = m_lidar->getPort();
 
     if (_verbose)
-        std::cout << "Loading Lidar found at " << _settings.lidarPort << std::endl;
+        std::cout << "Loading LiDAR from " << _settings.lidarPort << std::endl;
 
 
     // CONNECT DRIVERS

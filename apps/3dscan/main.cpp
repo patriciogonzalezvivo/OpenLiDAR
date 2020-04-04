@@ -4,11 +4,33 @@
 #include "tools/fileOps.h"
 
 #include <pcl/io/ply_io.h>
+#include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
+
+template<typename PointT> 
+inline bool savePointCloud( const std::string& _filename, 
+                            const std::vector<std::string>& _formats, 
+                            const pcl::PointCloud<PointT> &_cloud) 
+{
+
+    for (size_t i = 0; i < _formats.size(); i++) {
+        std::string filename = getUniqueFileName(_filename, _formats[i]);
+        if (_formats[i] == "ply") {
+            std::cout << "Saving points as " << filename << std::endl;
+            pcl::io::savePLYFile(filename, _cloud, false);
+        }
+        else if (_formats[i] == "pcd") {
+            std::cout << "Saving points as " << filename << std::endl;
+            pcl::io::savePCDFile(filename, _cloud, false);
+        }
+    }
+
+    return true;
+}
 
 // Main program
 //============================================================================
@@ -16,7 +38,8 @@ int main(int argc, char **argv){
     OpenLiDAR scanner;
     OpenLiDARSettings settings;
 
-    std::string filename = "pcl_";
+    std::string filename = "pcl";
+    std::vector<std::string> formats = { "ply" };
     float toDegree = 180.0f;    // Half loop
     float atSpeed = 0.75f;      // 75% of speed
     float leaf = 0.01f;         // 0.01m -> 1cm
@@ -29,6 +52,12 @@ int main(int argc, char **argv){
         if ( std::string(argv[i]) == "--filename" ) {
             if (++i < argc)
                 filename = std::string(argv[i]);
+        }
+        else if ( std::string(argv[i]) == "--formats" ) {
+            if (++i < argc) {
+                formats.clear();
+                formats = split(std::string(argv[i]), ',', true);
+            }
         }
         else if ( std::string(argv[i]) == "--degrees" ) {
             if (++i < argc)
@@ -84,8 +113,6 @@ int main(int argc, char **argv){
                 *cloud = *cloud_filtered;
             }
             
-            filename = getUniqueFileName(filename, "ply");
-
             if (bNormal) {
                 std::cout << "Estimating normals" << std::endl;
                 // // Normal estimation*
@@ -102,12 +129,10 @@ int main(int argc, char **argv){
                 pcl::PointCloud<pcl::PointNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointNormal>);
                 pcl::concatenateFields (*cloud, *normals, *cloud_with_normals);
 
-                std::cout << "Saving points on " << filename << std::endl;
-                pcl::io::savePLYFile(filename, *cloud_with_normals, false);
+                savePointCloud(filename, formats, *cloud_with_normals);
             }
             else {
-                std::cout << "Saving points on " << filename << std::endl;
-                pcl::io::savePLYFile(filename, *cloud, false);
+                savePointCloud(filename, formats, *cloud);
             }
         }
 
