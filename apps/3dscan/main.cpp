@@ -1,8 +1,7 @@
 
-#include <string>
-#include <sstream>
-
 #include "OpenLiDAR.h"
+#include "tools/textOps.h"
+#include "tools/fileOps.h"
 
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
@@ -11,56 +10,23 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
 
-float toFloat(const std::string& _string) {
-    float x = 0;
-    std::istringstream cur(_string);
-    cur >> x;
-    return x;
-}
-
-/// like sprintf "% 4d" or "% 4f" format, in this example width=4, fill=' '
-template <class T>
-inline std::string toString(const T& _value, int _width, char _fill) {
-    std::ostringstream out;
-    out << std::fixed << std::setfill(_fill) << std::setw(_width) << _value;
-    return out.str();
-}
-
-bool doFileExist(const char *_fileName) {
-    std::ifstream infile(_fileName);
-    return infile.good();
-}
-
-std::string getUniqueFileName( const std::string& _originalName, const std::string& _extension) {
-    std::string filename = _originalName + "." + _extension;
-    int index = 0;
-    while ( doFileExist( filename.c_str() ) ) {
-        filename = _originalName + "_" + toString(index, 3, '0') + "." + _extension;
-        index++;
-    }
-    return filename;
-}
-
-
 // Main program
 //============================================================================
 int main(int argc, char **argv){
     OpenLiDAR scanner;
+    OpenLiDARSettings settings;
 
-    std::string portLidar = "/dev/ttyUSB0";
-    std::string portMount = "/dev/ttyUSB1";
-    std::string filename = "point_cloud";
-    float toDegree = 180.0f; // Half loop
-    float atSpeed = 0.75f;
-    float leaf = 0.01f;     // m
+    std::string filename = "pcl_";
+    float toDegree = 180.0f;    // Half loop
+    float atSpeed = 0.75f;      // 75% of speed
+    float leaf = 0.01f;         // 0.01m -> 1cm
     bool bNormal = false;
     bool bVerbose = false;
-
 
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
 
-        if ( std::string(argv[i]) == "--out" ) {
+        if ( std::string(argv[i]) == "--filename" ) {
             if (++i < argc)
                 filename = std::string(argv[i]);
         }
@@ -89,11 +55,10 @@ int main(int argc, char **argv){
     }
 
     
-    if (scanner.connect(RPLIDAR, CELESTRON, bVerbose)) {
+    if (scanner.connect(settings, bVerbose)) {
 
         // Scan 75% degrees at half speed
         std::vector<glm::vec4> points = scanner.scan(toDegree, atSpeed, bVerbose);
-        float time_end = points[points.size()-1].w;
 
         if (points.size() > 0) {
 

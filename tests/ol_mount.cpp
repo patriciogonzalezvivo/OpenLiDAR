@@ -3,7 +3,7 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "mount/Celestron.h"
+#include "drivers/mount/Celestron.h"
 
 int main(int argc, char **argv){
     

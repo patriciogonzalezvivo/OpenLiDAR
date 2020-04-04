@@ -3,15 +3,17 @@
 #include <unistd.h>
 #include <iostream>
 
-#include "tools.h"
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-#include "mount/Celestron.h"
-#include "lidar/RPLidar.h"
+#include "tools/timeOps.h"
+#include "tools/textOps.h"
+
+#include "drivers/gps/Gpsd.h"
+#include "drivers/lidar/RPLidar.h"
+#include "drivers/mount/Celestron.h"
 
 OpenLiDAR::OpenLiDAR() :
     m_mount(NULL),
@@ -24,23 +26,11 @@ OpenLiDAR::~OpenLiDAR(){
     disconnect();
 }
 
-bool OpenLiDAR::connect(LidarType _lidarType, MountType _mountType, bool _verbose) {
+bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
 
-    if (!m_lidar) {
-        switch (_lidarType)
-        {
-        case RPLIDAR:
-            m_lidar = new RPLidar();
-            break;
-        
-        default:
-            break;
-        }
-        m_lidar = new RPLidar();
-    }
-
+    // Initialize drivers
     if (!m_mount) {
-        switch (_mountType) {
+        switch (_settings.mountType) {
         case CELESTRON:
             m_mount = new Celestron();
             break;
@@ -50,77 +40,64 @@ bool OpenLiDAR::connect(LidarType _lidarType, MountType _mountType, bool _verbos
         }
     }
 
-    char* _mountPort = m_mount->getPort();
-    char* _lidarPort = m_lidar->getPort();
-    
-    if (_verbose) {
-        std::cout << "Mount found at " << _mountPort << std::endl;
-        std::cout << "Lidar found at " << _lidarPort << std::endl;
+    if (!m_lidar) {
+        switch (_settings.lidarType)
+        {
+        case RPLIDAR:
+            m_lidar = new RPLidar();
+            break;
+        
+        default:
+            break;
+        }
     }
+
+
+    if (!m_gps) {
+        switch (_settings.gpsType) {
+        case GPSD:
+            m_gps = new Gpsd();
+            break;
+        
+        default:
+            break;
+        }
+    }
+
+
+    // GET DRIVERS PORTS if there are not
+    if (!_settings.mountPort)
+        _settings.mountPort = m_mount->getPort();
     
-    if (!m_mount->connect(_mountPort, _verbose)) {
-        std::cerr << "Can't load Mount from " << _mountPort << std::endl;
+    if (_verbose)
+        std::cout << "Loading Mount from " << _settings.mountPort << std::endl;
+
+    if (!_settings.lidarPort)
+        _settings.lidarPort = m_lidar->getPort();
+
+    if (_verbose)
+        std::cout << "Loading Lidar found at " << _settings.lidarPort << std::endl;
+
+
+    // CONNECT DRIVERS
+    if (!m_mount->connect(_settings.mountPort, _verbose)) {
+        std::cerr << "Can't load Mount from " << _settings.mountPort << std::endl;
         delete m_mount;
         m_mount = NULL;
     }
 
-    if (!m_lidar->connect(_lidarPort, _verbose)) {
-        std::cerr << "Can't load LiDAR Sensor from " << _lidarPort << std::endl;
+    if (!m_lidar->connect(_settings.lidarPort, _verbose)) {
+        std::cerr << "Can't load LiDAR Sensor from " << _settings.lidarPort << std::endl;
         delete m_lidar;
         m_lidar = NULL;
     }
 
-    if (!m_gps->connect("localhost", _verbose)) {
+    if (!m_gps->connect(_settings.gpsPort, _verbose)) {
         std::cerr << "Can't load GPS from localhost" << std::endl;
         delete m_gps;
         m_gps = NULL;
     }
 
-#if defined(DEBUG_USING_SIMULATE_DATA)
-    if (m_lidar == NULL || m_mount == NULL)
-        std::cout << "WARNING!!! Basic devices are not connected, data will be simulated." << std::endl;
-
-    return true;
-#endif
-
-    return (m_lidar != NULL) && (m_mount != NULL);
-}
-
-bool OpenLiDAR::connect(const char* _lidarPort, const char* _mountPort, bool _verbose) {
-
-    // MOUNT
-    // --------------------------------------------------------
-
-    // Connecting to the Celestron Mount
-    if (!m_mount) {
-        m_mount = new Celestron();
-
-        if (!m_mount->connect(_mountPort, _verbose)) {
-            std::cerr << "Can't load Mount from " << _mountPort << std::endl;
-            delete m_mount;
-            m_mount = NULL;
-        }
-    }
-    
-    //  LIDAR
-    // -------------------------------------------------------
-    if (!m_lidar) {
-        m_lidar = new RPLidar();
-
-        if (!m_lidar->connect(_lidarPort, _verbose)) {
-            std::cerr << "Can't load LiDAR Sensor from " << _lidarPort << std::endl;
-            delete m_lidar;
-            m_lidar = NULL;
-        }
-    }
-
-    // GPS
-    // -------------------------------------------------------
-    if (!m_gps->connect("localhost", _verbose)) {
-        std::cerr << "Can't load GPS from localhost" << std::endl;
-        delete m_gps;
-        m_gps = NULL;
-    }
 
 #if defined(DEBUG_USING_SIMULATE_DATA)
     if (m_lidar == NULL || m_mount == NULL)

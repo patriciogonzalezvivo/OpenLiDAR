@@ -3,8 +3,8 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "gps/Gpsd.h"
-#include "tools.h"
+#include "drivers/gps/Gpsd.h"
+#include "tools/timeOps.h"
 
 int main(int argc, char **argv){
     

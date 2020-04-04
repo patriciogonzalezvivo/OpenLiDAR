@@ -52,6 +52,7 @@ set(OPENLIDAR_PATH "libs/OpenLiDAR")
 FILE(GLOB OPENLIDAR_SRC
     "${OPENLIDAR_PATH}/*.cpp"
     "${OPENLIDAR_PATH}/*/*.cpp"
+    "${OPENLIDAR_PATH}/*/*/*.cpp"
 )
 include_directories(
     ${OPENLIDAR_PATH}

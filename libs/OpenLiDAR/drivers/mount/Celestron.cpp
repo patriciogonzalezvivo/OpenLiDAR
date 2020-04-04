@@ -14,7 +14,8 @@
 #include <map>
 #include <string>
 
-#include "../tools.h"
+#include "tools/timeOps.h"
+#include "tools/textOps.h"
 
 #define NULL_PTR(x) (x *)0
 #define MAX_RESP_SIZE   20
@@ -352,7 +353,7 @@ bool Celestron::printFirmware() {
     if (!getDevFirmware(CELESTRON_DEV_DEC, DEVersion, 8))
         return false;
 
-    printf("Firmware Info HC Ver %s model %s %s %s mount, HW Ver %s\n",
+    printf("Firmware Info HC Ver %s model %s %s %s mount, HW Ver %s",
             version,
             model,
             controllerVariant == ISSTARSENSE ? "StarSense" : "NexStar",

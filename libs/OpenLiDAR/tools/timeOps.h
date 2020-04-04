@@ -1,9 +1,12 @@
-#include "tools.h"
+#pragma once
 
 #include <time.h>
+// #include <string>
 
-struct timespec time_start;
-double getElapsedSeconds() {
+#include "textOps.h"
+
+static struct timespec time_start;
+inline double getElapsedSeconds() {
     timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     timespec temp;
@@ -17,7 +20,7 @@ double getElapsedSeconds() {
     return double(temp.tv_sec) + double(temp.tv_nsec/1000000000.);
 }
 
-std::string toMMSS(int _secs) {
+inline std::string toMMSS(int _secs) {
     int hour = _secs/3600;
     _secs = _secs%3600;
     int min = _secs/60;
@@ -26,7 +29,7 @@ std::string toMMSS(int _secs) {
     return toString(min, 0, 2, '0') + ":" + toString(sec, 0, 2, '0');
 }
 
-std::string toHHMMSS(int _secs) {
+inline std::string toHHMMSS(int _secs) {
     int hour = _secs/3600;
     _secs = _secs%3600;
     int min = _secs/60;
