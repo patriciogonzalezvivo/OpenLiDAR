@@ -30,7 +30,7 @@ public:
             bool success = connect(PORTS[i], false);
             disconnect();
 
-            if (_verbose) std::cout << (success ? " [OK] " : " [ Fail ] ") << std::endl;
+            if (_verbose) std::cout << (success ? " [  OK  ] " : " [ Fail ] ") << std::endl;
 
             if (success)
                 return PORTS[i];

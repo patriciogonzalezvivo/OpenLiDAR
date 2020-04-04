@@ -369,7 +369,7 @@ bool Celestron::getVersion(char* _version, int _size) {
 
     snprintf(_version, _size, "%d.%02d\n", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
 
-    printf("Controller version: %s\n", _version);
+    // printf("Controller version: %s\n", _version);
     return true;
 }
 

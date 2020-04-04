@@ -15,8 +15,7 @@ int main(int argc, char **argv){
     std::cout << "Celestron mount found at: " << port << std::endl;
 
     mount->connect(port, true);
-    mount->printFirmware();
-    usleep(500000);
+    usleep(10000);
 
     std::cout << "Az: " << mount->getAz() << std::endl;
     std::cout << "Alt: " << mount->getAlt() << std::endl;
