@@ -14,7 +14,7 @@ public:
     virtual ~MountDriver() {};
 
     virtual bool    start(float _speed, bool _verbose) = 0;
-    virtual bool    stop() = 0;
+    virtual bool    stop(bool _verbose) = 0;
     virtual bool    reset(bool _verbose) = 0;
 
     virtual double      getAz() { return m_az; }

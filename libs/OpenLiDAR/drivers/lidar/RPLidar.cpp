@@ -119,12 +119,14 @@ bool RPLidar::printFirmware() {
 }
 
 
-bool RPLidar::start() {
+bool RPLidar::start(bool _verbose) {
     if (m_driver) {
-        // Start motor...
+        if (_verbose)
+            std::cout << "Start LiDAR motor" << std::endl;
         m_driver->startMotor();
 
-        // start scan...
+        if (_verbose)
+            std::cout << "Start collecting LiDAR data" << std::endl;
         m_driver->startScan(0,1);
 
         return true;
@@ -133,7 +135,7 @@ bool RPLidar::start() {
     return false;
 }
 
-bool RPLidar::stop() {
+bool RPLidar::stop(bool _verbose) {
     if (m_driver) {
         m_driver->stop();
         m_driver->stopMotor();

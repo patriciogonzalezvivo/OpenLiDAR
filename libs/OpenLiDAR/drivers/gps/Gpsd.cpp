@@ -44,13 +44,15 @@ bool Gpsd::printFirmware() {
     return true;
 }
 
-bool Gpsd::start() {
+bool Gpsd::start(bool _verbose) {
     m_lats.clear();
     m_lngs.clear();
     m_alts.clear();
 
-    m_thread = std::thread([this]{
+    if (_verbose)
         std::cout << "Starting Thread " << std::endl; 
+
+    m_thread = std::thread([this]{
         while (m_connected) {
             
             if (!m_gps->waiting(GPS_WAITING_TIME)) continue;
@@ -85,7 +87,7 @@ bool Gpsd::start() {
     return true;
 }
 
-bool Gpsd::stop() {
+bool Gpsd::stop(bool _verbose) {
     m_connected = false;
     m_thread.join();
 

@@ -239,7 +239,7 @@ bool Celestron::start(float _speed, bool _verbose) {
     return move(CELESTRON_W, rate);
 }
 
-bool Celestron::stop() {
+bool Celestron::stop(bool _verbose) {
     return stop(CELESTRON_W);
 }
 
@@ -249,10 +249,13 @@ bool Celestron::reset(bool _verbose) {
     double start_az = m_az;
     double start_time = getElapsedSeconds();
 
-    if (_verbose)
-        std::cout << "Moving mount to original Azimuthal angle" << std::endl;
+    if (_verbose) {
+        std::cout << "Az: " << m_az << " Alt: " << m_alt << std::endl;
+        std::cout << "Moving mount to original Azimuthal angle (towards EAST)" << std::endl;
+    }
 
     move(CELESTRON_E, SR_9);
+
     while (m_az > 5.) {
         if (_verbose) {
             // Delete previous line
@@ -272,7 +275,11 @@ bool Celestron::reset(bool _verbose) {
         usleep(1000);
         getAzAlt(&m_az, &m_alt);
     }
-    return stop(CELESTRON_E);
+
+    std::cout << "Stop moving EAST" << std::endl;
+    stop(CELESTRON_E);
+    
+    return true;
 }
 
 double Celestron::getAz() { 

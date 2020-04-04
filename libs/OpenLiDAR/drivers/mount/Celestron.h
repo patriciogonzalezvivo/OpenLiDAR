@@ -19,7 +19,7 @@ public:
 
     // Mount Abstract Methods
     bool        start(float _speed, bool _verbose);
-    bool        stop();
+    bool        stop(bool _verbose);
     bool        reset(bool _verbose);
 
     double      getAz();

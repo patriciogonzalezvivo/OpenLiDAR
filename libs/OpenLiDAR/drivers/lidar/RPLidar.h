@@ -20,8 +20,8 @@ public:
 
     bool        printFirmware();
 
-    bool        start();
-    bool        stop();
+    bool        start(bool _verbose);
+    bool        stop(bool _verbose);
 
     bool        getSamples(LidarSample* _samples, size_t& _count);
 

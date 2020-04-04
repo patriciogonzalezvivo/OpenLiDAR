@@ -11,7 +11,7 @@ int main(int argc, char **argv){
     std::cout << "Connecting..." << std::endl;
     GpsDriver* gps = new Gpsd();
     gps->connect("localhost", true);
-    gps->start();
+    gps->start(true);
 
     double start_time = getElapsedSeconds();
     for (int pct = 0; pct < 101; pct++) {
@@ -29,7 +29,7 @@ int main(int argc, char **argv){
         usleep(500000);
     }
 
-    gps->stop();
+    gps->stop(true);
 
     std::cout << "lat: " << gps->getLat() << std::endl;
     std::cout << "lng: " << gps->getLng() << std::endl;

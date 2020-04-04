@@ -19,8 +19,8 @@ public:
 
     bool        printFirmware();
 
-    bool        start();
-    bool        stop();
+    bool        start(bool _verbose);
+    bool        stop(bool _verbose);
 
     double      getLat();
     double      getLng();

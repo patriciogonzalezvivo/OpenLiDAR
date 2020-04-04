@@ -139,9 +139,9 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
     double start_time = getElapsedSeconds();
     std::vector<glm::vec4> points;
 
-    // Start GPS
+    // Start GPSScanning
     if (m_gps)
-        m_gps->start();
+        m_gps->start(_verbose);
 
     // Start motor...
     if (m_mount) {
@@ -151,7 +151,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
 
     // Start sensor...
     if (m_lidar) {
-        m_lidar->start();
+        m_lidar->start(_verbose);
         offset.x += m_lidar->getHeight();
     }
 
@@ -212,15 +212,15 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
 
     // Stop capturing Lidar data
     if (m_lidar)
-        m_lidar->stop();
+        m_lidar->stop(_verbose);
 
     // Stop panning 
     if (m_mount)
-        m_mount->stop();
+        m_mount->stop(_verbose);
 
     // Stop GPS
     if (m_gps)
-        m_gps->stop();
+        m_gps->stop(_verbose);
 
     return points;
 }
