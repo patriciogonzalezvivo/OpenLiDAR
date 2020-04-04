@@ -17,6 +17,11 @@ int main(int argc, char **argv){
     mount->connect(port, true);
     mount->printFirmware();
     usleep(500000);
+
+    std::cout << "Az: " << mount->getAz() << std::endl;
+    std::cout << "Alt: " << mount->getAlt() << std::endl;
+    std::cout << "Offset: " << mount->getOffset().x << "," << mount->getOffset().y << "," << mount->getOffset().z << std::endl;
+
     mount->disconnect();
 
     return 0;
