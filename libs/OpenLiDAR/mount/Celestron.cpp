@@ -216,15 +216,17 @@ bool Celestron::connect(const char* _port, bool _verbose) {
         if (_verbose)
             printFirmware();
     }
-    else
-        close(m_fd);
+    else 
+        disconnect();
 
     return m_connected;
 }
 
 void Celestron::disconnect() {
-    if (m_connected)
+    if (m_fb != 1) {
         close(m_fd);
+        m_fb = 0;
+    }
     m_connected = false;
 }
 
