@@ -224,10 +224,11 @@ bool Celestron::connect(const char* _port, bool _verbose) {
 }
 
 void Celestron::disconnect() {
-    if (m_fd != 1) {
+    if (m_fd != 0) {
         close(m_fd);
         m_fd = 0;
     }
+
     m_connected = false;
 }
 
