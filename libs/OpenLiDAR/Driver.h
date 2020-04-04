@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <unistd.h>
 
 #ifndef PORTS_TOTAL 
 #define PORTS_TOTAL 4
@@ -22,13 +23,19 @@ public:
     virtual void    disconnect() = 0;
     virtual bool    printFirmware() = 0;
 
-    virtual char*   getPort() {
+    virtual char*   getPort(bool _verbose = false) {
         for (int i = 0; i < PORTS_TOTAL; i++) {
+            if (_verbose) std::cout << "Trying " << PORTS[i];
+
             bool success = connect(PORTS[i], false);
             disconnect();
 
+            if (_verbose) std::cout << (success ? " [OK] " : " [ Fail ] ") << std::endl;
+
             if (success)
                 return PORTS[i];
+
+            usleep(100000);
         }
 
         return (char*)"UNKNOWN";

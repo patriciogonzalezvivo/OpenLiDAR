@@ -11,7 +11,7 @@ int main(int argc, char **argv){
 
     MountDriver* mount = new Celestron();
 
-    char* port = mount->getPort();
+    char* port = mount->getPort(true);
     std::cout << "Celestron mount found at: " << port << std::endl;
 
     mount->connect(port, true);
