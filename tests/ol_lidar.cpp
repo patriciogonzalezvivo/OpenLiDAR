@@ -18,9 +18,11 @@ int main(int argc, char **argv){
 
     std::cout << "Connecting RPLidar found at: " << port << std::endl;
 
-    lidar->connect(port, true);
-    usleep(10000);
-    lidar->disconnect();
+    if (lidar->connect(port, true)) {
+        std::cout << "SUCESSFULLY connected to " << port << std::endl;
+        usleep(10000);
+        lidar->disconnect();
+    }
 
     return 0;
 }
