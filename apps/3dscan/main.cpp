@@ -78,7 +78,15 @@ int main(int argc, char **argv){
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
 
-        if ( std::string(argv[i]) == "--filename" ) {
+        if ( std::string(argv[i]) == "--mount" ) {
+            if (++i < argc)
+                settings.mountPort = argv[i];
+        }
+        else if ( std::string(argv[i]) == "--lidar" ) {
+            if (++i < argc)
+                settings.lidarPort = argv[i];
+        }
+        else if ( std::string(argv[i]) == "--filename" ) {
             if (++i < argc)
                 filename = std::string(argv[i]);
         }

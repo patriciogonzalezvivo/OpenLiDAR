@@ -87,7 +87,8 @@ bool OpenLiDAR::fillPortDrivers(OpenLiDARSettings& _settings, bool _verbose) {
 }
 
 bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
-    fillPortDrivers(_settings, _verbose);
+    if (_settings.mountPort == NULL || _settings.lidarPort == NULL)
+        fillPortDrivers(_settings, _verbose);
 
     initDrivers(_settings, _verbose);
 
