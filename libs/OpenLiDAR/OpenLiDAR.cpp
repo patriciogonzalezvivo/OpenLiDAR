@@ -173,14 +173,12 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
         #endif
 
         glm::quat lng = glm::angleAxis(float(glm::radians(-az)), glm::vec3(0.0,1.0,0.0));
-        std::cout << "LIDAR working 1" << std::endl;
+
         if (m_lidar) {
-            std::cout << "LIDAR working 2" << std::endl;
 
             if (!m_lidar->getSamples(samples, count))
                 continue;
 
-            std::cout << "LIDAR working 3" << std::endl;
             for (size_t i = 0; i < count ; i++) {
                 glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
                 glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + offset);

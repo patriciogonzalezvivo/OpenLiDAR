@@ -33,18 +33,23 @@ inline bool savePointCloud( const std::string& _filename,
         }
         else if (_formats[i] == "png") {
             // We now want to create a range image from the above point cloud, with a 1deg angular resolution
-            float angularResolution = (float) (  1.0f * (M_PI/180.0f));  //   1.0 degree in radians
+            float angularResolution = (float) (  0.5f * (M_PI/180.0f));  //   1.0 degree in radians
             float maxAngleWidth     = (float) (360.0f * (M_PI/180.0f));  // 360.0 degree in radians
             float maxAngleHeight    = (float) (180.0f * (M_PI/180.0f));  // 180.0 degree in radians
             Eigen::Affine3f sensorPose = (Eigen::Affine3f)Eigen::Translation3f(0.0f, 0.0f, 0.0f);
+            Eigen::Vector3f point_cloud_center = Eigen::Vector3f(0.0,0.0,0.0);
+            float point_cloud_radius = 2.0;
             pcl::RangeImage::CoordinateFrame coordinate_frame = pcl::RangeImage::CAMERA_FRAME;
-            float noiseLevel =0.0f;
+            float noiseLevel = 0.0f;
             float minRange = 0.0f;
-            int borderSize = 1;
+            int borderSize = 0;
             
             pcl::RangeImage rangeImage;
             rangeImage.createFromPointCloud(_cloud, angularResolution, maxAngleWidth, maxAngleHeight,
                                             sensorPose, coordinate_frame, noiseLevel, minRange, borderSize);
+            // rangeImage.createFromPointCloudWithKnownSize(   _cloud, angularResolution, 
+            //                                                 point_cloud_center, point_cloud_radius,
+            //                                                 sensorPose, coordinate_frame, noiseLevel, minRange, borderSize);
 
             std::cout << "Saving points as " << filename << std::endl;
             float* ranges = rangeImage.getRangesArray();
