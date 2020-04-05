@@ -64,7 +64,6 @@ bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
         }
     }
 
-
     // GET DRIVERS PORTS if there are not
     if (!_settings.mountPort)
         _settings.mountPort = m_mount->getPort();

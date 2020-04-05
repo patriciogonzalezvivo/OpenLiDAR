@@ -15,7 +15,19 @@ bool checkRPLIDARHealth(RPlidarDriver * _drv, bool _verbose) {
     op_result = _drv->getHealth(healthinfo);
     if (IS_OK(op_result)) { // the macro IS_OK is the preperred way to judge whether the operation is succeed.
         if (_verbose)
-            printf("RPLidar health status : %d\n", healthinfo.status);
+            std::cout << "RPLidar health status: " ;
+
+            switch (healthinfo.status) {
+                case RPLIDAR_STATUS_OK:
+                    std::cout << "OK." << std::endl;
+                    break;
+                case RPLIDAR_STATUS_WARNING:
+                    std::cout << "Warning." << std::endl;
+                    break;
+                case RPLIDAR_STATUS_ERROR:
+                    std::cout << "Error." << std::endl;
+                    break;
+            }
             
         if (healthinfo.status == RPLIDAR_STATUS_ERROR) {
             fprintf(stderr, "Error, rplidar internal error detected. Please reboot the device to retry.\n");
@@ -92,7 +104,7 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
 void RPLidar::disconnect() {
     m_connected = false;
     if (m_driver) {
-        delete m_driver;
+        RPlidarDriver::DisposeDriver(m_driver);
         m_driver = NULL;
     }
 }
@@ -103,7 +115,7 @@ bool RPLidar::printFirmware() {
         u_result op_result = m_driver->getDeviceInfo(devinfo);
 
         if (IS_OK(op_result)) {
-            printf("RPLIDAR S/N: ");
+            std::cout << "RPLIDAR S/N: ";
             for (int i = 0; i < 16 ;++i)
                 printf("%02X", devinfo.serialnum[i]);
 
