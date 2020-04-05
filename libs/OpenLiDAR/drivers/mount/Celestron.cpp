@@ -232,14 +232,12 @@ bool Celestron::connect(const char* _port, bool _verbose) {
 }
 
 void Celestron::disconnect() {
+    m_connected = false;
     if (m_fd != 0)
         close(m_fd);
 
     m_fd = 0;
-
-    m_connected = false;
 }
-
 
 bool Celestron::start(float _speed, bool _verbose) {
     reset(_verbose);

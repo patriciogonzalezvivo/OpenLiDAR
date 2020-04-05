@@ -26,8 +26,7 @@ OpenLiDAR::~OpenLiDAR(){
     disconnect();
 }
 
-bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
-
+bool OpenLiDAR::initDrivers(OpenLiDARSettings& _settings, bool _verbose) {
     // Initialize drivers
     if (!m_mount) {
         switch (_settings.mountType) {
@@ -41,8 +40,7 @@ bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
     }
 
     if (!m_lidar) {
-        switch (_settings.lidarType)
-        {
+        switch (_settings.lidarType) {
         case RPLIDAR:
             m_lidar = new RPLidar();
             break;
@@ -64,19 +62,34 @@ bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
         }
     }
 
-    // GET DRIVERS PORTS if there are not
+    return true;
+}
+
+bool OpenLiDAR::fillPortDrivers(OpenLiDARSettings& _settings, bool _verbose) {
+    initDrivers(_settings, _verbose);
+
+        // GET DRIVERS PORTS if there are not
     if (!_settings.mountPort)
         _settings.mountPort = m_mount->getPort();
     
-    if (_verbose)
-        std::cout << "Loading Mount from " << _settings.mountPort << std::endl;
-
     if (!_settings.lidarPort)
         _settings.lidarPort = m_lidar->getPort();
 
-    if (_verbose)
+    if (_verbose) {
+        std::cout << "Loading Mount from " << _settings.mountPort << std::endl;
         std::cout << "Loading LiDAR from " << _settings.lidarPort << std::endl;
+        std::cout << "Loading GPS from " << _settings.gpsPort << std::endl;
+    }
 
+    disconnect();
+
+    return true;
+}
+
+bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
+    fillPortDrivers(_settings, _verbose);
+
+    initDrivers(_settings, _verbose);
 
     // CONNECT DRIVERS
     if (!m_mount->connect(_settings.mountPort, _verbose)) {
@@ -96,7 +109,6 @@ bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
         delete m_gps;
         m_gps = NULL;
     }
-
 
 #if defined(DEBUG_USING_SIMULATE_DATA)
     if (m_lidar == NULL || m_mount == NULL)

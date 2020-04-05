@@ -32,6 +32,9 @@ public:
     GpsDriver*  getGps() { return m_gps; };
 
 protected:
+    bool            initDrivers(OpenLiDARSettings& _settings, bool _verbose);
+    bool            fillPortDrivers(OpenLiDARSettings& _settings, bool _verbose);
+
     MountDriver*    m_mount;
     LidarDriver*    m_lidar;
     GpsDriver*      m_gps;
