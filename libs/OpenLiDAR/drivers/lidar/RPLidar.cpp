@@ -85,12 +85,11 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
 }
 
 void RPLidar::disconnect() {
+    m_connected = false;
     if (m_driver) {
         delete m_driver;
         m_driver = NULL;
     }
-
-    m_connected = false;
 }
 
 bool RPLidar::printFirmware() {
