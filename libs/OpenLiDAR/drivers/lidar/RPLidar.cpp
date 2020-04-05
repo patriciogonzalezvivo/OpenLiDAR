@@ -55,7 +55,6 @@ RPLidar::~RPLidar() {
 }
 
 bool RPLidar::connect(const char* _portName, bool _verbose) {
-
     if (m_connected)  {
         std::cout << "RPLidar is already connected." << std::endl;
         return false;
@@ -113,6 +112,12 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
             std::cerr << "Something went wrong with RPLiDAR health. Disconnecting" << std::endl;
             disconnect();
         }
+
+        if (m_driver) {
+            if (_verbose)
+                std::cout << "Start LiDAR motor" << std::endl;
+            m_driver->startMotor();
+        }
     }
 
     return m_connected;
@@ -121,79 +126,77 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
 void RPLidar::disconnect() {
     m_connected = false;
 
-    if (m_driver)
-        RPlidarDriver::DisposeDriver(m_driver);
-    
+    if (m_driver == NULL)
+        return;
+
+    m_driver->stopMotor();
+    RPlidarDriver::DisposeDriver(m_driver);
     m_driver = NULL;
 }
 
 bool RPLidar::printFirmware() {
-    if (m_driver) {
-        rplidar_response_device_info_t devinfo;
-        u_result op_result = m_driver->getDeviceInfo(devinfo);
+    if (m_driver == NULL) 
+        return false;
 
-        if (IS_OK(op_result)) {
-            std::cout << "RPLIDAR S/N: ";
-            for (int i = 0; i < 16 ;++i)
-                printf("%02X", devinfo.serialnum[i]);
+    rplidar_response_device_info_t devinfo;
+    u_result op_result = m_driver->getDeviceInfo(devinfo);
 
-            printf("\n"
-                    "Firmware Ver: %d.%02d\n"
-                    "Hardware Rev: %d\n"
-                    , devinfo.firmware_version>>8
-                    , devinfo.firmware_version & 0xFF
-                    , (int)devinfo.hardware_version);
-        }
+    if (IS_OK(op_result)) {
+        std::cout << "RPLIDAR S/N: ";
+        for (int i = 0; i < 16 ;++i)
+            printf("%02X", devinfo.serialnum[i]);
+
+        printf("\n"
+                "Firmware Ver: %d.%02d\n"
+                "Hardware Rev: %d\n"
+                , devinfo.firmware_version>>8
+                , devinfo.firmware_version & 0xFF
+                , (int)devinfo.hardware_version);
     }
 
-    return false;
+    return true;
 }
 
 
 bool RPLidar::start(bool _verbose) {
-    if (m_driver) {
-        if (_verbose)
-            std::cout << "Start LiDAR motor" << std::endl;
-        m_driver->startMotor();
+    if (m_driver == NULL) 
+        return false;
+        
+    if (_verbose)
+        std::cout << "Start collecting LiDAR data" << std::endl;
 
-        if (_verbose)
-            std::cout << "Start collecting LiDAR data" << std::endl;
-        m_driver->startScan(0,1);
-
-        return true;
-    }
-
-    return false;
+    m_driver->startScan(0,1);
+    return true;
 }
 
 bool RPLidar::stop(bool _verbose) {
-    if (m_driver) {
-        m_driver->stop();
-        m_driver->stopMotor();
+    if (m_driver == NULL)
+        return false;
 
-        return true;
-    }
-    return false;
+    
+    m_driver->stop();
+    return true;
 }
 
 
 bool RPLidar::getSamples(LidarSample* _samples, size_t& _count) {
-    if (m_driver) {
-        std::cout << "grabScanDataHq" << std::endl;
-        _count = _countof(m_nodes);
-        u_result op_result = m_driver->grabScanDataHq(m_nodes, _count);
-        if (IS_OK(op_result)) {
-            std::cout << "ascendScanData" << std::endl;
-            m_driver->ascendScanData(m_nodes, _count);
-            std::cout << "for loop through _counts on _samples" << std::endl;
-            for (size_t i = 0; i < _count ; ++i) {
-                _samples[i].theta = m_nodes[i].angle_z_q14 * 90.f / (1 << 14); 
-                _samples[i].distance = m_nodes[i].dist_mm_q2 / 1000.f / (1 << 2); // Meters
-                // char quality = m_nodes[i].quality;
-            }
-
-            return true;
+    if (m_driver == NULL)
+        return false;
+        
+    std::cout << "grabScanDataHq" << std::endl;
+    _count = _countof(m_nodes);
+    u_result op_result = m_driver->grabScanDataHq(m_nodes, _count);
+    if (IS_OK(op_result)) {
+        std::cout << "ascendScanData" << std::endl;
+        m_driver->ascendScanData(m_nodes, _count);
+        std::cout << "for loop through _counts on _samples" << std::endl;
+        for (size_t i = 0; i < _count ; ++i) {
+            _samples[i].theta = m_nodes[i].angle_z_q14 * 90.f / (1 << 14); 
+            _samples[i].distance = m_nodes[i].dist_mm_q2 / 1000.f / (1 << 2); // Meters
+            // char quality = m_nodes[i].quality;
         }
+        return true;
     }
+
     return false;
 }
