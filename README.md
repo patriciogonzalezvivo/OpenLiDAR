@@ -97,13 +97,13 @@ Ecosystem of apps to scann and process LiDAR data.
 
 ### `3dscan`
 
-Makes a 3D lidar scan. 
+Makes a 3D lidar scan. To run you need to the USB addresses of the Celestron mount (first argument) and the RPLiDAR sensor (second argument). In linux systems they are given by the order you plug them. 
 
 TODO:
     - ADD ARGUMENTS DESCRIPTIONS
 
 ```bash
-./3dscan --speed 0.9 --degrees 270 --leaf 0.005 --normals --filename point_cloud --formats ply,pcd,png
+./3dscan --mount /dev/ttyUSB0 --lidar /dev/ttyUSB1 --speed 0.9 --degrees 270 --leaf 0.005 --normals --filename point_cloud --formats ply,pcd,png
 ```
 
 # ROADMAP

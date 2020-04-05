@@ -158,8 +158,8 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
     std::vector<glm::vec4> points;
 
     // Start GPSScanning
-    if (m_gps)
-        m_gps->start(_verbose);
+    // if (m_gps)
+    //     m_gps->start(_verbose);
 
     // Start motor...
     if (m_mount) {
@@ -239,8 +239,8 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
         m_mount->stop(_verbose);
 
     // Stop GPS
-    if (m_gps)
-        m_gps->stop(_verbose);
+    // if (m_gps)
+    //     m_gps->stop(_verbose);
 
     m_scanning = false;
 
