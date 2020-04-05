@@ -71,3 +71,6 @@ target_link_libraries (ol_mount ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (ol_lidar "tests/ol_lidar.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
 target_link_libraries (ol_lidar ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable (ol_ports "tests/ol_ports.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
+target_link_libraries (ol_ports ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})

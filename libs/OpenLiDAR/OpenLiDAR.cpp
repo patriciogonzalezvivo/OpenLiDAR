@@ -226,6 +226,8 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
     if (m_gps)
         m_gps->stop(_verbose);
 
+    m_scanning = false;
+
     return points;
 }
 

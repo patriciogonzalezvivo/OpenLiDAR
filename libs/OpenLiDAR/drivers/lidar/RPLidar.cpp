@@ -42,6 +42,12 @@ RPLidar::~RPLidar() {
 }
 
 bool RPLidar::connect(const char* _portName, bool _verbose) {
+
+    if (m_connected)  {
+        std::cout << "RPLidar is already connected." << std::endl;
+        return false;
+    }
+
     // Connecting to RPLiDAR device
     _u32         baudrateArray[2] = {115200, 256000};
     u_result     op_result;
@@ -51,50 +57,40 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
     // make connection...
     rplidar_response_device_info_t devinfo;
     size_t baudRateArraySize = (sizeof(baudrateArray))/ (sizeof(baudrateArray[0]));
-
     for (size_t i = 0; i < baudRateArraySize; ++i) {
         if (!m_driver)
             m_driver = RPlidarDriver::CreateDriver(DRIVER_TYPE_SERIALPORT);
 
         if (IS_OK(m_driver->connect(_portName, baudrateArray[i]))) {
             op_result = m_driver->getDeviceInfo(devinfo);
-
-            if (IS_OK(op_result)) {
-                m_connected = true;
-                break;
-            }
-            else {
-                delete m_driver;
-                m_driver = NULL;
-            }
+            m_connected = IS_OK(op_result);
         }
+
+        if (m_connected)
+            break;
+        else
+            disconnect();
     }
     
-    if (!m_connected) {
-        delete m_driver;
-        m_driver = NULL;
-    }
-    else {
-
+    if (m_connected) {
         if (_verbose)
             printFirmware();
 
         // check health...
-        if (!checkRPLIDARHealth(m_driver, _verbose)) {
-            delete m_driver;
-            m_driver = NULL;
-            m_connected = false;
-        }
+        if (!checkRPLIDARHealth(m_driver, _verbose))
+            disconnect();
     }
 
     return m_connected;
 }
 
 void RPLidar::disconnect() {
-    if (m_connected)
-        RPlidarDriver::DisposeDriver(m_driver);
+    if (m_driver) {
+        delete m_driver;
+        m_driver = NULL;
+    }
 
-    m_driver = NULL;
+    m_connected = false;
 }
 
 bool RPLidar::printFirmware() {
