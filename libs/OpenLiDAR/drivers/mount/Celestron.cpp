@@ -383,7 +383,7 @@ bool Celestron::getVersion(char* _version, int _size) {
     if (!send_command("V", 1, response, 3))
         return false;
 
-    snprintf(_version, _size, "%d.%02d\n", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
+    snprintf(_version, _size, "%d.%02d", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
 
     // printf("Controller version: %s\n", _version);
     return true;
@@ -436,10 +436,10 @@ bool Celestron::getDevFirmware(int _dev, char* _version, int _size) {
 
     switch (rlen) {
         case 2:
-            snprintf(_version, _size, "%01d.0\n", static_cast<uint8_t>(response[0]));
+            snprintf(_version, _size, "%01d.0", static_cast<uint8_t>(response[0]));
             break;
         case 3:
-            snprintf(_version, _size, "%d.%02d\n", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
+            snprintf(_version, _size, "%d.%02d", static_cast<uint8_t>(response[0]), static_cast<uint8_t>(response[1]));
             break;
         default:
             return false;
