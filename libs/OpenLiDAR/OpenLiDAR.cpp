@@ -50,7 +50,6 @@ bool OpenLiDAR::initDrivers(OpenLiDARSettings& _settings, bool _verbose) {
         }
     }
 
-
     // if (!m_gps) {
     //     switch (_settings.gpsType) {
     //     case GPSD:
@@ -193,12 +192,8 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
         glm::quat lng = glm::angleAxis(float(glm::radians(-az)), glm::vec3(0.0,1.0,0.0));
 
         if (m_lidar) {
-
-            std::cout << "request samples" << std::endl;
             if (m_lidar->getSamples(samples, count))
             {
-                // m_lidar->getSamples(samples, count);
-                std::cout << "got samples" << std::endl;
                 for (size_t i = 0; i < count ; i++) {
                     glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
                     glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + offset);

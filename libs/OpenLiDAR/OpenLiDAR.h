@@ -29,7 +29,9 @@ public:
 
     std::vector<glm::vec4> scan(float _toDegree, float _atSpeed, bool _verbose = true);
     
-    // GpsDriver*  getGps() { return m_gps; };
+    // GpsDriver*      getGps() { return m_gps; };
+    // MountDriver*    getMount() { return m_mount; };
+    // LidarDriver*    getLidar() { return m_lidar; };
 
 protected:
     bool            initDrivers(OpenLiDARSettings& _settings, bool _verbose);

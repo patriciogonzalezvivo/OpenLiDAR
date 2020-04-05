@@ -183,13 +183,11 @@ bool RPLidar::getSamples(LidarSample* _samples, size_t& _count) {
     if (m_driver == NULL)
         return false;
         
-    std::cout << "grabScanDataHq" << std::endl;
     _count = _countof(m_nodes);
     u_result op_result = m_driver->grabScanDataHq(m_nodes, _count);
     if (IS_OK(op_result)) {
-        std::cout << "ascendScanData" << std::endl;
+        // std::cout << "got Hq data" << std::endl;
         m_driver->ascendScanData(m_nodes, _count);
-        std::cout << "for loop through _counts on _samples" << std::endl;
         for (size_t i = 0; i < _count ; ++i) {
             _samples[i].theta = m_nodes[i].angle_z_q14 * 90.f / (1 << 14); 
             _samples[i].distance = m_nodes[i].dist_mm_q2 / 1000.f / (1 << 2); // Meters
