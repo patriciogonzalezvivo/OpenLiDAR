@@ -11,7 +11,9 @@
 
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/io/png_io.h>
 #include <pcl/range_image/range_image.h>
+#include <pcl/visualization/common/float_image_utils.h>
 
 template<typename PointT> 
 inline bool savePointCloud( const std::string& _filename, 
@@ -30,8 +32,24 @@ inline bool savePointCloud( const std::string& _filename,
             pcl::io::savePCDFile(filename, _cloud, false);
         }
         else if (_formats[i] == "png") {
+            // We now want to create a range image from the above point cloud, with a 1deg angular resolution
+            float angularResolution = (float) (  1.0f * (M_PI/180.0f));  //   1.0 degree in radians
+            float maxAngleWidth     = (float) (360.0f * (M_PI/180.0f));  // 360.0 degree in radians
+            float maxAngleHeight    = (float) (180.0f * (M_PI/180.0f));  // 180.0 degree in radians
+            Eigen::Affine3f sensorPose = (Eigen::Affine3f)Eigen::Translation3f(0.0f, 0.0f, 0.0f);
+            pcl::RangeImage::CoordinateFrame coordinate_frame = pcl::RangeImage::CAMERA_FRAME;
+            float noiseLevel =0.0f;
+            float minRange = 0.0f;
+            int borderSize = 1;
+            
+            pcl::RangeImage rangeImage;
+            rangeImage.createFromPointCloud(_cloud, angularResolution, maxAngleWidth, maxAngleHeight,
+                                            sensorPose, coordinate_frame, noiseLevel, minRange, borderSize);
+
             std::cout << "Saving points as " << filename << std::endl;
-            pcl::io::savePCDFile(filename, _cloud, false);
+            float* ranges = rangeImage.getRangesArray();
+            unsigned char* rgb_image = pcl::visualization::FloatImageUtils::getVisualImage (ranges, rangeImage.width, rangeImage.height); 
+            pcl::io::saveRgbPNGFile(filename.c_str(), rgb_image, rangeImage.width, rangeImage.height); 
         }
     }
 
