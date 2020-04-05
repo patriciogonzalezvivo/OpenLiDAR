@@ -67,6 +67,7 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
     // std::cout << "RPLIDAR SDK Version: " << RPLIDAR_SDK_VERSION << std::endl;
 
     // make connection...
+    bool connectSuccess = false;
     rplidar_response_device_info_t devinfo;
     size_t baudRateArraySize = (sizeof(baudrateArray))/ (sizeof(baudrateArray[0]));
     for (size_t i = 0; i < baudRateArraySize; ++i) {
@@ -75,7 +76,15 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
 
         if (IS_OK(m_driver->connect(_portName, baudrateArray[i]))) {
             op_result = m_driver->getDeviceInfo(devinfo);
-            m_connected = IS_OK(op_result);
+
+            if (IS_OK(op_result)) {
+                connectSuccess = true;
+                break;
+            }
+            else {
+                delete m_driver;
+                m_driver = NULL;
+            }
         }
 
         if (m_connected) {
@@ -86,8 +95,14 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
         else
             disconnect();
     }
-    
-    if (m_connected) {
+
+    if (!connectSuccess) {
+        std::cerr << "Error, cannot bind to the specified serial port " << _portName << std::endl;
+        disconnect();
+    }
+    else {
+        m_connected = true;
+        
         if (_verbose)
             printFirmware();
 
