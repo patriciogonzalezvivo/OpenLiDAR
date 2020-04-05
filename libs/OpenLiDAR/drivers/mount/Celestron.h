@@ -2,10 +2,11 @@
 
 #include "MountDriver.h"
 
-typedef enum { SR_1, SR_2, SR_3, SR_4, SR_5, SR_6, SR_7, SR_8, SR_9 } CELESTRON_SLEW_RATE;
-typedef enum { TRACKING_OFF, TRACK_ALTAZ, TRACK_EQN, TRACK_EQS } CELESTRON_TRACK_MODE;
-typedef enum { RA_AXIS, DEC_AXIS } CELESTRON_AXIS;
-typedef enum { CELESTRON_N, CELESTRON_S, CELESTRON_W, CELESTRON_E } CELESTRON_DIRECTION;
+//              4º /sec, 2º /sec,  1º/sec,  0.5º/sec,   32x,    16x,    8x,     4x,     2x   
+typedef enum {  SR_1,    SR_2,     SR_3,    SR_4,       SR_5,   SR_6,   SR_7,   SR_8,   SR_9 } CELESTRON_SLEW_RATE;
+typedef enum {  TRACKING_OFF, TRACK_ALTAZ, TRACK_EQN, TRACK_EQS } CELESTRON_TRACK_MODE;
+typedef enum {  RA_AXIS, DEC_AXIS } CELESTRON_AXIS;
+typedef enum {  CELESTRON_N, CELESTRON_S, CELESTRON_W, CELESTRON_E } CELESTRON_DIRECTION;
 
 class Celestron : public MountDriver {
 public:
