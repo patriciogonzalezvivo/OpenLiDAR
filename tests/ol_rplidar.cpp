@@ -64,13 +64,15 @@ int main(int argc, char **argv){
 
     if (lidar->connect(port, true)) {
         std::cout << "SUCESS connecting to " << port << std::endl;
-        // usleep(10000);
         lidar->start(true);
 
         size_t count = 0;
         LidarSample samples[RPLIDAR_MAXSAMPLES];
         lidar->getSamples(samples, count);
         plot_histogram(samples, count);
+        
+        usleep(10000);
+        lidar->stop();
         lidar->disconnect();
     }
     else 
