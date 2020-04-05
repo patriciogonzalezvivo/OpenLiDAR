@@ -7,12 +7,30 @@
 #define PORTS_TOTAL 4
 #endif
 
+#ifdef _WIN32
+static char* PORTS[PORTS_TOTAL] = {
+    (char*)"\\\\.\\com57", 
+    (char*)"\\\\.\\com58",
+    (char*)"\\\\.\\com59", 
+    (char*)"\\\\.\\com60"
+};
+#elif __APPLE__
+static char* PORTS[PORTS_TOTAL] = {
+    (char*)"/dev/tty.SLAB_USBtoUAR", 
+    (char*)"/dev/ttyUSB1",
+    (char*)"/dev/ttyUSB2", 
+    (char*)"/dev/ttyUSB3"
+};
+#else
 static char* PORTS[PORTS_TOTAL] = {
     (char*)"/dev/ttyUSB0", 
     (char*)"/dev/ttyUSB1",
     (char*)"/dev/ttyUSB2", 
     (char*)"/dev/ttyUSB3"
 };
+#endif
+
+
 
 class Driver {
 public:
