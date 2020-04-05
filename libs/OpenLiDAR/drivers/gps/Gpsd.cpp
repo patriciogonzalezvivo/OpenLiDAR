@@ -50,7 +50,7 @@ bool Gpsd::start(bool _verbose) {
     m_alts.clear();
 
     if (_verbose)
-        std::cout << "Starting Thread " << std::endl; 
+        std::cout << "Start collecting GPS data." << std::endl; 
 
     m_thread = std::thread([this]{
         while (m_connected) {

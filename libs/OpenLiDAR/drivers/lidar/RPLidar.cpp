@@ -83,6 +83,7 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
         if (!checkRPLIDARHealth(m_driver, _verbose)) {
             delete m_driver;
             m_driver = NULL;
+            m_connected = false;
         }
     }
 

@@ -131,7 +131,7 @@ void OpenLiDAR::disconnect() {
 
 std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _verbose) {
     if (_verbose) 
-        std::cout << "Start Scanning" << std::endl;
+        std::cout << "Start Scanning..." << std::endl;
 
     m_scanning = true;
     glm::vec3 offset = glm::vec3(0.0,0.0,0.0);
