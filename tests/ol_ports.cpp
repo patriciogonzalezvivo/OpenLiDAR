@@ -6,13 +6,16 @@
 #include "OpenLiDAR.h"
 
 int main(int argc, char **argv){
-    
     OpenLiDAR scanner;
     OpenLiDARSettings settings;
 
-    scanner.connect(settings, true);
-    usleep(10000);
-    scanner.disconnect();
+    if (scanner.connect(settings, true)) {
+        std::cout << "SUCESS connecting scanner " << std::endl;
+        usleep(10000);
+        scanner.disconnect();
+    }
+    else 
+        std::cout << "FAIL connecting scanner " << std::endl;
 
     return 0;
 }

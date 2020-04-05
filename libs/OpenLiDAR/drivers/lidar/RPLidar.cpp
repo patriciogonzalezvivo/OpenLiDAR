@@ -99,7 +99,7 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
 
     if (!connectSuccess) {
         if (_verbose)
-            std::cerr << "Error, cannot bind to the specified serial port " << _portName << std::endl;
+            std::cerr << "Error, cannot bind LiDAR driver to the specified serial port " << _portName << std::endl;
         disconnect();
     }
     else {
@@ -120,10 +120,11 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
 
 void RPLidar::disconnect() {
     m_connected = false;
-    if (m_driver) {
+
+    if (m_driver)
         RPlidarDriver::DisposeDriver(m_driver);
-        m_driver = NULL;
-    }
+    
+    m_driver = NULL;
 }
 
 bool RPLidar::printFirmware() {

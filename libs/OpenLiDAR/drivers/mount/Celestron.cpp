@@ -181,14 +181,21 @@ bool Celestron::connect(const char* _port, bool _verbose) {
 
     // fprintf(stderr, "Connecting to port: %s\n", _port);
 
-    if (m_fd != 0)
+    if (m_fd != 0 || m_connected) {
+        std::cout << "Mount seams to be already connected." << std::endl;
         return false;
+    }
 
     /* Make the connection */
 
     m_fd = open(_port, O_RDWR);
-    if (m_fd == -1)
-        return false;
+    if (m_fd == -1) {
+        m_fd = 0;
+        m_connected = false;
+        if (_verbose)
+            std::cerr << "Error, cannot bind Mount driver to the specified serial port " << _port << std::endl;
+        return m_connected;
+    }
 
     tcgetattr(m_fd, &tty);
     cfsetospeed(&tty, (speed_t)B9600);
@@ -225,10 +232,10 @@ bool Celestron::connect(const char* _port, bool _verbose) {
 }
 
 void Celestron::disconnect() {
-    if (m_fd != 0) {
+    if (m_fd != 0)
         close(m_fd);
-        m_fd = 0;
-    }
+
+    m_fd = 0;
 
     m_connected = false;
 }

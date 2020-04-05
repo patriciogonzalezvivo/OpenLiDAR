@@ -23,7 +23,7 @@ public:
 
     bool        connect(OpenLiDARSettings& _settings, bool _verbose = true);
     bool        reset(bool _verbose = true);
-    void        disconnect();
+    void        disconnect(bool _verbose = true);
 
     bool        isScanning() { return m_scanning; }
 

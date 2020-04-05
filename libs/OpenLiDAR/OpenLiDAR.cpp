@@ -108,20 +108,26 @@ bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
     return (m_lidar != NULL) && (m_mount != NULL);
 }
 
-void OpenLiDAR::disconnect() {
+void OpenLiDAR::disconnect(bool _verbose) {
     if (m_mount) {
+        if (_verbose)
+            std::cout << "Disconnecting MOUNT driver" << std::endl;
         m_mount->disconnect();
         delete m_mount;
         m_mount = NULL;
     }
 
     if (m_lidar) {
+        if (_verbose)
+            std::cout << "Disconnecting LiDAR driver" << std::endl;
         m_lidar->disconnect();
         delete m_lidar;
         m_lidar = NULL;
     }
 
     if (m_gps) {
+        if (_verbose)
+            std::cout << "Disconnecting GPS driver" << std::endl;
         m_gps->disconnect();
         delete m_gps;
         m_gps = NULL;

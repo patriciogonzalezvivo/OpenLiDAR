@@ -28,8 +28,7 @@ bool Gpsd::connect(const char* _portName, bool _verbose) {
 }
 
 void Gpsd::disconnect() {
-    if (m_connected)
-        m_connected = false;
+    m_connected = false;
 
     if (m_gps) 
         delete m_gps;
