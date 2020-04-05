@@ -11,14 +11,14 @@
 #include "tools/timeOps.h"
 #include "tools/textOps.h"
 
-#include "drivers/gps/Gpsd.h"
+// #include "drivers/gps/Gpsd.h"
 #include "drivers/lidar/RPLidar.h"
 #include "drivers/mount/Celestron.h"
 
 OpenLiDAR::OpenLiDAR() :
     m_mount(NULL),
     m_lidar(NULL),
-    m_gps(NULL),
+    // m_gps(NULL),
     m_scanning(false) {
 }
 
@@ -51,16 +51,16 @@ bool OpenLiDAR::initDrivers(OpenLiDARSettings& _settings, bool _verbose) {
     }
 
 
-    if (!m_gps) {
-        switch (_settings.gpsType) {
-        case GPSD:
-            m_gps = new Gpsd();
-            break;
+    // if (!m_gps) {
+    //     switch (_settings.gpsType) {
+    //     case GPSD:
+    //         m_gps = new Gpsd();
+    //         break;
         
-        default:
-            break;
-        }
-    }
+    //     default:
+    //         break;
+    //     }
+    // }
 
     return true;
 }
@@ -78,7 +78,7 @@ bool OpenLiDAR::fillPortDrivers(OpenLiDARSettings& _settings, bool _verbose) {
     if (_verbose) {
         std::cout << "Loading Mount from " << _settings.mountPort << std::endl;
         std::cout << "Loading LiDAR from " << _settings.lidarPort << std::endl;
-        std::cout << "Loading GPS from " << _settings.gpsPort << std::endl;
+        // std::cout << "Loading GPS from " << _settings.gpsPort << std::endl;
     }
 
     disconnect();
@@ -105,11 +105,11 @@ bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
         m_lidar = NULL;
     }
 
-    if (!m_gps->connect(_settings.gpsPort, _verbose)) {
-        std::cerr << "Can't load GPS from localhost" << std::endl;
-        delete m_gps;
-        m_gps = NULL;
-    }
+    // if (!m_gps->connect(_settings.gpsPort, _verbose)) {
+    //     std::cerr << "Can't load GPS from localhost" << std::endl;
+    //     delete m_gps;
+    //     m_gps = NULL;
+    // }
 
 #if defined(DEBUG_USING_SIMULATE_DATA)
     if (m_lidar == NULL || m_mount == NULL)
@@ -138,13 +138,13 @@ void OpenLiDAR::disconnect(bool _verbose) {
         m_lidar = NULL;
     }
 
-    if (m_gps) {
-        if (_verbose)
-            std::cout << "Disconnecting GPS driver" << std::endl;
-        m_gps->disconnect();
-        delete m_gps;
-        m_gps = NULL;
-    }
+    // if (m_gps) {
+    //     if (_verbose)
+    //         std::cout << "Disconnecting GPS driver" << std::endl;
+    //     m_gps->disconnect();
+    //     delete m_gps;
+    //     m_gps = NULL;
+    // }
 }
 
 std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _verbose) {
@@ -195,7 +195,9 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
         if (m_lidar) {
 
             std::cout << "request samples" << std::endl;
-            if (m_lidar->getSamples(samples, count)) {
+            if (m_lidar->getSamples(samples, count))
+            {
+                // m_lidar->getSamples(samples, count);
                 std::cout << "got samples" << std::endl;
                 for (size_t i = 0; i < count ; i++) {
                     glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));

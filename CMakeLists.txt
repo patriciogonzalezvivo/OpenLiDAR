@@ -60,7 +60,7 @@ include_directories(
 
 # APPS
 add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
-target_link_libraries (3dscan ${PCL_LIBRARIES} ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries (3dscan ${PCL_LIBRARIES} ${GPS_LIBRARY} )
 
 # TESTS
 add_executable (ol_celestron "tests/ol_celestron.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})

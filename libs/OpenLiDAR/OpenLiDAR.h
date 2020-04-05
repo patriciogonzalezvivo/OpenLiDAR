@@ -4,15 +4,15 @@
 
 #include "drivers/mount/MountDriver.h"
 #include "drivers/lidar/LidarDriver.h"
-#include "drivers/gps/GpsDriver.h"
+// #include "drivers/gps/GpsDriver.h"
 
 struct OpenLiDARSettings {
     MountType   mountType   = CELESTRON;
     char*       mountPort   = NULL;
     LidarType   lidarType   = RPLIDAR;
     char*       lidarPort   = NULL;
-    GpsType     gpsType     = GPSD;
-    char*       gpsPort     = (char*)"localhost";
+    // GpsType     gpsType     = GPSD;
+    // char*       gpsPort     = (char*)"localhost";
 };
 
 class OpenLiDAR {
@@ -29,7 +29,7 @@ public:
 
     std::vector<glm::vec4> scan(float _toDegree, float _atSpeed, bool _verbose = true);
     
-    GpsDriver*  getGps() { return m_gps; };
+    // GpsDriver*  getGps() { return m_gps; };
 
 protected:
     bool            initDrivers(OpenLiDARSettings& _settings, bool _verbose);
@@ -37,7 +37,7 @@ protected:
 
     MountDriver*    m_mount;
     LidarDriver*    m_lidar;
-    GpsDriver*      m_gps;
+    // GpsDriver*      m_gps;
 
     bool            m_scanning;
 };
