@@ -70,9 +70,9 @@ int main(int argc, char **argv){
         LidarSample samples[RPLIDAR_MAXSAMPLES];
         lidar->getSamples(samples, count);
         plot_histogram(samples, count);
-        
+
         usleep(10000);
-        lidar->stop();
+        lidar->stop(true);
         lidar->disconnect();
     }
     else 
