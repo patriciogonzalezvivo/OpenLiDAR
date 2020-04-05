@@ -3,13 +3,15 @@
 #include "tools/textOps.h"
 #include "tools/fileOps.h"
 
-#include <pcl/io/ply_io.h>
-#include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
+
+#include <pcl/io/ply_io.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/range_image/range_image.h>
 
 template<typename PointT> 
 inline bool savePointCloud( const std::string& _filename, 
@@ -24,6 +26,10 @@ inline bool savePointCloud( const std::string& _filename,
             pcl::io::savePLYFile(filename, _cloud, false);
         }
         else if (_formats[i] == "pcd") {
+            std::cout << "Saving points as " << filename << std::endl;
+            pcl::io::savePCDFile(filename, _cloud, false);
+        }
+        else if (_formats[i] == "png") {
             std::cout << "Saving points as " << filename << std::endl;
             pcl::io::savePCDFile(filename, _cloud, false);
         }

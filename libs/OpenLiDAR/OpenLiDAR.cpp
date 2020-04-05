@@ -226,9 +226,6 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
 }
 
 bool OpenLiDAR::reset(bool _verbose) {
-    if (_verbose)
-        std::cout << "Reset scanner" << std::endl;
-
     if (m_mount)
         return m_mount->reset(_verbose);
     

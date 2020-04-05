@@ -19,7 +19,8 @@
 
 #define NULL_PTR(x) (x *)0
 #define MAX_RESP_SIZE   20
-#define TIMEOUT 5
+#define MIN_DEGREE      5.0
+#define TIMEOUT         5
 
 /* Starsense specific constants */
 #define ISNEXSTAR       0x11
@@ -247,38 +248,42 @@ bool Celestron::stop(bool _verbose) {
 bool Celestron::reset(bool _verbose) {
     getAzAlt(&m_az, &m_alt);
 
-    double start_az = m_az;
-    double start_time = getElapsedSeconds();
+    if (m_az > MIN_DEGREE) {
+        double start_az = m_az;
+        double start_time = getElapsedSeconds();
 
-    if (_verbose) {
-        std::cout << "Az: " << m_az << " Alt: " << m_alt << std::endl;
-        std::cout << "Moving mount to original Azimuthal angle (towards EAST)" << std::endl;
-    }
-
-    move(CELESTRON_E, SR_9);
-
-    while (m_az > 5.) {
         if (_verbose) {
-            // Delete previous line
-            const std::string deleteLine = "\e[2K\r\e[1A";
-            std::cout << deleteLine;
-
-            int pct = (1.0 - m_az/start_az) * 100;
-            float time = float(getElapsedSeconds() - start_time);
-            
-            std::cout << " [ ";
-            for (int i = 0; i < 50; i++) {
-                if (i < pct/2) std::cout << "#";
-                else std::cout << ".";
-            }
-            std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << std::endl;
+            std::cout << "Az: " << m_az << " Alt: " << m_alt << std::endl;
+            std::cout << "Moving mount to original Azimuthal angle (towards EAST)" << std::endl;
         }
-        usleep(1000);
-        getAzAlt(&m_az, &m_alt);
-    }
 
-    std::cout << "Stop moving EAST" << std::endl;
-    stop(CELESTRON_E);
+        move(CELESTRON_E, SR_9);
+
+        while (m_az > MIN_DEGREE) {
+            if (_verbose) {
+                // Delete previous line
+                const std::string deleteLine = "\e[2K\r\e[1A";
+                std::cout << deleteLine;
+
+                int pct = (1.0 - m_az/start_az) * 100;
+                float time = float(getElapsedSeconds() - start_time);
+                
+                std::cout << " [ ";
+                for (int i = 0; i < 50; i++) {
+                    if (i < pct/2) std::cout << "#";
+                    else std::cout << ".";
+                }
+                std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << std::endl;
+            }
+            usleep(1000);
+            getAzAlt(&m_az, &m_alt);
+        }
+
+        if (_verbose)
+            std::cout << "Stop moving EAST" << std::endl;
+
+        stop(CELESTRON_E);
+    }
     
     return true;
 }
