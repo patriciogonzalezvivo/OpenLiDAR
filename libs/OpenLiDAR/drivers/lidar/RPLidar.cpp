@@ -66,8 +66,11 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
             m_connected = IS_OK(op_result);
         }
 
-        if (m_connected)
+        if (m_connected) {
+            if (_verbose)
+                std::cout << "Successfully connected to " << _portName << " at " << baudrateArray[i] << std::endl;
             break;
+        }
         else
             disconnect();
     }
@@ -77,8 +80,10 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
             printFirmware();
 
         // check health...
-        if (!checkRPLIDARHealth(m_driver, _verbose))
+        if (!checkRPLIDARHealth(m_driver, _verbose)) {
+            std::cout << "Something went wrong. RPLiDAR health is not OK. Disconnecting" << std::endl;
             disconnect();
+        }
     }
 
     return m_connected;

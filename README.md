@@ -116,12 +116,15 @@ OpenLiDAR `lib/`:
 
 Console based `app/3dscan`:
 
-* Choose different output types: PLY, PCD, PNG
-* Geotag PLYs and PCDs based on GPS data
+* Choose different output types: PLY, PCD
+* Add PNG format as a range equirectangular projection image
+* Add LAS format (add geo-location from GPS data)
+* Figure how to geo-locate PLYs, PCDs and PNGs using GPS data
 * Add optional outliers removal
 
 
-GUI app `app/3dscanx`:
+Daemon `app/3dscanner`:
 
-* TBD
+* HTTP server <=> client
+
 

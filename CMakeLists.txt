@@ -63,9 +63,6 @@ add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC
 target_link_libraries (3dscan ${PCL_LIBRARIES} ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 # TESTS
-add_executable (ol_gpsd "tests/ol_gpsd.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
-target_link_libraries (ol_gpsd ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-
 add_executable (ol_celestron "tests/ol_celestron.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
 target_link_libraries (ol_celestron ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
@@ -74,3 +71,6 @@ target_link_libraries (ol_rplidar ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable (ol_ports "tests/ol_ports.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
 target_link_libraries (ol_ports ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable (ol_gpsd "tests/ol_gpsd.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
+target_link_libraries (ol_gpsd ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
