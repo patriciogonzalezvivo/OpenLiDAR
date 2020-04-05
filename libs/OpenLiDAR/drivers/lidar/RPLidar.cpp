@@ -14,7 +14,7 @@ bool checkRPLIDARHealth(RPlidarDriver * _drv, bool _verbose) {
 
     op_result = _drv->getHealth(healthinfo);
     if (IS_OK(op_result)) { // the macro IS_OK is the preperred way to judge whether the operation is succeed.
-        if (_verbose)
+        if (_verbose) {
             std::cout << "RPLidar health status: " ;
 
             switch (healthinfo.status) {
@@ -28,6 +28,7 @@ bool checkRPLIDARHealth(RPlidarDriver * _drv, bool _verbose) {
                     std::cout << "Error." << std::endl;
                     break;
             }
+        }
             
         if (healthinfo.status == RPLIDAR_STATUS_ERROR) {
             fprintf(stderr, "Error, rplidar internal error detected. Please reboot the device to retry.\n");
