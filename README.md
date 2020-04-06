@@ -103,7 +103,7 @@ TODO:
     - ADD ARGUMENTS DESCRIPTIONS
 
 ```bash
-./3dscan --mount /dev/ttyUSB0 --lidar /dev/ttyUSB1 --speed 0.9 --degrees 270 --leaf 0.005 --normals --filename point_cloud --formats ply,pcd,png
+./3dscan --mount /dev/ttyUSB0 --lidar /dev/ttyUSB1 --speed 0.9 --degrees 270 --voxel 0.5 --normals --filename point_cloud --formats ply,pcd,png
 ```
 
 # ROADMAP
