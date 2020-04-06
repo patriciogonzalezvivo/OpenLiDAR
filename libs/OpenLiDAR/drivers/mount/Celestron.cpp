@@ -371,9 +371,9 @@ bool Celestron::printFirmware() {
     if (!getDevFirmware(CELESTRON_DEV_DEC, DEVersion, 8))
         return false;
 
-    printf("%s %s %s mount\n"
-            "Firmware Ver: %s\n"
-            "Hardware Rev: %s\n",
+    printf( "%s %s %s mount\n"
+            " Firmware Ver: %s\n"
+            " Hardware Rev: %s\n",
             model,
             controllerVariant == ISSTARSENSE ? "StarSense" : "NexStar",
             isGem ? "GEM" : "Fork",

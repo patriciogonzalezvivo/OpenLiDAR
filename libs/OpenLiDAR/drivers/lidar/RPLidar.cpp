@@ -146,9 +146,9 @@ bool RPLidar::printFirmware() {
         for (int i = 0; i < 16 ;++i)
             printf("%02X", devinfo.serialnum[i]);
 
-        printf("\n"
-                "Firmware Ver: %d.%02d\n"
-                "Hardware Rev: %d\n"
+        printf( "\n"
+                " Firmware Ver: %d.%02d\n"
+                " Hardware Rev: %d\n"
                 , devinfo.firmware_version>>8
                 , devinfo.firmware_version & 0xFF
                 , (int)devinfo.hardware_version);
