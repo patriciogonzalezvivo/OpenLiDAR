@@ -71,7 +71,7 @@ int main(int argc, char **argv){
     std::vector<std::string> formats = { "ply" };
     float toDegree = 180.0f;    // Half loop
     float atSpeed = 0.75f;      // 75% of speed
-    float leaf = 0.01f;         // 0.01m -> 1cm
+    float voxel = 0.0f;
     bool bNormal = false;
     bool bVerbose = false;
 
@@ -108,11 +108,11 @@ int main(int argc, char **argv){
             else
                 std::cout << "Argument '" << argument << "' should be followed by a the speed (expressed in a number between 0.0 to 1.0) of the speed of the scan. Default is " << atSpeed << std::endl;
         }
-        else if ( std::string(argv[i]) == "--leaf" ) {
+        else if ( std::string(argv[i]) == "--voxel" ) {
             if (++i < argc)
-                leaf = toFloat(std::string(argv[i]));
+                voxel = toFloat(std::string(argv[i])) * 0.01; // 1 cm = 0.01 meters
             else
-                std::cout << "Argument '" << argument << "' should be followed by a the leaf size (expressed in meters) for the voxel grid. Default is" << leaf << std::endl;
+                std::cout << "Argument '" << argument << "' should be followed by a the voxel size (expressed in cm) for the voxel grid. Default is" << voxel << std::endl;
         }
         else if ( std::string(argv[i]) == "--normals" )
             bNormal = true;
@@ -141,10 +141,10 @@ int main(int argc, char **argv){
                 cloud->points[i].z = points[i].z;
             }
 
-            if (leaf > 0.0) {
+            if (voxel > 0.0) {
                 pcl::VoxelGrid<pcl::PointXYZ> vg_filter;
                 vg_filter.setInputCloud (cloud);
-                vg_filter.setLeafSize (leaf, leaf, leaf);
+                vg_filter.setLeafSize (voxel, voxel, voxel);
                 pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZ> );
                 vg_filter.filter(*cloud_filtered);
                 *cloud = *cloud_filtered;
