@@ -113,11 +113,8 @@ bool RPLidar::connect(const char* _portName, bool _verbose) {
             disconnect();
         }
 
-        if (m_driver) {
-            if (_verbose)
-                std::cout << "Start LiDAR motor" << std::endl;
+        if (m_driver)
             m_driver->startMotor();
-        }
     }
 
     return m_connected;
@@ -173,7 +170,6 @@ bool RPLidar::stop(bool _verbose) {
     if (m_driver == NULL)
         return false;
 
-    
     m_driver->stop();
     return true;
 }
