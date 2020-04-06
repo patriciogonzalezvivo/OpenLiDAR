@@ -17,3 +17,9 @@ std::string getUniqueFileName( const std::string& _originalName, const std::stri
     }
     return filename;
 }
+
+std::string getExt(const std::string& _filename) {
+    if (_filename.find_last_of(".") != std::string::npos)
+        return _filename.substr(_filename.find_last_of(".") + 1);
+    return "";
+}

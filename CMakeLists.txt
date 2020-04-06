@@ -62,6 +62,10 @@ include_directories(
 add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
 target_link_libraries (3dscan ${PCL_LIBRARIES} ${GPS_LIBRARY} )
 
+# TOOLS
+add_executable (convert_pcl "tools/convert_pcl.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
+target_link_libraries (convert_pcl ${PCL_LIBRARIES} ${GPS_LIBRARY} )
+
 # TESTS
 add_executable (ol_celestron "tests/ol_celestron.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
 target_link_libraries (ol_celestron ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
@@ -72,5 +76,9 @@ target_link_libraries (ol_rplidar ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 add_executable (ol_ports "tests/ol_ports.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
 target_link_libraries (ol_ports ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable (ol_gpsd "tests/ol_gpsd.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
+add_executable (ol_gpsd "tests/ol_gpsd.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
 target_link_libraries (ol_gpsd ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+
+# INSTALL
+install(TARGETS 3dscan convert_pcl
+        RUNTIME DESTINATION bin)

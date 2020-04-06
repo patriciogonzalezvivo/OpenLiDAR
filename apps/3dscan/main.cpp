@@ -29,7 +29,7 @@ inline bool savePointCloud( const std::string& _filename,
         }
         else if (_formats[i] == "pcd") {
             std::cout << "Saving points as " << filename << std::endl;
-            pcl::io::savePCDFile(filename, _cloud, false);
+            pcl::io::savePCDFile(filename, _cloud, true);
         }
         else if (_formats[i] == "png") {
             // We now want to create a range image from the above point cloud, with a 1deg angular resolution
@@ -67,8 +67,8 @@ int main(int argc, char **argv){
     OpenLiDAR scanner;
     OpenLiDARSettings settings;
 
-    std::string filename = "pcl";
-    std::vector<std::string> formats = { "ply" };
+    std::string filename = "pcl.ply";
+    std::vector<std::string> formats;
     float toDegree = 180.0f;    // Half loop
     float atSpeed = 0.75f;      // 75% of speed
     float voxel = 0.0f;
@@ -120,7 +120,12 @@ int main(int argc, char **argv){
             bVerbose = true;
     }
 
-    
+    std::string extension = getExt(filename);
+    if (extension.size() == 3) {
+        formats.push_back(extension);
+        filename = split(filename,'.',true)[0];
+    }
+
     if (scanner.connect(settings, bVerbose)) {
 
         // Scan 75% degrees at half speed
@@ -168,9 +173,8 @@ int main(int argc, char **argv){
 
                 savePointCloud(filename, formats, *cloud_with_normals);
             }
-            else {
+            else
                 savePointCloud(filename, formats, *cloud);
-            }
         }
 
         scanner.reset(bVerbose);

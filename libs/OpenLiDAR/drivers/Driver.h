@@ -31,7 +31,6 @@ static char* PORTS[PORTS_TOTAL] = {
 #endif
 
 
-
 class Driver {
 public:
     Driver(): m_connected(false) {}
