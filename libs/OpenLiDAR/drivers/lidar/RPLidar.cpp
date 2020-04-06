@@ -15,7 +15,7 @@ bool checkRPLIDARHealth(RPlidarDriver * _drv, bool _verbose) {
     op_result = _drv->getHealth(healthinfo);
     if (IS_OK(op_result)) { // the macro IS_OK is the preperred way to judge whether the operation is succeed.
         if (_verbose) {
-            std::cout << " RPLidar health status: " ;
+            std::cout << " Health status: " ;
 
             switch (healthinfo.status) {
                 case RPLIDAR_STATUS_OK:
