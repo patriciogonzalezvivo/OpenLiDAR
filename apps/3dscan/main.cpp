@@ -33,7 +33,7 @@ inline bool savePointCloud( const std::string& _filename,
         }
         else if (_formats[i] == "png") {
             // We now want to create a range image from the above point cloud, with a 1deg angular resolution
-            float angularResolution = glm::radians(  0.1f);  //   1.0 degree in radians
+            float angularResolution = glm::radians(  0.25f);  //   1.0 degree in radians
             float maxAngleWidth     = glm::radians(360.0f);  // 360.0 degree in radians
             float maxAngleHeight    = glm::radians(180.0f);  // 180.0 degree in radians
             Eigen::Affine3f sensorPose = (Eigen::Affine3f)Eigen::Translation3f(0.0f, 0.0f, 0.0f);
