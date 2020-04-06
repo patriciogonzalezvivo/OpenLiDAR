@@ -39,7 +39,7 @@ inline bool savePointCloud( const std::string& _filename,
             Eigen::Affine3f sensorPose = (Eigen::Affine3f)Eigen::Translation3f(0.0f, 0.0f, 0.0f);
             Eigen::Vector3f point_cloud_center = Eigen::Vector3f(0.0,0.0,0.0);
             float point_cloud_radius = 2.0;
-            pcl::RangeImage::CoordinateFrame coordinate_frame = pcl::RangeImage::CAMERA_FRAME;
+            pcl::RangeImage::CoordinateFrame coordinate_frame = pcl::RangeImage::LASER_FRAME;
             float noiseLevel = 0.0f;
             float minRange = 0.0f;
             int borderSize = 0;
