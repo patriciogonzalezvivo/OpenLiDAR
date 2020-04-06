@@ -8,7 +8,7 @@
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/png_io.h>
-#include <pcl/range_image/range_image.h>
+#include <pcl/range_image/range_image_spherical.h>
 #include <pcl/visualization/common/float_image_utils.h>
 
 #include <pcl/filters/voxel_grid.h>
@@ -50,13 +50,10 @@ inline bool savePointCloud( const std::string& _filename,
             float minRange = 0.0f;
             int borderSize = 0;
             
-            pcl::RangeImage rangeImage;
+            pcl::RangeImageSpherical rangeImage;
             rangeImage.createFromPointCloud(_cloud, angularResolution, maxAngleWidth, maxAngleHeight,
                                             sensorPose, coordinate_frame, noiseLevel, minRange, borderSize);
-            // rangeImage.createFromPointCloudWithKnownSize(   _cloud, angularResolution, 
-            //                                                 point_cloud_center, point_cloud_radius,
-            //                                                 sensorPose, coordinate_frame, noiseLevel, minRange, borderSize);
-
+                                            
             std::cout << "Saving points as " << filename << std::endl;
             float* ranges = rangeImage.getRangesArray();
             unsigned char* rgb_image = pcl::visualization::FloatImageUtils::getVisualImage (ranges, rangeImage.width, rangeImage.height); 
