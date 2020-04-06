@@ -174,7 +174,7 @@ int main(int argc, char **argv){
         }
 
         scanner.reset(bVerbose);
-        scanner.disconnect();
+        scanner.disconnect(false);
     }
 
     return 0;
