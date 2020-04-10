@@ -21,6 +21,7 @@ varying vec2        v_texcoord;
 #include "math/rotate4dX.glsl"
 #include "math/rotate4dY.glsl"
 #include "color/space/rgb2depth.glsl"
+#include "color/space/rgb2hsv.glsl"
 
 void main(void) {
     v_position = a_position;
@@ -41,6 +42,7 @@ void main(void) {
     vec3 color = texture2D(u_tex0, vec2(v_texcoord.x, 1.-v_texcoord.y)).rgb;
     v_color = vec4(color, 1.0);
     float depth = rgb2depth(color);
+    depth = rgb2hsv(color).x;
     v_position.xyz = normal * depth * 3.;
     
     gl_PointSize = 1.0;
