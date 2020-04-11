@@ -15,6 +15,9 @@
 #include "drivers/lidar/RPLidar.h"
 #include "drivers/mount/Celestron.h"
 
+#define MIN_DEGREE      2.0
+#define MAX_DEGREE      359.0
+
 OpenLiDAR::OpenLiDAR() :
     m_mount(NULL),
     m_lidar(NULL),
@@ -177,7 +180,10 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
     size_t count = 0;
     LidarSample samples[RPLIDAR_MAXSAMPLES];
     // fetch result and print it out...
-    while (m_scanning && az < _toDegree) {
+    while ( m_scanning && 
+            az < _toDegree &&
+            az < MAX_DEGREE) {
+                
         float delta_time = float(getElapsedSeconds() - start_time);
 
         // Get mount azimuth angle
@@ -192,8 +198,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
         glm::quat lng = glm::angleAxis(float(glm::radians(-az)), glm::vec3(0.0,1.0,0.0));
 
         if (m_lidar) {
-            if (m_lidar->getSamples(samples, count))
-            {
+            if (m_lidar->getSamples(samples, count)) {
                 for (size_t i = 0; i < count ; i++) {
                     glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
                     glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + offset);

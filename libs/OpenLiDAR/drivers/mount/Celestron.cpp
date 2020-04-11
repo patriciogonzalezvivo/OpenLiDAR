@@ -19,8 +19,9 @@
 
 #define NULL_PTR(x) (x *)0
 #define MAX_RESP_SIZE   20
-#define MIN_DEGREE      2.0
 #define TIMEOUT         5
+#define MIN_DEGREE      2.0
+#define MAX_DEGREE      359.0
 
 /* Starsense specific constants */
 #define ISNEXSTAR       0x11
