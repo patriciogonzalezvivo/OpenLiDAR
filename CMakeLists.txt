@@ -24,18 +24,6 @@ include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
 add_definitions(${GLM_DEFINITIONS})
 
-# RPLIDAR DRIVER
-set(RPLIDAR_SDK_PATH "libs/rplidar_sdk")
-FILE(GLOB RPLIDAR_SDK_SRC 
-    "${RPLIDAR_SDK_PATH}/src/arch/linux/*.cpp"
-    "${RPLIDAR_SDK_PATH}/src/hal/*.cpp"
-    "${RPLIDAR_SDK_PATH}/src/*.cpp"
-)
-include_directories(
-  ${RPLIDAR_SDK_PATH}/include
-  ${RPLIDAR_SDK_PATH}/src
-)
-
 # GPS
 find_path(GPS_INCLUDE_DIR NAMES libgpsmm.h)
 find_library(GPS_LIBRARY NAMES gps)
@@ -56,6 +44,18 @@ FILE(GLOB OPENLIDAR_SRC
 )
 include_directories(
     ${OPENLIDAR_PATH}
+)
+
+# RPLIDAR DRIVER
+set(RPLIDAR_SDK_PATH "${OPENLIDAR_PATH}/drivers/lidar/rplidar_sdk")
+FILE(GLOB RPLIDAR_SDK_SRC 
+    "${RPLIDAR_SDK_PATH}/src/arch/linux/*.cpp"
+    "${RPLIDAR_SDK_PATH}/src/hal/*.cpp"
+    "${RPLIDAR_SDK_PATH}/src/*.cpp"
+)
+include_directories(
+  ${RPLIDAR_SDK_PATH}/include
+  ${RPLIDAR_SDK_PATH}/src
 )
 
 # APPS

@@ -182,8 +182,8 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
     // fetch result and print it out...
     while ( m_scanning && 
             az < _toDegree &&
-            az < MAX_DEGREE) {
-                
+            az < MAX_DEGREE ) {
+
         float delta_time = float(getElapsedSeconds() - start_time);
 
         // Get mount azimuth angle
