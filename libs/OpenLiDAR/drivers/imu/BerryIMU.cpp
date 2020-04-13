@@ -16,7 +16,7 @@
 #define RAD_TO_DEG 57.29578
 #define M_PI 3.14159265358979323846
 
-BerryIMU::BerryIMU() : m_file(-1), m_LSM9DS0(false), m_LSM9DS1(false){
+BerryIMU::BerryIMU() : m_magMax(-32767), m_magMin(32767), m_file(-1), m_LSM9DS0(false), m_LSM9DS1(false){
 }
 
 BerryIMU::~BerryIMU() {
@@ -88,54 +88,16 @@ bool BerryIMU::connect(const char* _portName, bool _verbose) {
         std::cout << "NO IMU DETECTED" << std::endl;
         return false;
     }
-    else {
+    else 
         m_connected = true;
 
-        if (_verbose)
-            printFirmware();
-
-        // enableIMU
-        if (m_LSM9DS0){//For BerryIMUv1
-            // Enable accelerometer.
-            writeAccReg(LSM9DS0_CTRL_REG1_XM, 0b01100111); //  z,y,x axis enabled, continuous update,  100Hz data rate
-            writeAccReg(LSM9DS0_CTRL_REG2_XM, 0b00100000); // +/- 16G full scale
-
-            //Enable the magnetometer
-            writeMagReg(LSM9DS0_CTRL_REG5_XM, 0b11110000); // Temp enable, M data rate = 50Hz
-            writeMagReg(LSM9DS0_CTRL_REG6_XM, 0b01100000); // +/-12gauss
-            writeMagReg(LSM9DS0_CTRL_REG7_XM, 0b00000000); // Continuous-conversion mode
-
-            // Enable Gyro
-            writeGyrReg(LSM9DS0_CTRL_REG1_G, 0b00001111); // Normal power mode, all axes enabled
-            writeGyrReg(LSM9DS0_CTRL_REG4_G, 0b00110000); // Continuos update, 2000 dps full scale
-        }
-
-        if (m_LSM9DS1){//For BerryIMUv2
-            // Enable the gyroscope
-            writeGyrReg(LSM9DS1_CTRL_REG4,0b00111000);      // z, y, x axis enabled for gyro
-            writeGyrReg(LSM9DS1_CTRL_REG1_G,0b10111000);    // Gyro ODR = 476Hz, 2000 dps
-            writeGyrReg(LSM9DS1_ORIENT_CFG_G,0b10111000);   // Swap orientation 
-
-            // Enable the accelerometer
-            writeAccReg(LSM9DS1_CTRL_REG5_XL,0b00111000);   // z, y, x axis enabled for accelerometer
-            writeAccReg(LSM9DS1_CTRL_REG6_XL,0b00101000);   // +/- 16g
-
-            //Enable the magnetometer
-            writeMagReg(LSM9DS1_CTRL_REG1_M, 0b10011100);   // Temp compensation enabled,Low power mode mode,80Hz ODR
-            writeMagReg(LSM9DS1_CTRL_REG2_M, 0b01000000);   // +/-12gauss
-            writeMagReg(LSM9DS1_CTRL_REG3_M, 0b00000000);   // continuos update
-            writeMagReg(LSM9DS1_CTRL_REG4_M, 0b00000000);   // lower power mode for Z axis
-        }
-    }
+    if (_verbose)
+        printFirmware();
 
     return true;
 }
 
 void BerryIMU::disconnect() {
-}
-
-bool BerryIMU::calibrate() {
-    return true;
 }
 
 bool BerryIMU::printFirmware() {
@@ -150,6 +112,89 @@ bool BerryIMU::printFirmware() {
     }
     return false;
 }
+
+void BerryIMU::writeAccReg(uint8_t _reg, uint8_t _value) {
+    if (m_LSM9DS0)
+        selectDevice(m_file,LSM9DS0_ACC_ADDRESS);
+    else if (m_LSM9DS1)
+        selectDevice(m_file,LSM9DS1_ACC_ADDRESS);
+
+    int result = i2c_smbus_write_byte_data(m_file, _reg, _value);
+    if (result == -1) {
+        printf ("Failed to write byte to I2C Acc.");
+        exit(1);
+    }
+}
+
+void BerryIMU::writeMagReg(uint8_t _reg, uint8_t _value) {
+    if (m_LSM9DS0)
+        selectDevice(m_file,LSM9DS0_MAG_ADDRESS);
+    else if (m_LSM9DS1)
+        selectDevice(m_file,LSM9DS1_MAG_ADDRESS);
+  
+    int result = i2c_smbus_write_byte_data(m_file, _reg, _value);
+    if (result == -1) {
+        printf("Failed to write byte to I2C Mag.");
+        exit(1);
+    }
+}
+
+void BerryIMU::writeGyrReg(uint8_t _reg, uint8_t _value) {
+    if (m_LSM9DS0)
+        selectDevice(m_file,LSM9DS0_GYR_ADDRESS);
+    else if (m_LSM9DS1)
+        selectDevice(m_file,LSM9DS1_GYR_ADDRESS);
+  
+    int result = i2c_smbus_write_byte_data(m_file, _reg, _value);
+    if (result == -1) {
+        printf("Failed to write byte to I2C Gyr.");
+        exit(1);
+    }
+}
+
+bool BerryIMU::start(bool _verbose) {
+
+    if (m_connected) {
+        // enableIMU
+        if (m_LSM9DS0){//For BerryIMUv1
+            // Enable accelerometer.
+            writeAccReg(LSM9DS0_CTRL_REG1_XM,   0b01100111);    //  z,y,x axis enabled, continuous update,  100Hz data rate
+            writeAccReg(LSM9DS0_CTRL_REG2_XM,   0b00100000);    // +/- 16G full scale
+
+            //Enable the magnetometer
+            writeMagReg(LSM9DS0_CTRL_REG5_XM,   0b11110000);    // Temp enable, M data rate = 50Hz
+            writeMagReg(LSM9DS0_CTRL_REG6_XM,   0b01100000);    // +/-12gauss
+            writeMagReg(LSM9DS0_CTRL_REG7_XM,   0b00000000);    // Continuous-conversion mode
+
+            // Enable Gyro
+            writeGyrReg(LSM9DS0_CTRL_REG1_G,    0b00001111);    // Normal power mode, all axes enabled
+            writeGyrReg(LSM9DS0_CTRL_REG4_G,    0b00110000);    // Continuos update, 2000 dps full scale
+        }
+
+        if (m_LSM9DS1){//For BerryIMUv2
+
+            // Enable the gyroscope
+            writeGyrReg(LSM9DS1_CTRL_REG4,      0b00111000);    // z, y, x axis enabled for gyro
+            writeGyrReg(LSM9DS1_CTRL_REG1_G,    0b10111000);    // Gyro ODR = 476Hz, 2000 dps
+            writeGyrReg(LSM9DS1_ORIENT_CFG_G,   0b10111000);    // Swap orientation 
+
+            // Enable the accelerometer
+            writeAccReg(LSM9DS1_CTRL_REG5_XL,   0b00111000);    // z, y, x axis enabled for accelerometer
+            writeAccReg(LSM9DS1_CTRL_REG6_XL,   0b00101000);    // +/- 16g
+
+            //Enable the magnetometer
+            writeMagReg(LSM9DS1_CTRL_REG1_M,    0b10011100);    // Temp compensation enabled,Low power mode mode,80Hz ODR
+            writeMagReg(LSM9DS1_CTRL_REG2_M,    0b01000000);    // +/-12gauss
+            writeMagReg(LSM9DS1_CTRL_REG3_M,    0b00000000);    // continuos update
+            writeMagReg(LSM9DS1_CTRL_REG4_M,    0b00000000);    // lower power mode for Z axis
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 
 void BerryIMU::readACC(int _a[]) {
     uint8_t block[6];
@@ -204,53 +249,12 @@ void BerryIMU::readGYR(int _g[]) {
     _g[2] = (int16_t)(block[4] | block[5] << 8);
 }
 
-
-void BerryIMU::writeAccReg(uint8_t _reg, uint8_t _value) {
-    if (m_LSM9DS0)
-        selectDevice(m_file,LSM9DS0_ACC_ADDRESS);
-    else if (m_LSM9DS1)
-        selectDevice(m_file,LSM9DS1_ACC_ADDRESS);
-
-    int result = i2c_smbus_write_byte_data(m_file, _reg, _value);
-    if (result == -1) {
-        printf ("Failed to write byte to I2C Acc.");
-        exit(1);
-    }
-}
-
-void BerryIMU::writeMagReg(uint8_t _reg, uint8_t _value) {
-    if (m_LSM9DS0)
-        selectDevice(m_file,LSM9DS0_MAG_ADDRESS);
-    else if (m_LSM9DS1)
-        selectDevice(m_file,LSM9DS1_MAG_ADDRESS);
-  
-    int result = i2c_smbus_write_byte_data(m_file, _reg, _value);
-    if (result == -1) {
-        printf("Failed to write byte to I2C Mag.");
-        exit(1);
-    }
-}
-
-
-void BerryIMU::writeGyrReg(uint8_t _reg, uint8_t _value) {
-    if (m_LSM9DS0)
-        selectDevice(m_file,LSM9DS0_GYR_ADDRESS);
-    else if (m_LSM9DS1)
-        selectDevice(m_file,LSM9DS1_GYR_ADDRESS);
-  
-    int result = i2c_smbus_write_byte_data(m_file, _reg, _value);
-    if (result == -1) {
-        printf("Failed to write byte to I2C Gyr.");
-        exit(1);
-    }
-}
-
-bool BerryIMU::start(bool _verbose) {
-    return true;
-}
-
-
 void BerryIMU::update(){
+    updateAccGyr();
+    updateMag();
+}
+
+void BerryIMU::updateAccGyr(){
 
     int  acc_raw[3];
     int  mag_raw[3];
@@ -302,51 +306,49 @@ void BerryIMU::update(){
     CFangleX = AA * (CFangleX + rate_gyr_x * DT) + (1 - AA) * m_acc.x;
     CFangleY = AA * (CFangleY + rate_gyr_y * DT) + (1 - AA) * m_acc.y;
 
+void BerryIMU::updateMag() {
+    // Magnetometer
+    // -----------------------------------------------------------------------
     int magRaw[3];
     readMAG(magRaw);
 
-    float accXnorm, accYnorm, pitch, roll, magXcomp, magYcomp;
+    // float accXnorm, accYnorm, pitch, roll, magXcomp, magYcomp;
 
-    //Normalize accelerometer raw values.
-    accXnorm = acc_raw[0]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
-    accYnorm = acc_raw[1]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
+    // //Normalize accelerometer raw values.
+    // accXnorm = acc_raw[0]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
+    // accYnorm = acc_raw[1]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
 
-    //Calculate pitch and roll
-    pitch = asin(accXnorm);
-    roll = -asin(accYnorm/cos(pitch));
+    // //Calculate pitch and roll
+    // pitch = asin(accXnorm);
+    // roll = -asin(accYnorm/cos(pitch));
 
-    //Calculate the new tilt compensated values
-    magXcomp = magRaw[0]*cos(pitch)+magRaw[2]*sin(pitch);
-    if (m_LSM9DS0)
-        magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)-magRaw[2]*sin(roll)*cos(pitch); // LSM9DS0
-    else
-        magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)+magRaw[2]*sin(roll)*cos(pitch); // LSM9DS1
+    // //Calculate the new tilt compensated values
+    // magXcomp = magRaw[0]*cos(pitch)+magRaw[2]*sin(pitch);
+    // if (m_LSM9DS0)
+    //     magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)-magRaw[2]*sin(roll)*cos(pitch); // LSM9DS0
+    // else
+    //     magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)+magRaw[2]*sin(roll)*cos(pitch); // LSM9DS1
 
-    //Calculate heading
-    m_heading = 180 * atan2(magYcomp,magXcomp) / M_PI;
+    // //Calculate heading
+    // m_heading = 180 * atan2(magYcomp, magXcomp) / M_PI;
 
-    //Convert heading to 0 - 360
-    if (m_heading < 0)
-        m_heading += 360;
+    //Apply hard iron calibration
+    magRaw[0] -= (m_magMin.x + m_magMax.x) / 2;
+    magRaw[1] -= (m_magMin.y + m_magMax.y) / 2;
+    magRaw[2] -= (m_magMin.z + m_magMax.z) / 2;
 
+    //Apply soft iron calibration
+    glm::vec3 scaledMag;
+    scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2 - 1;
+    scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2 - 1;
+    scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2 - 1;
 
-    // //Apply hard iron calibration
-    // magRaw[0] -= (magXmin + magXmax) /2 ;
-    // magRaw[1] -= (magYmin + magYmax) /2 ;
-    // magRaw[2] -= (magZmin + magZmax) /2 ;
-
-    // //Apply soft iron calibration
-    // scaledMag[0]  = (float)(magRaw[0] - magXmin) / (magXmax - magXmin) * 2 - 1;
-    // scaledMag[1]  = (float)(magRaw[1] - magYmin) / (magYmax - magYmin) * 2 - 1;
-    // scaledMag[2]  = (float)(magRaw[2] - magZmin) / (magZmax - magZmin) * 2 - 1;
-
-    // //Compute m_heading
-    // m_heading = 180 * atan2(scaledMag[1],scaledMag[0])/M_PI;
-
+    //Compute m_heading
+    m_heading = 180 * atan2(scaledMag.y, scaledMag.x) / M_PI;
 
     // //Convert m_heading to 0 - 360
-    // if(m_heading < 0)
-    //     m_heading += 360;
+    if(m_heading < 0)
+        m_heading += 360;
 
     // //Local declination in mrads into radians
     // float declination = 217.9 / 1000.0;
@@ -354,11 +356,36 @@ void BerryIMU::update(){
     // //Add the declination correction to our current heading
     // m_heading += declination * 180/M_PI;
 
-
     // //Correct the m_heading if declination forces it over 360
     // if ( m_heading > 360)
     //     m_heading -= 360;
 
+}
+
+bool BerryIMU::calibrate(bool _verbose) {
+    m_magMax = glm::ivec3(-32767);
+    m_magMin = glm::ivec3(32767);
+
+    int magRaw[3];
+    int samples = 1000;
+    while (samples > 0) {
+        readMAG(magRaw);
+
+        if (magRaw[0] > m_magMax.x) m_magMax.x = magRaw[0];
+        if (magRaw[1] > m_magMax.y) m_magMax.y = magRaw[1];
+        if (magRaw[2] > m_magMax.z) m_magMax.z = magRaw[2];
+
+        if (magRaw[0] < m_magMin.x) m_magMin.x = magRaw[0];
+        if (magRaw[1] < m_magMin.y) m_magMin.y = magRaw[1];
+        if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
+
+        //Sleep for 0.25ms
+		usleep(25000);
+        
+        samples--;
+    }
+
+    return true;
 }
 
 

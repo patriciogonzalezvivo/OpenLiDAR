@@ -17,7 +17,7 @@ public:
     virtual void    update() = 0;
     virtual bool    stop(bool _verbose) = 0;
 
-    virtual bool    calibrate() = 0;
+    virtual bool    calibrate(bool _verbose) = 0;
 
     virtual glm::vec3   getAcc() { return m_acc; }
     virtual glm::vec3   getGyr() { return m_gyr; }
