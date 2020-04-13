@@ -20,13 +20,22 @@ int main(int argc, char **argv) {
  
     signal(SIGINT, ctrlc);
 
+    const std::string deleteLine = "\e[2K\r\e[1A";
+    bool first_line = true;
     while (1) {
         imu->update();
 
-        std::cout << " --- " << std::endl;
-        std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
-        std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
-        std::cout << " Heading: " << imu->getHeading() << std::endl;
+        if (!first_line)
+            for (int = 0; i < 5; i++)
+                std::cout << deleteLine;
+
+        std::cout << " ---------------------------------------------- " << std::endl;
+        std::cout << " | Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
+        std::cout << " | Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
+        std::cout << " | Heading: " << imu->getHeading() << std::endl;
+        std::cout << " ---------------------------------------------- " << std::endl;
+
+        first_line = false;
 
         if (ctrl_c_pressed)
             break;
