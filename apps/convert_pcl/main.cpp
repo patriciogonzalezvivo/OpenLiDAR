@@ -12,9 +12,9 @@
 #include <pcl/surface/mls.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 
-#include "textOps.h"
-#include "fileOps.h"
-#include "../apps/3dscan/export.h"
+#include "../../libs/OpenLiDAR/tools/textOps.h"
+#include "../../libs/OpenLiDAR/tools/fileOps.h"
+#include "../3dscan/export.h"
 
 int main(int argc, char **argv){
 

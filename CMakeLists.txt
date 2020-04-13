@@ -62,8 +62,7 @@ include_directories(
 add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
 target_link_libraries (3dscan ${PCL_LIBRARIES} ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} )
 
-# TOOLS
-add_executable (convert_pcl "tools/convert_pcl.cpp" "${OPENLIDAR_PATH}/tools/*.cpp")
+add_executable (convert_pcl "apps/convert_pcl/main.cpp" )
 target_link_libraries (convert_pcl ${PCL_LIBRARIES} )
 
 # TESTS

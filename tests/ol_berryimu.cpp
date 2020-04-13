@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
         imu->update();
 
         if (!first_line)
-            for (int = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
                 std::cout << deleteLine;
 
         std::cout << " ---------------------------------------------- " << std::endl;
