@@ -14,7 +14,7 @@ public:
     Gpsd();
     virtual ~Gpsd();
 
-    bool        connect(const char* _portName, bool _verbose); // Default: "localhost"
+    bool        connect(const char* _portName = "localhost", bool _verbose = true); // Default: 
     void        disconnect();
 
     bool        printFirmware();

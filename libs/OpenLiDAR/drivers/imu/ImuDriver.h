@@ -14,6 +14,7 @@ public:
     virtual ~ImuDriver() {};
 
     virtual bool    start(bool _verbose) = 0;
+    virtual void    update() = 0;
     virtual bool    stop(bool _verbose) = 0;
 
     virtual bool    calibrate() = 0;

@@ -79,6 +79,9 @@ target_link_libraries (ol_ports ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 add_executable (ol_gpsd "tests/ol_gpsd.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
 target_link_libraries (ol_gpsd ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable (ol_berryimu "tests/ol_berryimu.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
+target_link_libraries (ol_berryimu ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+
 # INSTALL
 install(TARGETS 3dscan convert_pcl
         RUNTIME DESTINATION bin)
