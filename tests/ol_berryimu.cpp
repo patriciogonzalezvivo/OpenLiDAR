@@ -17,9 +17,11 @@ int main(int argc, char **argv) {
     ImuDriver* imu = new BerryIMU();
     imu->connect("/dev/i2c-%d", true);
     imu->start(true);
+
+    std::cout << "Calibrating..." << std::endl;
+    imu->calibrate(true);
  
     signal(SIGINT, ctrlc);
-
     const std::string deleteLine = "\e[2K\r\e[1A";
     bool first_line = true;
     while (1) {
@@ -40,6 +42,8 @@ int main(int argc, char **argv) {
 
         if (ctrl_c_pressed)
             break;
+
+        usleep(25000);
     }
 
     imu->stop(true);

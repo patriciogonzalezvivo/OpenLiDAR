@@ -56,7 +56,7 @@ bool BerryIMU::connect(const char* _portName, bool _verbose) {
 
     int res, bus,  size;
     char filename[20];
-	sprintf(filename, _portName, 1);
+    sprintf(filename, _portName, 1);
     m_file = open(filename, O_RDWR);
     if (m_file < 0) {
         printf("Unable to open I2C bus!");
@@ -382,11 +382,27 @@ bool BerryIMU::calibrate(bool _verbose) {
         if (magRaw[1] < m_magMin.y) m_magMin.y = magRaw[1];
         if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
 
+
+        // Delete previous line
+        const std::string deleteLine = "\e[2K\r\e[1A";
+        std::cout << deleteLine;
+
+        int pct = (1.0 - float(samples)/1000.0) * 100;
+        std::cout << " [ ";
+        for (int i = 0; i < 50; i++) {
+            if (i < pct/2) std::cout << "#";
+            else std::cout << ".";
+        }
+        std::cout << " ] " << std::endl;
+
         //Sleep for 0.25ms
-		usleep(25000);
+        usleep(25000);
         
         samples--;
     }
+
+    std::cout << "Min: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
+    std::cout << "Max: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
 
     return true;
 }
