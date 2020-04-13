@@ -306,7 +306,10 @@ void BerryIMU::updateAccGyr(){
     CFangleX = AA * (CFangleX + rate_gyr_x * DT) + (1 - AA) * m_acc.x;
     CFangleY = AA * (CFangleY + rate_gyr_y * DT) + (1 - AA) * m_acc.y;
 
+}
+
 void BerryIMU::updateMag() {
+
     // Magnetometer
     // -----------------------------------------------------------------------
     int magRaw[3];
