@@ -303,9 +303,17 @@ void BerryIMU::updateAccGyr(){
         m_acc.y += (float)90;
 
     //Complementary filter used to combine the accelerometer and gyro values.
-    CFangleX = AA * (CFangleX + rate_gyr_x * DT) + (1 - AA) * m_acc.x;
-    CFangleY = AA * (CFangleY + rate_gyr_y * DT) + (1 - AA) * m_acc.y;
+    m_tmp.x = AA * (CFangleX + rate_gyr_x * DT) + (1 - AA) * m_acc.x;
+    m_tmp.y = AA * (CFangleY + rate_gyr_y * DT) + (1 - AA) * m_acc.y;
 
+    //Normalize accelerometer raw values.
+    float accXnorm, accYnorm, pitch, roll;
+    accXnorm = acc_raw[0]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
+    accYnorm = acc_raw[1]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
+
+    //Calculate pitch and roll
+    m_pitch = asin(accXnorm);
+    m_roll = -asin(accYnorm/cos(pitch));
 }
 
 void BerryIMU::updateMag() {
@@ -315,15 +323,7 @@ void BerryIMU::updateMag() {
     int magRaw[3];
     readMAG(magRaw);
 
-    // float accXnorm, accYnorm, pitch, roll, magXcomp, magYcomp;
-
-    // //Normalize accelerometer raw values.
-    // accXnorm = acc_raw[0]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
-    // accYnorm = acc_raw[1]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
-
-    // //Calculate pitch and roll
-    // pitch = asin(accXnorm);
-    // roll = -asin(accYnorm/cos(pitch));
+    // float magXcomp, magYcomp;
 
     // //Calculate the new tilt compensated values
     // magXcomp = magRaw[0]*cos(pitch)+magRaw[2]*sin(pitch);

@@ -16,7 +16,7 @@ int main(int argc, char **argv){
 
     std::string filename = "pcl.ply";
     std::vector<std::string> formats;
-    float toDegree = 180.0f;    // Half loop
+    float toDegree = 359.0f;    // Full loop
     float atSpeed = 0.75f;      // 75% of speed
     float voxel = 0.0f;
     bool bNormal = false;

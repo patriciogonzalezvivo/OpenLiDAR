@@ -26,14 +26,15 @@ int main(int argc, char **argv) {
         imu->update();
 
         if (!first_line)
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 6; i++)
                 std::cout << deleteLine;
 
-        std::cout << " ---------------------------------------------- " << std::endl;
+        std::cout << " -------------------------------------------------------------------- " << std::endl;
         std::cout << " | Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
         std::cout << " | Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
-        std::cout << " | Heading: " << imu->getHeading() << std::endl;
-        std::cout << " ---------------------------------------------- " << std::endl;
+        std::cout << " | Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
+        std::cout << " | Tmp: " << imu->getTmp().x << " " << imu->getTmp().y << std::endl;
+        std::cout << " -------------------------------------------------------------------- " << std::endl;
 
         first_line = false;
 
