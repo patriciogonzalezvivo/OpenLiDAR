@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 
     std::cout << "Connecting BerryUMI over i2c";
     ImuDriver* imu = new BerryIMU();
-    imu->connect("/dev/i2c-%d", true)
+    imu->connect("/dev/i2c-%d", true);
     imu->start(true);
 
     bool first_line = true;
