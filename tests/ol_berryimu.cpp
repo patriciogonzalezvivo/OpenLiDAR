@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
         double start_time = getElapsedSeconds();
         imu->calibrate(true);
         if (mount) {
-            mount->pan(target, 1.0, [&](double _az, double _alt) {
+            mount->pan(target, .9, [&](double _az, double _alt) {
 
                 // Clean prev print
                 if (!first_line)
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
         double prev_heading = 0.0;
         
         if (mount) {
-            mount->pan(0.0, -1.0, [&](double _az, double _alt) {
+            mount->pan(0.0, -0.9, [&](double _az, double _alt) {
 
                 // Clean prev print
                 if (!first_line)

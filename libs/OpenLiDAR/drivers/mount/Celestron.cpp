@@ -250,7 +250,7 @@ bool Celestron::pan(double _targetAngle, float _speed, std::function<bool(double
 
     _targetAngle = std::max(_targetAngle, MIN_DEGREE);
     _targetAngle = std::min(_targetAngle, MAX_DEGREE);
-    CELESTRON_SLEW_RATE rate = CELESTRON_SLEW_RATE(ceil(_speed * SR_9));
+    CELESTRON_SLEW_RATE rate = CELESTRON_SLEW_RATE(ceil(abs(_speed) * SR_9));
     CELESTRON_DIRECTION dir;
     std::function<bool(double&)> decide;
     if (_speed > 0) {
