@@ -276,7 +276,7 @@ bool Celestron::pan(double _targetAngle, float _speed, std::function<bool(double
             !ctrl_c_pressed) {
         getAzAlt(&m_az, &m_alt);
         keep_moving = _callback(m_az, m_alt);
-        usleep(1000);
+        // usleep(1000);
     }
 
     stop(dir);
