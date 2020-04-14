@@ -61,7 +61,7 @@ bool BerryIMU::connect(const char* _portName, bool _verbose) {
     sprintf(filename, _portName, 1);
     m_file = open(filename, O_RDWR);
     if (m_file < 0) {
-        printf("Unable to open I2C bus!");
+        std::cout << "Unable to open I2C bus!" << std::endl;
         return false;
     }
 
