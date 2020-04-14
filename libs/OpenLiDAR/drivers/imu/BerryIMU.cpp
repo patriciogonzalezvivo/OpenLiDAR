@@ -348,34 +348,34 @@ void BerryIMU::updateMag() {
         if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
     }
 
-    // //Calculate the new tilt compensated values
-    // float magXcomp, magYcomp;
-    // magXcomp = magRaw[0]*cos(m_pitch)+magRaw[2]*sin(m_pitch);
-    // if (m_LSM9DS0)
-    //     magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)-magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS0
-    // else
-    //     magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)+magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS1
+    //Calculate the new tilt compensated values
+    float magXcomp, magYcomp;
+    magXcomp = magRaw[0]*cos(m_pitch)+magRaw[2]*sin(m_pitch);
+    if (m_LSM9DS0)
+        magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)-magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS0
+    else
+        magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)+magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS1
 
-    // //Calculate heading
-    // m_heading = 180 * atan2(magYcomp, magXcomp) / M_PI;
+    //Calculate heading
+    m_heading = 180 * atan2(magYcomp, magXcomp) / M_PI;
 
-    //Apply hard iron calibration
-    magRaw[0] -= (m_magMin.x + m_magMax.x) / 2;
-    magRaw[1] -= (m_magMin.y + m_magMax.y) / 2;
-    magRaw[2] -= (m_magMin.z + m_magMax.z) / 2;
+    // //Apply hard iron calibration
+    // magRaw[0] -= (m_magMin.x + m_magMax.x) / 2;
+    // magRaw[1] -= (m_magMin.y + m_magMax.y) / 2;
+    // magRaw[2] -= (m_magMin.z + m_magMax.z) / 2;
 
-    //Apply soft iron calibration
-    glm::vec3 scaledMag;
-    scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2 - 1;
-    scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2 - 1;
-    scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2 - 1;
+    // //Apply soft iron calibration
+    // glm::vec3 scaledMag;
+    // scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2 - 1;
+    // scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2 - 1;
+    // scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2 - 1;
 
-    //Compute m_heading
-    m_heading = 180 * atan2(scaledMag.y, scaledMag.x) / M_PI;
+    // //Compute m_heading
+    // m_heading = 180 * atan2(scaledMag.y, scaledMag.x) / M_PI;
 
-    // //Convert m_heading to 0 - 360
-    if(m_heading < 0)
-        m_heading += 360;
+    // // //Convert m_heading to 0 - 360
+    // if(m_heading < 0)
+    //     m_heading += 360;
 
     // //Local declination in mrads into radians
     // float declination = 217.9 / 1000.0;
