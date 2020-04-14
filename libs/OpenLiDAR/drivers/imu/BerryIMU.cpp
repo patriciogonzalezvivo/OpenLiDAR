@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <fcntl.h>
 
+#include "tools/timeOps.h"
+
 #include "berry/i2c-dev.h"
 #include "berry/LSM9DS0.h"
 #include "berry/LSM9DS1.h"
@@ -16,7 +18,7 @@
 #define RAD_TO_DEG 57.29578
 #define M_PI 3.14159265358979323846
 
-BerryIMU::BerryIMU() : m_magMax(-32767), m_magMin(32767), m_file(-1), m_LSM9DS0(false), m_LSM9DS1(false), m_calibrating(false) {
+BerryIMU::BerryIMU() : m_magMax(-32767), m_magMin(32767), m_prevTime(0.0), m_file(-1), m_LSM9DS0(false), m_LSM9DS1(false), m_calibrating(false) {
 }
 
 BerryIMU::~BerryIMU() {
@@ -195,6 +197,7 @@ bool BerryIMU::start(bool _verbose) {
             writeMagReg(LSM9DS1_CTRL_REG4_M,    0b00000000);    // lower power mode for Z axis
         }
 
+        m_prevTime = getElapsedSeconds();
         return true;
     }
 
@@ -262,6 +265,10 @@ void BerryIMU::update(){
 
 void BerryIMU::updateAccGyr(){
 
+    double currentTime = getElapsedSeconds();
+    double deltaTime = currentTime - m_prevTime;
+    m_prevTime = currentTime;
+
     int  acc_raw[3];
     int  mag_raw[3];
     int  gyr_raw[3];
@@ -282,9 +289,9 @@ void BerryIMU::updateAccGyr(){
     rate_gyr_z = (float) gyr_raw[2] * G_GAIN;
 
     //Calculate the angles from the gyro
-    m_gyr.x += rate_gyr_x * DT;
-    m_gyr.y += rate_gyr_y * DT;
-    m_gyr.z += rate_gyr_z * DT;
+    m_gyr.x += rate_gyr_x * deltaTime;
+    m_gyr.y += rate_gyr_y * deltaTime;
+    m_gyr.z += rate_gyr_z * deltaTime;
 
     //Convert Accelerometer values to degrees
     m_acc.x = (float) (atan2(acc_raw[1], acc_raw[2]) + M_PI) * RAD_TO_DEG;
@@ -309,8 +316,8 @@ void BerryIMU::updateAccGyr(){
         m_acc.y += (float)90;
 
     //Complementary filter used to combine the accelerometer and gyro values.
-    m_tmp.x = AA * (CFangleX + rate_gyr_x * DT) + (1 - AA) * m_acc.x;
-    m_tmp.y = AA * (CFangleY + rate_gyr_y * DT) + (1 - AA) * m_acc.y;
+    m_tmp.x = AA * (m_tmp.x + rate_gyr_x * DT) + (1 - AA) * m_acc.x;
+    m_tmp.y = AA * (m_tmp.y + rate_gyr_y * DT) + (1 - AA) * m_acc.y;
 
     //Normalize accelerometer raw values.
     float accXnorm, accYnorm, pitch, roll;

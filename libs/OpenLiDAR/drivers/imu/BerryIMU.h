@@ -37,6 +37,8 @@ protected:
     glm::ivec3  m_magMax;
     glm::ivec3  m_magMin;
 
+    double      m_prevTime;
+
     int         m_file;
     bool        m_LSM9DS0;
     bool        m_LSM9DS1;
