@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 
                 // Clean prev print
                 if (!first_line)
-                    for (int i = 0; i < 5; i++)
+                    for (int i = 0; i < 4; i++)
                         std::cout << deleteLine;
                 first_line = false;
                 
