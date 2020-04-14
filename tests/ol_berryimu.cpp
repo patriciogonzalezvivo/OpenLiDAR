@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
     
     double az = 0.0;
-    double target = 359.0;
+    double target = 355.0;
     double start_time = getElapsedSeconds();
 
     imu->calibrate(true);
