@@ -315,10 +315,6 @@ void BerryIMU::updateAccGyr(){
     else
         m_acc.y += (float)90;
 
-    //Complementary filter used to combine the accelerometer and gyro values.
-    m_tmp.x = AA * (m_tmp.x + rate_gyr_x * deltaTime) + (1 - AA) * m_acc.x;
-    m_tmp.y = AA * (m_tmp.y + rate_gyr_y * deltaTime) + (1 - AA) * m_acc.y;
-
     //Normalize accelerometer raw values.
     float accXnorm, accYnorm, pitch, roll;
     accXnorm = acc_raw[0]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
@@ -354,11 +350,11 @@ void BerryIMU::updateMag() {
 
     // //Calculate the new tilt compensated values
     // float magXcomp, magYcomp;
-    // magXcomp = magRaw[0]*cos(pitch)+magRaw[2]*sin(pitch);
+    // magXcomp = magRaw[0]*cos(m_pitch)+magRaw[2]*sin(m_pitch);
     // if (m_LSM9DS0)
-    //     magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)-magRaw[2]*sin(roll)*cos(pitch); // LSM9DS0
+    //     magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)-magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS0
     // else
-    //     magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)+magRaw[2]*sin(roll)*cos(pitch); // LSM9DS1
+    //     magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)+magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS1
 
     // //Calculate heading
     // m_heading = 180 * atan2(magYcomp, magXcomp) / M_PI;

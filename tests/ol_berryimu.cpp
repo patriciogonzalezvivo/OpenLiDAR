@@ -67,7 +67,6 @@ int main(int argc, char **argv) {
                 std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
                 std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
                 std::cout << " Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
-                std::cout << " Tmp: " << imu->getTmp().x << " " << imu->getTmp().y << std::endl;
 
                 return true;
             });
