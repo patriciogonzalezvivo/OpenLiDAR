@@ -9,12 +9,6 @@
 #include "tools/timeOps.h"
 #include "tools/textOps.h"
 
-#include <signal.h>
-bool ctrl_c_pressed;
-void ctrlc(int) {
-    ctrl_c_pressed = true;
-}
-
 int main(int argc, char **argv) {
     char* port = NULL;
 
@@ -44,74 +38,86 @@ int main(int argc, char **argv) {
     imu->start(true);
 
     std::cout << "Starting calibrating..." << std::endl;
+    {
+        bool first_line = true;
+        double target = 355.0;
+        double start_time = getElapsedSeconds();
+        const std::string deleteLine = "\e[2K\r\e[1A";
+        imu->calibrate(true);
+        if (mount) {
+            mount->pan(target, 1.0, [&](double _az, double _alt) {
 
-    
-    double az = 0.0;
-    double target = 355.0;
-    double start_time = getElapsedSeconds();
+                // Clean prev print
+                if (!first_line)
+                    for (int i = 0; i < 5; i++)
+                        std::cout << deleteLine;
+                first_line = false;
+                
+                // Compute 
+                int pct = (_az/target) * 100;
+                float delta_time = float(getElapsedSeconds() - start_time);
+                std::cout << " [ ";
+                for (int i = 0; i < 50; i++) {
+                    if (i < pct/2) std::cout << "#";
+                    else std::cout << ".";
+                }
+                std::cout << " ] " << toMMSS(delta_time) << " Az: " << toString(_az,1,3,'0') << std::endl;
 
-    imu->calibrate(true);
-    if (mount) {
-        mount->start(1.0, true);
-        az = mount->getAz();
-    }
+                imu->update();
+                std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
+                std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
+                std::cout << " Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
+                std::cout << " Tmp: " << imu->getTmp().x << " " << imu->getTmp().y << std::endl;
 
-    signal(SIGINT, ctrlc);
-
-    const std::string deleteLine = "\e[2K\r\e[1A";
-    bool first_line = true;
-    while (az < target) {
-
-        // Update Data
-        imu->update();
-        if (mount) 
-            az = mount->getAz();
-        else 
-            az += 0.5;
-
-        // Clean prev print
-        if (!first_line)
-            for (int i = 0; i < 6; i++)
-                std::cout << deleteLine;
-        first_line = false;
-        
-        // Compute 
-        int pct = (az/target) * 100;
-        float delta_time = float(getElapsedSeconds() - start_time);
-        std::cout << " [ ";
-        for (int i = 0; i < 50; i++) {
-            if (i < pct/2) std::cout << "#";
-            else std::cout << ".";
+                return true;
+            });
         }
-        std::cout << " ] " << toMMSS(delta_time) << std::endl;
-
-        std::cout << " Az: " <<  toString(az,1,3,'0') << std::endl;
-        std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
-        std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
-        std::cout << " Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
-        std::cout << " Tmp: " << imu->getTmp().x << " " << imu->getTmp().y << std::endl;
-
-        if (ctrl_c_pressed)
-            break;
-
-        usleep(25000);
-    }
-
-    if (mount) {
-        mount->stop(true);
-        mount->reset(true);
-        az = mount->getAz();
+        imu->calibrate(false);
     }
 
     imu->printFirmware();
 
-    imu->update();
-    std::cout << " Az: " <<  toString(az,1,3,'0') << std::endl;
-    std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
-    std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
-    std::cout << " Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
-    std::cout << " Tmp: " << imu->getTmp().x << " " << imu->getTmp().y << std::endl;
-    
+    std::cout << "Return to 0 and check error" << std::endl;
+    {
+        bool first_line = true;
+        double target = 0.0;
+        double start_time = getElapsedSeconds();
+        const std::string deleteLine = "\e[2K\r\e[1A";
+        double prev_az = 0.0;
+        double prev_heading = 0.0;
+        
+        if (mount) {
+            mount->pan(target, -1.0, [&](double _az, double _alt) {
+
+                // Clean prev print
+                if (!first_line)
+                    for (int i = 0; i < 4; i++)
+                        std::cout << deleteLine;
+                first_line = false;
+                
+                // Compute 
+                int pct = (_az/target) * 100;
+                float delta_time = float(getElapsedSeconds() - start_time);
+                std::cout << " [ ";
+                for (int i = 0; i < 50; i++) {
+                    if (i < pct/2) std::cout << "#";
+                    else std::cout << ".";
+                }
+                std::cout << " ] " << toMMSS(delta_time) << std::endl;
+
+                double delta_az = prev_az - _az;
+                double delta_heading = prev_heading - imu->getHeading();
+
+                imu->update();
+                std::cout << " Az: " << toString(_az,1,3,'0') << " delta: " << delta_az << std::endl;
+                std::cout << " Heading: " << toString(imu->getHeading(),1,3,'0') << " delta: " << delta_heading << std::endl;
+                std::cout << " Error: " << abs(delta_az - delta_heading) << std::endl;
+                
+                return true;
+            });
+        }
+    }
+
     imu->stop(true);
     imu->disconnect();
 

@@ -19,8 +19,7 @@ public:
     bool        printFirmware();
 
     // Mount Abstract Methods
-    bool        start(float _speed, bool _verbose);
-    bool        stop(bool _verbose);
+    bool        pan(double _targetAngle, float _speed, std::function<bool(double&, double&)> _callback);
     bool        reset(bool _verbose);
 
     double      getAz();

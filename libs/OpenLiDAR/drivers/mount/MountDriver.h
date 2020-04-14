@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <glm/glm.hpp>
 
 #include "../Driver.h"
@@ -13,8 +14,7 @@ public:
     MountDriver() : m_offset(0.0,0.0,0.0), m_az(0.f), m_alt(0.f) {};
     virtual ~MountDriver() {};
 
-    virtual bool    start(float _speed, bool _verbose) = 0;
-    virtual bool    stop(bool _verbose) = 0;
+    virtual bool    pan(double _targetAngle, float _speed, std::function<bool(double&, double&)> _callback) = 0;
     virtual bool    reset(bool _verbose) = 0;
 
     virtual double      getAz() { return m_az; }

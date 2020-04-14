@@ -17,6 +17,12 @@
 #include "tools/timeOps.h"
 #include "tools/textOps.h"
 
+#include <signal.h>
+bool ctrl_c_pressed;
+void ctrlc(int) {
+    ctrl_c_pressed = true;
+}
+
 #define NULL_PTR(x) (x *)0
 #define MAX_RESP_SIZE   20
 #define TIMEOUT         5
@@ -240,57 +246,67 @@ void Celestron::disconnect() {
     m_fd = 0;
 }
 
-bool Celestron::start(float _speed, bool _verbose) {
-    reset(_verbose);
+bool Celestron::pan(double _targetAngle, float _speed, std::function<bool(double&, double&)> _callback) {
 
+    _targetAngle = std::max(_targetAngle, MIN_DEGREE);
+    _targetAngle = std::min(_targetAngle, MAX_DEGREE);
     CELESTRON_SLEW_RATE rate = CELESTRON_SLEW_RATE(ceil(_speed * SR_9));
-    return move(CELESTRON_W, rate);
-}
+    CELESTRON_DIRECTION dir;
+    std::function<bool(double&)> decide;
+    if (_speed > 0) {
+        dir = CELESTRON_W;
+        decide = [&](double x){ return x < _targetAngle; };
+    }
+    else if (_speed < 0) {
+        dir = CELESTRON_E;
+        decide = [&](double x){ return x > _targetAngle; };
+    }
+    else
+        return false;
 
-bool Celestron::stop(bool _verbose) {
-    return stop(CELESTRON_W);
+    ctrl_c_pressed = false;
+    signal(SIGINT, ctrlc);
+
+    move(dir, rate);
+
+    getAzAlt(&m_az, &m_alt);
+    bool keep_moving = true;
+    while ( keep_moving && 
+            decide(m_az) &&
+            !ctrl_c_pressed) {
+        getAzAlt(&m_az, &m_alt);
+        keep_moving = _callback(m_az, m_alt);
+        usleep(1000);
+    }
+
+    stop(dir);
+    
+    return true;
 }
 
 bool Celestron::reset(bool _verbose) {
     getAzAlt(&m_az, &m_alt);
+    double start_az = m_az;
+    double start_time = getElapsedSeconds();
+    pan(0, -1.0, [&](double _az, double _alt){
+        if (_verbose) {
+            // Delete previous line
+            const std::string deleteLine = "\e[2K\r\e[1A";
+            std::cout << deleteLine;
 
-    if (m_az > MIN_DEGREE) {
-        double start_az = m_az;
-        double start_time = getElapsedSeconds();
-
-        // if (_verbose) {
-        //     std::cout << "Az: " << m_az << " Alt: " << m_alt << std::endl;
-        //     std::cout << "Moving mount to original Azimuthal angle (towards EAST)" << std::endl;
-        // }
-
-        move(CELESTRON_E, SR_9);
-
-        while (m_az > MIN_DEGREE) {
-            if (_verbose) {
-                // Delete previous line
-                const std::string deleteLine = "\e[2K\r\e[1A";
-                std::cout << deleteLine;
-
-                int pct = (1.0 - m_az/start_az) * 100;
-                float time = float(getElapsedSeconds() - start_time);
-                
-                std::cout << " [ ";
-                for (int i = 0; i < 50; i++) {
-                    if (i < pct/2) std::cout << "#";
-                    else std::cout << ".";
-                }
-                std::cout << " ] " << toMMSS(time) << " az: " << toString(m_az,1,3,'0') << " alt: " << toString(m_alt,1,3,'0') << std::endl;
+            int pct = (1.0 - _az/start_az) * 100;
+            float time = float(getElapsedSeconds() - start_time);
+            
+            std::cout << " [ ";
+            for (int i = 0; i < 50; i++) {
+                if (i < pct/2) std::cout << "#";
+                else std::cout << ".";
             }
-            usleep(1000);
-            getAzAlt(&m_az, &m_alt);
+            std::cout << " ] " << toMMSS(time) << " az: " << toString(_az,1,3,'0') << " alt: " << toString(_alt,1,3,'0') << std::endl;
         }
+        return true;
+    });
 
-        // if (_verbose)
-        //     std::cout << "Stop moving EAST" << std::endl;
-
-        stop(CELESTRON_E);
-    }
-    
     return true;
 }
 
