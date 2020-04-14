@@ -15,14 +15,9 @@
 #include "drivers/lidar/RPLidar.h"
 #include "drivers/mount/Celestron.h"
 
-#define MIN_DEGREE      2.0
-#define MAX_DEGREE      359.0
-
 OpenLiDAR::OpenLiDAR() :
     m_mount(NULL),
-    m_lidar(NULL),
-    // m_gps(NULL),
-    m_scanning(false) {
+    m_lidar(NULL) {
 }
 
 OpenLiDAR::~OpenLiDAR(){
@@ -53,17 +48,6 @@ bool OpenLiDAR::initDrivers(OpenLiDARSettings& _settings, bool _verbose) {
         }
     }
 
-    // if (!m_gps) {
-    //     switch (_settings.gpsType) {
-    //     case GPSD:
-    //         m_gps = new Gpsd();
-    //         break;
-        
-    //     default:
-    //         break;
-    //     }
-    // }
-
     return true;
 }
 
@@ -80,7 +64,6 @@ bool OpenLiDAR::fillPortDrivers(OpenLiDARSettings& _settings, bool _verbose) {
     if (_verbose) {
         std::cout << "Loading Mount from " << _settings.mountPort << std::endl;
         std::cout << "Loading LiDAR from " << _settings.lidarPort << std::endl;
-        // std::cout << "Loading GPS from " << _settings.gpsPort << std::endl;
     }
 
     disconnect();
@@ -106,12 +89,6 @@ bool OpenLiDAR::connect(OpenLiDARSettings& _settings, bool _verbose) {
         delete m_lidar;
         m_lidar = NULL;
     }
-
-    // if (!m_gps->connect(_settings.gpsPort, _verbose)) {
-    //     std::cerr << "Can't load GPS from localhost" << std::endl;
-    //     delete m_gps;
-    //     m_gps = NULL;
-    // }
 
 #if defined(DEBUG_USING_SIMULATE_DATA)
     if (m_lidar == NULL || m_mount == NULL)
@@ -139,29 +116,17 @@ void OpenLiDAR::disconnect(bool _verbose) {
         delete m_lidar;
         m_lidar = NULL;
     }
-
-    // if (m_gps) {
-    //     if (_verbose)
-    //         std::cout << "Disconnecting GPS driver" << std::endl;
-    //     m_gps->disconnect();
-    //     delete m_gps;
-    //     m_gps = NULL;
-    // }
 }
 
 std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _verbose) {
     if (_verbose) 
         std::cout << "Start Scanning..." << std::endl;
 
-    m_scanning = true;
-    glm::vec3 offset = glm::vec3(0.0,0.0,0.0);
     double az = 0.0;
-    double start_time = getElapsedSeconds();
     std::vector<glm::vec4> points;
-
-    // Start GPSScanning
-    // if (m_gps)
-    //     m_gps->start(_verbose);
+    double start_time = getElapsedSeconds();
+    glm::vec3 offset = glm::vec3(0.0,0.0,0.0);
+    const std::string deleteLine = "\e[2K\r\e[1A";
 
     // Start sensor...
     if (m_lidar) {
@@ -176,17 +141,24 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
         // Initialize needed variables to gather data
         size_t count = 0;
         LidarSample samples[RPLIDAR_MAXSAMPLES];
-
         m_mount->pan(_toDegree, _atSpeed, [&](double _az, double _alt) {
+            // calculate time sinze begining of scan
             float delta_time = float(getElapsedSeconds() - start_time);
 
-            glm::quat lng = glm::angleAxis(float(glm::radians(-_az)), glm::vec3(0.0,1.0,0.0));
+            // calculate pan quaternion
+            glm::quat pan = glm::angleAxis(float(glm::radians(-_az)), glm::vec3(0.0,1.0,0.0));
 
             if (m_lidar) {
                 if (m_lidar->getSamples(samples, count)) {
                     for (size_t i = 0; i < count ; i++) {
-                        glm::quat lat = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
-                        glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, samples[i].distance) + offset);
+
+                        // calculate tilt quaternion (lidar angle of spinning head)
+                        glm::quat tilt = glm::angleAxis(glm::radians(-samples[i].theta), glm::vec3(1.0,0.0,0.0));
+
+                        // calculate 3D position
+                        glm::vec3 pos = pan * (tilt * glm::vec3(0.0, 0.0, samples[i].distance) + offset);
+
+                        // Add it to the point buffer
                         points.push_back( glm::vec4(pos, delta_time) );
                     }
                 }
@@ -196,8 +168,8 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
             else {
                 // SIMULATE DATA
                 for (int i = 0; i < 8000 ; i++) {
-                    glm::quat lat = glm::angleAxis(glm::radians(i * 0.045f), glm::vec3(1.0,0.0,0.0));
-                    glm::vec3 pos = lng * (lat * glm::vec3(0.0, 0.0, 1.0) + offset);
+                    glm::quat tilt = glm::angleAxis(glm::radians(i * 0.045f), glm::vec3(1.0,0.0,0.0));
+                    glm::vec3 pos = pan * (tilt * glm::vec3(0.0, 0.0, 1.0) + offset);
                     points.push_back( glm::vec4(pos, delta_time) );
                 }
             }
@@ -205,11 +177,10 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
 
             if (_verbose) {
                 // Delete previous line
-                const std::string deleteLine = "\e[2K\r\e[1A";
                 std::cout << deleteLine;
 
+                // Print progress
                 int pct = (_az/_toDegree) * 100;
-                
                 std::cout << " [ ";
                 for (int i = 0; i < 50; i++) {
                     if (i < pct/2) std::cout << "#";
@@ -225,12 +196,6 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
     // Stop capturing Lidar data
     if (m_lidar)
         m_lidar->stop(_verbose);
-
-    // Stop GPS
-    // if (m_gps)
-    //     m_gps->stop(_verbose);
-
-    m_scanning = false;
 
     return points;
 }

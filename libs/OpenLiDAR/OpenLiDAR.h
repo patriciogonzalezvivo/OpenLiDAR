@@ -25,13 +25,10 @@ public:
     bool        reset(bool _verbose = true);
     void        disconnect(bool _verbose = true);
 
-    bool        isScanning() { return m_scanning; }
-
     std::vector<glm::vec4> scan(float _toDegree, float _atSpeed, bool _verbose = true);
     
-    // GpsDriver*      getGps() { return m_gps; };
-    // MountDriver*    getMount() { return m_mount; };
-    // LidarDriver*    getLidar() { return m_lidar; };
+    MountDriver*    getMount() { return m_mount; };
+    LidarDriver*    getLidar() { return m_lidar; };
 
 protected:
     bool            initDrivers(OpenLiDARSettings& _settings, bool _verbose);
@@ -39,7 +36,4 @@ protected:
 
     MountDriver*    m_mount;
     LidarDriver*    m_lidar;
-    // GpsDriver*      m_gps;
-
-    bool            m_scanning;
 };

@@ -18,8 +18,6 @@ public:
     bool    stop(bool _verbose);
 
     bool    calibrate(bool _start);
-    glm::ivec3  getMagMax() const { return m_magMax; };
-    glm::ivec3  getMagMin() const { return m_magMin; };
 
 protected:
     void        readBlock(uint8_t _command, uint8_t _size, uint8_t *_data);

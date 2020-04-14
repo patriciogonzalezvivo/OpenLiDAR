@@ -23,26 +23,26 @@ int main(int argc, char **argv) {
     std::cout << "Connecting Celestron mount at: " << port << std::endl;
 
     if (mount->connect(port, true)) {
-        std::cout << "SUCESS connecting to " << port << std::endl;
-        std::cout << "Az: " << mount->getAz() << std::endl;
-        std::cout << "Alt: " << mount->getAlt() << std::endl;
-        std::cout << "Offset: " << mount->getOffset().x << "," << mount->getOffset().y << "," << mount->getOffset().z << std::endl;
+        std::cout << " SUCESS connecting to " << port << std::endl;
+        std::cout << " Az: " << mount->getAz() << " Alt: " << mount->getAlt() << std::endl;
+        std::cout << " Offset: " << mount->getOffset().x << "," << mount->getOffset().y << "," << mount->getOffset().z << std::endl;
         mount->disconnect();
     }
     else 
-        std::cout << "FAIL connecting to " << port << std::endl;
+        std::cout << " FAIL connecting to " << port << std::endl;
 
-    std::cout << "Connecting BerryUMI at i2c port";
+    std::cout << "Connecting BerryUMI over i2c";
     ImuDriver* imu = new BerryIMU();
-    imu->connect("/dev/i2c-%d", true);
+    if (!imu->connect("/dev/i2c-%d", true) )
+        return -1;
     imu->start(true);
 
+    bool first_line = true;
+    const std::string deleteLine = "\e[2K\r\e[1A";
     std::cout << "Starting calibrating..." << std::endl;
     {
-        bool first_line = true;
         double target = 355.0;
         double start_time = getElapsedSeconds();
-        const std::string deleteLine = "\e[2K\r\e[1A";
         imu->calibrate(true);
         if (mount) {
             mount->pan(target, 1.0, [&](double _az, double _alt) {
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
                         std::cout << deleteLine;
                 first_line = false;
                 
-                // Compute 
+                // track progress 
                 int pct = (_az/target) * 100;
                 float delta_time = float(getElapsedSeconds() - start_time);
                 std::cout << " [ ";
@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
                 }
                 std::cout << " ] " << toMMSS(delta_time) << " Az: " << toString(_az,1,3,'0') << std::endl;
 
+                // print values
                 imu->update();
                 std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
                 std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
@@ -79,15 +80,14 @@ int main(int argc, char **argv) {
 
     std::cout << "Return to 0 and check error" << std::endl;
     {
-        bool first_line = true;
-        double target = 0.0;
+        first_line = true;
         double start_time = getElapsedSeconds();
-        const std::string deleteLine = "\e[2K\r\e[1A";
+        double start_az = mount->getAz();
         double prev_az = 0.0;
         double prev_heading = 0.0;
         
         if (mount) {
-            mount->pan(target, -1.0, [&](double _az, double _alt) {
+            mount->pan(0.0, -1.0, [&](double _az, double _alt) {
 
                 // Clean prev print
                 if (!first_line)
@@ -95,8 +95,8 @@ int main(int argc, char **argv) {
                         std::cout << deleteLine;
                 first_line = false;
                 
-                // Compute 
-                int pct = (_az/target) * 100;
+                // display progress
+                int pct = (1.0-_az/start_az) * 100;
                 float delta_time = float(getElapsedSeconds() - start_time);
                 std::cout << " [ ";
                 for (int i = 0; i < 50; i++) {
@@ -105,14 +105,16 @@ int main(int argc, char **argv) {
                 }
                 std::cout << " ] " << toMMSS(delta_time) << std::endl;
 
+                // Compute deltas
+                imu->update();
                 double delta_az = prev_az - _az;
                 double delta_heading = prev_heading - imu->getHeading();
 
-                imu->update();
+                // Print results
                 std::cout << " Az: " << toString(_az,1,3,'0') << " delta: " << delta_az << std::endl;
                 std::cout << " Heading: " << toString(imu->getHeading(),1,3,'0') << " delta: " << delta_heading << std::endl;
                 std::cout << " Error: " << abs(delta_az - delta_heading) << std::endl;
-                
+
                 return true;
             });
         }
