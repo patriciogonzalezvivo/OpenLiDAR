@@ -17,7 +17,7 @@ public:
     void    update();
     bool    stop(bool _verbose);
 
-    bool    calibrate(bool _verbose);
+    bool    calibrate(bool _start);
     glm::ivec3  getMagMax() const { return m_magMax; };
     glm::ivec3  getMagMin() const { return m_magMin; };
 
@@ -42,4 +42,5 @@ protected:
     int         m_file;
     bool        m_LSM9DS0;
     bool        m_LSM9DS1;
+    bool        m_calibrating;
 };

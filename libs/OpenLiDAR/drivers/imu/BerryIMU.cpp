@@ -16,7 +16,7 @@
 #define RAD_TO_DEG 57.29578
 #define M_PI 3.14159265358979323846
 
-BerryIMU::BerryIMU() : m_magMax(-32767), m_magMin(32767), m_file(-1), m_LSM9DS0(false), m_LSM9DS1(false){
+BerryIMU::BerryIMU() : m_magMax(-32767), m_magMin(32767), m_file(-1), m_LSM9DS0(false), m_LSM9DS1(false), m_calibrating(false) {
 }
 
 BerryIMU::~BerryIMU() {
@@ -107,6 +107,12 @@ bool BerryIMU::printFirmware() {
 
         if (m_LSM9DS1)
             std::cout << "BerryIMUv2/LSM9DS1  DETECTED" << std::endl;
+
+        if (!m_calibrating) {
+
+            std::cout << " Min Mag: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
+            std::cout << " Max Mag: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
+        }
 
         return true;
     }
@@ -312,8 +318,14 @@ void BerryIMU::updateAccGyr(){
     accYnorm = acc_raw[1]/sqrt(acc_raw[0] * acc_raw[0] + acc_raw[1] * acc_raw[1] + acc_raw[2] * acc_raw[2]);
 
     //Calculate pitch and roll
-    m_pitch = asin(accXnorm);
-    m_roll = -asin(accYnorm/cos(pitch));
+    m_pitch = asin(accXnorm) * RAD_TO_DEG;
+    m_roll = -asin(accYnorm/cos(pitch)) * RAD_TO_DEG;
+
+    m_pitch -= (float)180.0;
+    if (m_roll > 90)
+        m_roll -= (float)270;
+    else
+        m_roll += (float)90;
 }
 
 void BerryIMU::updateMag() {
@@ -322,6 +334,16 @@ void BerryIMU::updateMag() {
     // -----------------------------------------------------------------------
     int magRaw[3];
     readMAG(magRaw);
+
+    if (m_calibrating) {
+        if (magRaw[0] > m_magMax.x) m_magMax.x = magRaw[0];
+        if (magRaw[1] > m_magMax.y) m_magMax.y = magRaw[1];
+        if (magRaw[2] > m_magMax.z) m_magMax.z = magRaw[2];
+
+        if (magRaw[0] < m_magMin.x) m_magMin.x = magRaw[0];
+        if (magRaw[1] < m_magMin.y) m_magMin.y = magRaw[1];
+        if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
+    }
 
     // float magXcomp, magYcomp;
 
@@ -365,44 +387,49 @@ void BerryIMU::updateMag() {
 
 }
 
-bool BerryIMU::calibrate(bool _verbose) {
-    m_magMax = glm::ivec3(-32767);
-    m_magMin = glm::ivec3(32767);
-
-    int magRaw[3];
-    int samples = 1000;
-    while (samples > 0) {
-        readMAG(magRaw);
-
-        if (magRaw[0] > m_magMax.x) m_magMax.x = magRaw[0];
-        if (magRaw[1] > m_magMax.y) m_magMax.y = magRaw[1];
-        if (magRaw[2] > m_magMax.z) m_magMax.z = magRaw[2];
-
-        if (magRaw[0] < m_magMin.x) m_magMin.x = magRaw[0];
-        if (magRaw[1] < m_magMin.y) m_magMin.y = magRaw[1];
-        if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
-
-
-        // Delete previous line
-        const std::string deleteLine = "\e[2K\r\e[1A";
-        std::cout << deleteLine;
-
-        int pct = (1.0 - float(samples)/1000.0) * 100;
-        std::cout << " [ ";
-        for (int i = 0; i < 50; i++) {
-            if (i < pct/2) std::cout << "#";
-            else std::cout << ".";
-        }
-        std::cout << " ] " << std::endl;
-
-        //Sleep for 0.25ms
-        usleep(25000);
-        
-        samples--;
+bool BerryIMU::calibrate(bool _start) {
+    if (_start && !m_calibrating) {
+        m_magMax = glm::ivec3(-32767);
+        m_magMin = glm::ivec3(32767);
+        m_calibrating = true;
     }
+    else if (m_calibrating)
+        m_calibrating = _start; 
 
-    std::cout << "Min: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
-    std::cout << "Max: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
+    // int magRaw[3];
+    // int samples = 1000;
+    // while (samples > 0) {
+    //     readMAG(magRaw);
+
+    //     if (magRaw[0] > m_magMax.x) m_magMax.x = magRaw[0];
+    //     if (magRaw[1] > m_magMax.y) m_magMax.y = magRaw[1];
+    //     if (magRaw[2] > m_magMax.z) m_magMax.z = magRaw[2];
+
+    //     if (magRaw[0] < m_magMin.x) m_magMin.x = magRaw[0];
+    //     if (magRaw[1] < m_magMin.y) m_magMin.y = magRaw[1];
+    //     if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
+
+
+    //     // Delete previous line
+    //     const std::string deleteLine = "\e[2K\r\e[1A";
+    //     std::cout << deleteLine;
+
+    //     int pct = (1.0 - float(samples)/1000.0) * 100;
+    //     std::cout << " [ ";
+    //     for (int i = 0; i < 50; i++) {
+    //         if (i < pct/2) std::cout << "#";
+    //         else std::cout << ".";
+    //     }
+    //     std::cout << " ] " << std::endl;
+
+    //     //Sleep for 0.25ms
+    //     usleep(25000);
+        
+    //     samples--;
+    // }
+
+    // std::cout << "Min: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
+    // std::cout << "Max: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
 
     return true;
 }
