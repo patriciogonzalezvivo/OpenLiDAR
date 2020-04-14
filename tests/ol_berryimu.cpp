@@ -103,6 +103,8 @@ int main(int argc, char **argv) {
         az = mount->getAz();
     }
 
+    imu->printFirmware();
+
     imu->update();
     std::cout << " Az: " <<  toString(az,1,3,'0') << std::endl;
     std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
