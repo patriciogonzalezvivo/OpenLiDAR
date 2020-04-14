@@ -380,11 +380,11 @@ void BerryIMU::updateMag() {
 }
 
 bool BerryIMU::calibrate(bool _start) {
-    if (_start && !m_calibrating) {
-        m_magMax = glm::ivec3(-32767);
-        m_magMin = glm::ivec3(32767);
-        m_calibrating = true;
-    }
+    // if (_start && !m_calibrating) {
+    //     m_magMax = glm::ivec3(-32767);
+    //     m_magMin = glm::ivec3(32767);
+    //     m_calibrating = true;
+    // }
 
     m_calibrating = _start; 
 
