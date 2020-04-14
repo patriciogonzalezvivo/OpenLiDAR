@@ -103,22 +103,13 @@ void BerryIMU::disconnect() {
 }
 
 bool BerryIMU::printFirmware() {
-    if (m_connected) {
-        if (m_LSM9DS0)
-            std::cout << "BerryIMUv1/LSM9DS0  DETECTED" << std::endl;
+    if (m_LSM9DS0)
+        std::cout << "BerryIMUv1/LSM9DS0  DETECTED" << std::endl;
 
-        if (m_LSM9DS1)
-            std::cout << "BerryIMUv2/LSM9DS1  DETECTED" << std::endl;
+    if (m_LSM9DS1)
+        std::cout << "BerryIMUv2/LSM9DS1  DETECTED" << std::endl;
 
-        if (!m_calibrating) {
-
-            std::cout << " Min Mag: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
-            std::cout << " Max Mag: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
-        }
-
-        return true;
-    }
-    return false;
+    return true;
 }
 
 void BerryIMU::writeAccReg(uint8_t _reg, uint8_t _value) {
@@ -276,8 +267,6 @@ void BerryIMU::updateAccGyr(){
     float rate_gyr_y = 0.0; // [deg/s]
     float rate_gyr_x = 0.0; // [deg/s]
     float rate_gyr_z = 0.0; // [deg/s]
-    float CFangleX = 0.0;
-    float CFangleY = 0.0;
 
     //read ACC and GYR data
     readACC(acc_raw);
@@ -338,7 +327,8 @@ void BerryIMU::updateMag() {
     int magRaw[3];
     readMAG(magRaw);
 
-    if (m_calibrating) {
+    if (m_calibrating) 
+    {
         if (magRaw[0] > m_magMax.x) m_magMax.x = magRaw[0];
         if (magRaw[1] > m_magMax.y) m_magMax.y = magRaw[1];
         if (magRaw[2] > m_magMax.z) m_magMax.z = magRaw[2];
@@ -348,34 +338,34 @@ void BerryIMU::updateMag() {
         if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
     }
 
-    //Calculate the new tilt compensated values
-    float magXcomp, magYcomp;
-    magXcomp = magRaw[0]*cos(m_pitch)+magRaw[2]*sin(m_pitch);
-    if (m_LSM9DS0)
-        magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)-magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS0
-    else
-        magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)+magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS1
+    // //Calculate the new tilt compensated values
+    // float magXcomp, magYcomp;
+    // magXcomp = magRaw[0]*cos(m_pitch)+magRaw[2]*sin(m_pitch);
+    // if (m_LSM9DS0)
+    //     magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)-magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS0
+    // else
+    //     magYcomp = magRaw[0]*sin(m_roll)*sin(m_pitch)+magRaw[1]*cos(m_roll)+magRaw[2]*sin(m_roll)*cos(m_pitch); // LSM9DS1
 
-    //Calculate heading
-    m_heading = 180 * atan2(magYcomp, magXcomp) / M_PI;
+    // //Calculate heading
+    // m_heading = 180 * atan2(magYcomp, magXcomp) / M_PI;
 
-    // //Apply hard iron calibration
-    // magRaw[0] -= (m_magMin.x + m_magMax.x) / 2;
-    // magRaw[1] -= (m_magMin.y + m_magMax.y) / 2;
-    // magRaw[2] -= (m_magMin.z + m_magMax.z) / 2;
+    //Apply hard iron calibration
+    magRaw[0] -= (m_magMin.x + m_magMax.x) / 2;
+    magRaw[1] -= (m_magMin.y + m_magMax.y) / 2;
+    magRaw[2] -= (m_magMin.z + m_magMax.z) / 2;
 
-    // //Apply soft iron calibration
-    // glm::vec3 scaledMag;
-    // scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2 - 1;
-    // scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2 - 1;
-    // scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2 - 1;
+    //Apply soft iron calibration
+    glm::vec3 scaledMag;
+    scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2.0 - 1.0;
+    scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2.0 - 1.0;
+    scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2.0 - 1.0;
 
-    // //Compute m_heading
-    // m_heading = 180 * atan2(scaledMag.y, scaledMag.x) / M_PI;
+    //Compute m_heading
+    m_heading = 180.0 * atan2(scaledMag.y, scaledMag.x) / M_PI;
 
-    // // //Convert m_heading to 0 - 360
-    // if(m_heading < 0)
-    //     m_heading += 360;
+    // //Convert m_heading to 0 - 360
+    if(m_heading < 0.0)
+        m_heading += 360.0;
 
     // //Local declination in mrads into radians
     // float declination = 217.9 / 1000.0;
@@ -383,7 +373,7 @@ void BerryIMU::updateMag() {
     // //Add the declination correction to our current heading
     // m_heading += declination * 180/M_PI;
 
-    // //Correct the m_heading if declination forces it over 360
+    //Correct the m_heading if declination forces it over 360
     // if ( m_heading > 360)
     //     m_heading -= 360;
 
@@ -395,8 +385,8 @@ bool BerryIMU::calibrate(bool _start) {
         m_magMin = glm::ivec3(32767);
         m_calibrating = true;
     }
-    else if (m_calibrating)
-        m_calibrating = _start; 
+
+    m_calibrating = _start; 
 
     // int magRaw[3];
     // int samples = 1000;
@@ -430,8 +420,8 @@ bool BerryIMU::calibrate(bool _start) {
     //     samples--;
     // }
 
-    // std::cout << "Min: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
-    // std::cout << "Max: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
+    std::cout << "Min: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
+    std::cout << "Max: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
 
     return true;
 }

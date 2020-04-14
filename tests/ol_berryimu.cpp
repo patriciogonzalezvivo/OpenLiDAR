@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
     {
         double target = 355.0;
         double start_time = getElapsedSeconds();
-        imu->calibrate(true);
         imu->start(true);
+        imu->calibrate(true);
         if (mount) {
             mount->pan(target, .9, [&](double _az, double _alt) {
 
