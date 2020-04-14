@@ -345,9 +345,8 @@ void BerryIMU::updateMag() {
         if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
     }
 
-    // float magXcomp, magYcomp;
-
     // //Calculate the new tilt compensated values
+    // float magXcomp, magYcomp;
     // magXcomp = magRaw[0]*cos(pitch)+magRaw[2]*sin(pitch);
     // if (m_LSM9DS0)
     //     magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)-magRaw[2]*sin(roll)*cos(pitch); // LSM9DS0

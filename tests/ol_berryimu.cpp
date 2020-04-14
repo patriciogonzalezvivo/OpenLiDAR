@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     else 
         std::cout << " FAIL connecting to " << port << std::endl;
 
-    std::cout << "Connecting BerryUMI over i2c";
+    std::cout << "Connecting BerryUMI over i2c" << std::endl;
     ImuDriver* imu = new BerryIMU();
     imu->connect("/dev/i2c-%d", true);
     imu->start(true);
@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
         double target = 355.0;
         double start_time = getElapsedSeconds();
         imu->calibrate(true);
+        imu->start(true);
         if (mount) {
             mount->pan(target, .9, [&](double _az, double _alt) {
 
