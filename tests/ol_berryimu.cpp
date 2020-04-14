@@ -26,7 +26,6 @@ int main(int argc, char **argv) {
         std::cout << " SUCESS connecting to " << port << std::endl;
         std::cout << " Az: " << mount->getAz() << " Alt: " << mount->getAlt() << std::endl;
         std::cout << " Offset: " << mount->getOffset().x << "," << mount->getOffset().y << "," << mount->getOffset().z << std::endl;
-        mount->disconnect();
     }
     else 
         std::cout << " FAIL connecting to " << port << std::endl;
