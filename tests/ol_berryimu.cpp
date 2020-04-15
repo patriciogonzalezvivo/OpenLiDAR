@@ -74,8 +74,6 @@ int main(int argc, char **argv) {
         imu->calibrate(false);
     }
 
-    imu->printFirmware();
-
     std::cout << "Return to 0 and check error" << std::endl;
     {
         first_line = true;

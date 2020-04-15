@@ -152,47 +152,42 @@ void BerryIMU::writeGyrReg(uint8_t _reg, uint8_t _value) {
 }
 
 bool BerryIMU::start(bool _verbose) {
+    // enableIMU
+    if (m_LSM9DS0){//For BerryIMUv1
+        // Enable accelerometer.
+        writeAccReg(LSM9DS0_CTRL_REG1_XM,   0b01100111);    //  z,y,x axis enabled, continuous update,  100Hz data rate
+        writeAccReg(LSM9DS0_CTRL_REG2_XM,   0b00100000);    // +/- 16G full scale
 
-    if (m_connected) {
-        // enableIMU
-        if (m_LSM9DS0){//For BerryIMUv1
-            // Enable accelerometer.
-            writeAccReg(LSM9DS0_CTRL_REG1_XM,   0b01100111);    //  z,y,x axis enabled, continuous update,  100Hz data rate
-            writeAccReg(LSM9DS0_CTRL_REG2_XM,   0b00100000);    // +/- 16G full scale
+        //Enable the magnetometer
+        writeMagReg(LSM9DS0_CTRL_REG5_XM,   0b11110000);    // Temp enable, M data rate = 50Hz
+        writeMagReg(LSM9DS0_CTRL_REG6_XM,   0b01100000);    // +/-12gauss
+        writeMagReg(LSM9DS0_CTRL_REG7_XM,   0b00000000);    // Continuous-conversion mode
 
-            //Enable the magnetometer
-            writeMagReg(LSM9DS0_CTRL_REG5_XM,   0b11110000);    // Temp enable, M data rate = 50Hz
-            writeMagReg(LSM9DS0_CTRL_REG6_XM,   0b01100000);    // +/-12gauss
-            writeMagReg(LSM9DS0_CTRL_REG7_XM,   0b00000000);    // Continuous-conversion mode
-
-            // Enable Gyro
-            writeGyrReg(LSM9DS0_CTRL_REG1_G,    0b00001111);    // Normal power mode, all axes enabled
-            writeGyrReg(LSM9DS0_CTRL_REG4_G,    0b00110000);    // Continuos update, 2000 dps full scale
-        }
-
-        if (m_LSM9DS1){//For BerryIMUv2
-
-            // Enable the gyroscope
-            writeGyrReg(LSM9DS1_CTRL_REG4,      0b00111000);    // z, y, x axis enabled for gyro
-            writeGyrReg(LSM9DS1_CTRL_REG1_G,    0b10111000);    // Gyro ODR = 476Hz, 2000 dps
-            writeGyrReg(LSM9DS1_ORIENT_CFG_G,   0b10111000);    // Swap orientation 
-
-            // Enable the accelerometer
-            writeAccReg(LSM9DS1_CTRL_REG5_XL,   0b00111000);    // z, y, x axis enabled for accelerometer
-            writeAccReg(LSM9DS1_CTRL_REG6_XL,   0b00101000);    // +/- 16g
-
-            //Enable the magnetometer
-            writeMagReg(LSM9DS1_CTRL_REG1_M,    0b10011100);    // Temp compensation enabled,Low power mode mode,80Hz ODR
-            writeMagReg(LSM9DS1_CTRL_REG2_M,    0b01000000);    // +/-12gauss
-            writeMagReg(LSM9DS1_CTRL_REG3_M,    0b00000000);    // continuos update
-            writeMagReg(LSM9DS1_CTRL_REG4_M,    0b00000000);    // lower power mode for Z axis
-        }
-
-        m_prevTime = getElapsedSeconds();
-        return true;
+        // Enable Gyro
+        writeGyrReg(LSM9DS0_CTRL_REG1_G,    0b00001111);    // Normal power mode, all axes enabled
+        writeGyrReg(LSM9DS0_CTRL_REG4_G,    0b00110000);    // Continuos update, 2000 dps full scale
     }
 
-    return false;
+    if (m_LSM9DS1){//For BerryIMUv2
+
+        // Enable the gyroscope
+        writeGyrReg(LSM9DS1_CTRL_REG4,      0b00111000);    // z, y, x axis enabled for gyro
+        writeGyrReg(LSM9DS1_CTRL_REG1_G,    0b10111000);    // Gyro ODR = 476Hz, 2000 dps
+        writeGyrReg(LSM9DS1_ORIENT_CFG_G,   0b10111000);    // Swap orientation 
+
+        // Enable the accelerometer
+        writeAccReg(LSM9DS1_CTRL_REG5_XL,   0b00111000);    // z, y, x axis enabled for accelerometer
+        writeAccReg(LSM9DS1_CTRL_REG6_XL,   0b00101000);    // +/- 16g
+
+        //Enable the magnetometer
+        writeMagReg(LSM9DS1_CTRL_REG1_M,    0b10011100);    // Temp compensation enabled,Low power mode mode,80Hz ODR
+        writeMagReg(LSM9DS1_CTRL_REG2_M,    0b01000000);    // +/-12gauss
+        writeMagReg(LSM9DS1_CTRL_REG3_M,    0b00000000);    // continuos update
+        writeMagReg(LSM9DS1_CTRL_REG4_M,    0b00000000);    // lower power mode for Z axis
+    }
+
+    m_prevTime = getElapsedSeconds();
+    return true;
 }
 
 
@@ -356,9 +351,9 @@ void BerryIMU::updateMag() {
 
     //Apply soft iron calibration
     glm::vec3 scaledMag;
-    scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2.0 - 1.0;
-    scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2.0 - 1.0;
-    scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2.0 - 1.0;
+    scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2.f - 1.f;
+    scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2.f - 1.f;
+    scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2.f - 1.f;
 
     //Compute m_heading
     m_heading = 180.0 * atan2(scaledMag.y, scaledMag.x) / M_PI;
@@ -380,46 +375,8 @@ void BerryIMU::updateMag() {
 }
 
 bool BerryIMU::calibrate(bool _start) {
-    // if (_start && !m_calibrating) {
-    //     m_magMax = glm::ivec3(-32767);
-    //     m_magMin = glm::ivec3(32767);
-    //     m_calibrating = true;
-    // }
 
     m_calibrating = _start; 
-
-    // int magRaw[3];
-    // int samples = 1000;
-    // while (samples > 0) {
-    //     readMAG(magRaw);
-
-    //     if (magRaw[0] > m_magMax.x) m_magMax.x = magRaw[0];
-    //     if (magRaw[1] > m_magMax.y) m_magMax.y = magRaw[1];
-    //     if (magRaw[2] > m_magMax.z) m_magMax.z = magRaw[2];
-
-    //     if (magRaw[0] < m_magMin.x) m_magMin.x = magRaw[0];
-    //     if (magRaw[1] < m_magMin.y) m_magMin.y = magRaw[1];
-    //     if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
-
-
-    //     // Delete previous line
-    //     const std::string deleteLine = "\e[2K\r\e[1A";
-    //     std::cout << deleteLine;
-
-    //     int pct = (1.0 - float(samples)/1000.0) * 100;
-    //     std::cout << " [ ";
-    //     for (int i = 0; i < 50; i++) {
-    //         if (i < pct/2) std::cout << "#";
-    //         else std::cout << ".";
-    //     }
-    //     std::cout << " ] " << std::endl;
-
-    //     //Sleep for 0.25ms
-    //     usleep(25000);
-        
-    //     samples--;
-    // }
-
     std::cout << "Min: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
     std::cout << "Max: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
 
