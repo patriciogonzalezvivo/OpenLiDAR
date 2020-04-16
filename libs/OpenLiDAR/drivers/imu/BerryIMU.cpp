@@ -96,6 +96,9 @@ bool BerryIMU::connect(const char* _portName, bool _verbose) {
     if (_verbose)
         printFirmware();
 
+    m_magMax = glm::ivec3(-32767);
+    m_magMin = glm::ivec3(32767);
+
     return true;
 }
 
