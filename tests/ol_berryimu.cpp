@@ -71,6 +71,12 @@ int main(int argc, char **argv) {
                 return true;
             });
         }
+        else {
+            imu->update();
+            std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
+            std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
+            std::cout << " Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
+        }
         imu->calibrate(false);
     }
 

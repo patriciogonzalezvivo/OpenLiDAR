@@ -333,24 +333,21 @@ void BerryIMU::updateMag() {
         if (magRaw[0] < m_magMin.x) m_magMin.x = magRaw[0];
         if (magRaw[1] < m_magMin.y) m_magMin.y = magRaw[1];
         if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
-
-        m_heading = 180 * atan2(magRaw[1],magRaw[0]) / M_PI;
     }
-    else {
-        //Apply hard iron calibration
-        magRaw[0] -= (m_magMin.x + m_magMax.x) / 2;
-        magRaw[1] -= (m_magMin.y + m_magMax.y) / 2;
-        magRaw[2] -= (m_magMin.z + m_magMax.z) / 2;
 
-        //Apply soft iron calibration
-        glm::vec3 scaledMag;
-        scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2.f - 1.f;
-        scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2.f - 1.f;
-        scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2.f - 1.f;
+    //Apply hard iron calibration
+    magRaw[0] -= (m_magMin.x + m_magMax.x) / 2;
+    magRaw[1] -= (m_magMin.y + m_magMax.y) / 2;
+    magRaw[2] -= (m_magMin.z + m_magMax.z) / 2;
 
-        //Compute m_heading
-        m_heading = 180 * atan2(scaledMag.y, scaledMag.x) / M_PI;
-    }
+    //Apply soft iron calibration
+    glm::vec3 scaledMag;
+    scaledMag.x  = (float)(magRaw[0] - m_magMin.x) / (m_magMax.x - m_magMin.x) * 2.f - 1.f;
+    scaledMag.y  = (float)(magRaw[1] - m_magMin.y) / (m_magMax.y - m_magMin.y) * 2.f - 1.f;
+    scaledMag.z  = (float)(magRaw[2] - m_magMin.z) / (m_magMax.z - m_magMin.z) * 2.f - 1.f;
+
+    //Compute m_heading
+    m_heading = 180 * atan2(scaledMag.y, scaledMag.x) / M_PI;
 
     // //Convert heading to 0 - 360
     if(m_heading < 0.0)
@@ -381,11 +378,9 @@ void BerryIMU::updateMag() {
 }
 
 bool BerryIMU::calibrate(bool _start) {
-
     m_calibrating = _start; 
     std::cout << "Min: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
     std::cout << "Max: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
-
     return true;
 }
 
