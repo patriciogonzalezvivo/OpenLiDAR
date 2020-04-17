@@ -334,7 +334,7 @@ void BerryIMU::updateMag() {
         if (magRaw[1] < m_magMin.y) m_magMin.y = magRaw[1];
         if (magRaw[2] < m_magMin.z) m_magMin.z = magRaw[2];
 
-        float heading = 180 * atan2(magRaw[1],magRaw[0]) / M_PI;
+        m_heading = 180 * atan2(magRaw[1],magRaw[0]) / M_PI;
     }
     else {
         //Apply hard iron calibration
