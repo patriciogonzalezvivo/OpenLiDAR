@@ -9,6 +9,12 @@
 #include "tools/timeOps.h"
 #include "tools/textOps.h"
 
+#include <signal.h>
+bool bRun = true;
+void CtrlC(int) {
+    bRun = false;
+}
+
 int main(int argc, char **argv) {
     char* port = NULL;
 
@@ -76,10 +82,16 @@ int main(int argc, char **argv) {
             });
         }
         else {
-            imu->update();
-            std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
-            std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
-            std::cout << " Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
+            bRun = true;
+            signal(SIGINT, CtrlC );
+
+            while (bRun) {
+                imu->update();
+                std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
+                std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
+                std::cout << " Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
+                usleep(1000);
+            }
         }
         imu->calibrate(false);
     }
