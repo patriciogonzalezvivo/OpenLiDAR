@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
 
             while (bRun) {
                 if (!first_line)
-                    for (int i = 0; i < 4; i++)
+                    for (int i = 0; i < 3; i++)
                         std::cout << deleteLine;
                 first_line = false;
 
