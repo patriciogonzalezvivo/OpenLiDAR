@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
                 // Print results
                 std::cout << " Az: " << toString(_az,1,3,'0') << " delta: " << delta_az << std::endl;
                 std::cout << " Heading: " << toString(imu->getHeading(),1,3,'0') << " delta: " << delta_heading << std::endl;
-                std::cout << " Error: " << abs(delta_az - delta_heading) << std::endl;
+                std::cout << " Error: " << fabs(delta_az - delta_heading) << std::endl;
 
                 return true;
             });
