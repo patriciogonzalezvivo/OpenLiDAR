@@ -86,6 +86,11 @@ int main(int argc, char **argv) {
             signal(SIGINT, CtrlC );
 
             while (bRun) {
+                if (!first_line)
+                    for (int i = 0; i < 4; i++)
+                        std::cout << deleteLine;
+                first_line = false;
+
                 imu->update();
                 std::cout << " Acc: " << imu->getAcc().x << " " << imu->getAcc().y << " " << imu->getAcc().z << std::endl;
                 std::cout << " Gyr: " << imu->getGyr().x << " " << imu->getGyr().y << " " << imu->getGyr().z << std::endl;
