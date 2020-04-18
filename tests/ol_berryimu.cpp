@@ -131,6 +131,8 @@ int main(int argc, char **argv) {
                 imu->update();
                 double delta_az = prev_az - _az;
                 double delta_heading = prev_heading - imu->getHeading();
+                prev_az = _az;
+                prev_heading = imu->getHeading();
 
                 // Print results
                 std::cout << " Az: " << toString(_az,1,3,'0') << " delta: " << delta_az << std::endl;
