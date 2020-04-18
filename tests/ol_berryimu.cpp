@@ -28,7 +28,11 @@ int main(int argc, char **argv) {
         std::cout << " Offset: " << mount->getOffset().x << "," << mount->getOffset().y << "," << mount->getOffset().z << std::endl;
     }
     else 
+    {
         std::cout << " FAIL connecting to " << port << std::endl;
+        delete mount;
+        mount = NULL;
+    }
 
     std::cout << "Connecting BerryUMI over i2c" << std::endl;
     ImuDriver* imu = new BerryIMU();
@@ -80,7 +84,6 @@ int main(int argc, char **argv) {
         imu->calibrate(false);
     }
 
-    std::cout << "Return to 0 and check error" << std::endl;
     {
         first_line = true;
         double start_time = getElapsedSeconds();
