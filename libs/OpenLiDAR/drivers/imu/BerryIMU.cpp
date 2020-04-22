@@ -188,14 +188,6 @@ void BerryIMU::writeGyrReg(uint8_t _reg, uint8_t _value) {
     }
 }
 
-bool BerryIMU::start(bool _verbose) {
-    
-
-    m_prevTime = getElapsedSeconds();
-    return true;
-}
-
-
 void BerryIMU::readACC(int _a[]) {
     uint8_t block[6];
     if (m_LSM9DS0){
@@ -383,10 +375,5 @@ bool BerryIMU::calibrate(bool _start) {
     m_calibrating = _start; 
     std::cout << "Min: " << m_magMin.x << " " << m_magMin.y << " " << m_magMin.z << std::endl;
     std::cout << "Max: " << m_magMax.x << " " << m_magMax.y << " " << m_magMax.z << std::endl;
-    return true;
-}
-
-
-bool BerryIMU::stop(bool _verbose) {
     return true;
 }

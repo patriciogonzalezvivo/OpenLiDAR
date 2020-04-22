@@ -25,7 +25,6 @@ public:
     double      getAz();
     double      getAlt();
 
-protected:
     // Celestron Only Methods
     bool        echo();
     bool        checkConnection();

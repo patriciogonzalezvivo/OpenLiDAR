@@ -13,9 +13,7 @@ public:
     ImuDriver(): m_acc(0.0), m_gyr(0.0), m_roll(0.0), m_pitch(0.0), m_heading(0.0) {};
     virtual ~ImuDriver() {};
 
-    virtual bool    start(bool _verbose) = 0;
     virtual void    update() = 0;
-    virtual bool    stop(bool _verbose) = 0;
 
     virtual bool    calibrate(bool _verbose) = 0;
 

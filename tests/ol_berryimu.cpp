@@ -18,7 +18,6 @@ int main(int argc, char **argv) {
     std::cout << "Connecting BerryUMI over i2c" << std::endl;
     ImuDriver* imu = new BerryIMU();
     imu->connect("/dev/i2c-%d", true);
-    imu->start(true);
 
     bRun = true;
     signal(SIGINT, CtrlC );
@@ -38,7 +37,7 @@ int main(int argc, char **argv) {
         usleep(1000);
     }
     imu->calibrate(false);
-    imu->stop(true);
+    
     imu->disconnect();
 
     return 0;

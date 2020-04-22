@@ -13,9 +13,7 @@ public:
 
     bool    printFirmware();
 
-    bool    start(bool _verbose);
     void    update();
-    bool    stop(bool _verbose);
 
     bool    calibrate(bool _start);
 

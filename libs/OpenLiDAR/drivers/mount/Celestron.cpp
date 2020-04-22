@@ -307,6 +307,8 @@ bool Celestron::reset(bool _verbose) {
         return true;
     });
 
+    gotoAzAlt(0.0, 0.0);
+
     return true;
 }
 
