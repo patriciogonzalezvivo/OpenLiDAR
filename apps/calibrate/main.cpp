@@ -64,10 +64,10 @@ int main(int argc, char **argv) {
 
                 // print values
                 imu->update();
-                std::cout << " IMU - Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
+                std::cout << " IMU   - Pitch: " << imu->getPitch() << " Roll: " << imu->getRoll() << " Heading: " << imu->getHeading() << std::endl;
 
                 gps->update();
-                std::cout << " GPS - Lng: " << gps->getLng() << " Lat: " << gps->getLat() << " Alt: " << gps->getAlt() << std::endl;
+                std::cout << " GPS   - Lng: " << gps->getLng() << " Lat: " << gps->getLat() << " Alt: " << gps->getAlt() << std::endl;
 
                 return true;
             });
