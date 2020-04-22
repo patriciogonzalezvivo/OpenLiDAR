@@ -1,7 +1,5 @@
 #pragma once
 
-#include <mutex>
-#include <thread>
 #include <vector>
 
 #include "GpsDriver.h"
@@ -19,8 +17,7 @@ public:
 
     bool        printFirmware();
 
-    bool        start(bool _verbose);
-    bool        stop(bool _verbose);
+    void        update();
 
     double      getLat();
     double      getLng();
@@ -31,7 +28,5 @@ protected:
     std::vector<double> m_lngs;
     std::vector<double> m_alts;
 
-    std::thread m_thread;
-    std::mutex  m_mutex;
     gpsmm*      m_gps;
 };

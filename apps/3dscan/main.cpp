@@ -2,7 +2,7 @@
 #include "OpenLiDAR.h"
 #include "tools/textOps.h"
 #include "tools/fileOps.h"
-#include "export.h"
+#include "../common/export.h"
 
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/kdtree/kdtree_flann.h>

@@ -24,6 +24,10 @@ bool Gpsd::connect(const char* _portName, bool _verbose) {
         m_connected = m_gps->is_open();
     }
 
+    m_lats.clear();
+    m_lngs.clear();
+    m_alts.clear();
+
     return m_connected;
 }
 
@@ -43,54 +47,34 @@ bool Gpsd::printFirmware() {
     return true;
 }
 
-bool Gpsd::start(bool _verbose) {
-    m_lats.clear();
-    m_lngs.clear();
-    m_alts.clear();
+void Gpsd::update() {
+    if (!m_connected || m_gps == NULL)
+        return;
+    
+    if (!m_gps->waiting(GPS_WAITING_TIME))
+        return;
 
-    if (_verbose)
-        std::cout << "Start collecting GPS data." << std::endl; 
+    struct gps_data_t* gpsd_data;
+    if ((gpsd_data = m_gps->read()) == NULL) {
+        std::cerr << "GPSD read error.\n";
+        m_connected = false;
+    }
 
-    m_thread = std::thread([this]{
-        while (m_connected) {
-            
-            if (!m_gps->waiting(GPS_WAITING_TIME)) continue;
-            struct gps_data_t* gpsd_data;
-            if ((gpsd_data = m_gps->read()) == nullptr) {
-                std::cerr << "GPSD read error.\n";
-                m_connected = false;
-            }
+    if (((gpsd_data = m_gps->read()) == NULL) || (gpsd_data->fix.mode < MODE_2D)) {
+        // Do nothing until fix, block execution for 1 second (busy wait mitigation)
+        return;
+    }
 
-            if (((gpsd_data = m_gps->read()) == nullptr) || (gpsd_data->fix.mode < MODE_2D)) {
-                // Do nothing until fix, block execution for 1 second (busy wait mitigation)
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                continue;
-            }
+    m_lat = gpsd_data->fix.latitude;
+    m_lats.push_back(m_lat);
 
-            m_mutex.lock();
-            m_lat = gpsd_data->fix.latitude;
-            m_lats.push_back(m_lat);
+    m_lng = gpsd_data->fix.longitude;
+    m_lngs.push_back(m_lng);
 
-            m_lng = gpsd_data->fix.longitude;
-            m_lngs.push_back(m_lng);
-
-            if (gpsd_data->fix.mode == MODE_3D) {
-                m_alt = gpsd_data->fix.altitude;
-                m_alts.push_back(m_alt);
-            }
-            m_mutex.unlock();
-        }
-    });
-    // m_thread.detach();
-
-    return true;
-}
-
-bool Gpsd::stop(bool _verbose) {
-    m_connected = false;
-    m_thread.join();
-
-    return true;
+    if (gpsd_data->fix.mode == MODE_3D) {
+        m_alt = gpsd_data->fix.altitude;
+        m_alts.push_back(m_alt);
+    }
 }
 
 double Gpsd::getLat() {
@@ -100,11 +84,9 @@ double Gpsd::getLat() {
     if (total == 0)
         return 0.0;
 
-    m_mutex.lock();
     for(int i = 0; i < total; i++) {
         lat += m_lats[i];
     }
-    m_mutex.unlock();
     return lat / (double)total;
 }
 
@@ -115,11 +97,9 @@ double Gpsd::getLng() {
     if (total == 0)
         return 0.0;
 
-    m_mutex.lock();
-    for(int i = 0; i < total; i++) {
+    for(int i = 0; i < total; i++)
         lng += m_lngs[i];
-    }
-    m_mutex.unlock();
+    
     return lng / (double)total;
 }
 
@@ -130,10 +110,8 @@ double Gpsd::getAlt() {
     if (total == 0)
         return 0.0;
 
-    m_mutex.lock();
-    for(int i = 0; i < total; i++) {
+    for(int i = 0; i < total; i++)
         alt += m_alts[i];
-    }
-    m_mutex.unlock();
+    
     return alt / (double)total;
 };

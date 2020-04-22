@@ -14,7 +14,8 @@
 
 #include "../../libs/OpenLiDAR/tools/textOps.h"
 #include "../../libs/OpenLiDAR/tools/fileOps.h"
-#include "../3dscan/export.h"
+
+#include "../common/export.h"
 
 int main(int argc, char **argv){
 

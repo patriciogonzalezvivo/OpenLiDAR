@@ -10,77 +10,40 @@ project(OpenLiDAR VERSION 0.1
                   DESCRIPTION "Open 3D LiDAR Scanner "
                   LANGUAGES CXX)
 
+# Only do these if this is the main project, and not if it is included through add_subdirectory
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+
+    # Optionally set things like CMAKE_CXX_STANDARD, CMAKE_POSITION_INDEPENDENT_CODE here
+    
+    # set(CMAKE_CXX_STANDARD 11)
+    # set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    # Let's ensure -std=c++xx instead of -std=g++xx
+    set(CMAKE_CXX_EXTENSIONS OFF)
+
+    # Let's nicely support folders in IDE's
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+    # Docs only available if this is the main app
+    find_package(Doxygen)
+    if(Doxygen_FOUND)
+	add_subdirectory(docs)
+    else()
+	message(STATUS "Doxygen not found, not building docs")
+    endif()
+endif()
+
 add_definitions(-DDEBUG_USING_SIMULATE_DATA)
 
-# PCL
-find_package(PCL 1.2 REQUIRED)
-include_directories(${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
+include(cmake/OpenLiDAR.cmake)
 
-# GLM
-find_package(glm REQUIRED)
-include_directories(${GLM_INCLUDE_DIRS})
-link_directories(${GLM_LIBRARY_DIRS})
-add_definitions(${GLM_DEFINITIONS})
+# The compiled library code is here
+# add_subdirectory(libs)
 
-# GPS
-find_path(GPS_INCLUDE_DIR NAMES libgpsmm.h)
-find_library(GPS_LIBRARY NAMES gps)
-if(NOT GPS_INCLUDE_DIR OR NOT GPS_LIBRARY)
-    MESSAGE(FATAL_ERROR "Could not find GPS library")
-endif(NOT GPS_INCLUDE_DIR OR NOT GPS_LIBRARY)
-message(STATUS "Found GPS: ${GPS_LIBRARY}")
+# The executable code is here
+add_subdirectory(apps)
 
-# Threads
-find_package (Threads)
-
-# OPENLIDAR
-set(OPENLIDAR_PATH "libs/OpenLiDAR")
-FILE(GLOB OPENLIDAR_SRC
-    "${OPENLIDAR_PATH}/*.cpp"
-    "${OPENLIDAR_PATH}/*/*.cpp"
-    "${OPENLIDAR_PATH}/*/*/*.cpp"
-)
-include_directories(
-    ${OPENLIDAR_PATH}
-)
-
-# RPLIDAR DRIVER
-set(RPLIDAR_SDK_PATH "${OPENLIDAR_PATH}/drivers/lidar/rplidar_sdk")
-FILE(GLOB RPLIDAR_SDK_SRC 
-    "${RPLIDAR_SDK_PATH}/src/arch/linux/*.cpp"
-    "${RPLIDAR_SDK_PATH}/src/hal/*.cpp"
-    "${RPLIDAR_SDK_PATH}/src/*.cpp"
-)
-include_directories(
-  ${RPLIDAR_SDK_PATH}/include
-  ${RPLIDAR_SDK_PATH}/src
-)
-
-# APPS
-add_executable (3dscan "apps/3dscan/main.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC} )
-target_link_libraries (3dscan ${PCL_LIBRARIES} ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} )
-
-add_executable (convert_pcl "apps/convert_pcl/main.cpp" )
-target_link_libraries (convert_pcl ${PCL_LIBRARIES} )
-
-# TESTS
-add_executable (ol_celestron "tests/ol_celestron.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
-target_link_libraries (ol_celestron ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable (ol_rplidar "tests/ol_rplidar.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
-target_link_libraries (ol_rplidar ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable (ol_ports "tests/ol_ports.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
-target_link_libraries (ol_ports ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable (ol_gpsd "tests/ol_gpsd.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
-target_link_libraries (ol_gpsd ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable (ol_berryimu "tests/ol_berryimu.cpp" ${RPLIDAR_SDK_SRC} ${OPENLIDAR_SRC})
-target_link_libraries (ol_berryimu ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-
-# INSTALL
-install(TARGETS 3dscan convert_pcl
-        RUNTIME DESTINATION bin)
+# Testing only available if this is the main app
+# Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
+#if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
+    add_subdirectory(tests)
+#endif()

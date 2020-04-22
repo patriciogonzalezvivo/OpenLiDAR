@@ -11,10 +11,12 @@ int main(int argc, char **argv){
     std::cout << "Connecting..." << std::endl;
     GpsDriver* gps = new Gpsd();
     gps->connect("localhost", true);
-    gps->start(true);
 
     double start_time = getElapsedSeconds();
-    for (int pct = 0; pct < 101; pct++) {
+    int total = 10000;
+    for (int j = 0; j < total; j++) {
+        gps->update();
+
         const std::string deleteLine = "\e[2K\r\e[1A";
         std::cout << deleteLine;
 
@@ -22,14 +24,13 @@ int main(int argc, char **argv){
         
         std::cout << " [ ";
         for (int i = 0; i < 50; i++) {
-            if (i < pct/2) std::cout << "#";
+            float pct = j / float(total);
+            if (i < int(pct*50)) std::cout << "#";
             else std::cout << ".";
         }
         std::cout << " ] " << toMMSS(time) << std::endl;
-        usleep(500000);
+        usleep(1000);
     }
-
-    gps->stop(true);
 
     std::cout << "lat: " << gps->getLat() << std::endl;
     std::cout << "lng: " << gps->getLng() << std::endl;

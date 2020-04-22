@@ -11,8 +11,7 @@ public:
     GpsDriver(): m_lat(0.0), m_lng(0.0), m_alt(0.0) {};
     virtual ~GpsDriver() {};
 
-    virtual bool    start(bool _verbose) = 0;
-    virtual bool    stop(bool _verbose) = 0;
+    virtual void    update() = 0;
 
     virtual double  getLat() { return m_lat; }
     virtual double  getLng() { return m_lng; }
