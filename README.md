@@ -28,13 +28,15 @@ Supported **GPS**:
 
 | Manufacture | Device |
 | ------------- | ------------- |
-| TBD | TBD |
+|  *  | All deviced supported by Gpsd |
 
 Supported **Magnetometers**:
 
 | Manufacture | Device |
 | ------------- | ------------- |
-| TBD | TBD |
+| OzzMaker | [BerryIMU](https://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor/) |
+| OzzMaker | [BerryGPS-IMU](https://ozzmaker.com/product/berrygps-imu/) |
+
 
 Supported **Cameras**:
 
