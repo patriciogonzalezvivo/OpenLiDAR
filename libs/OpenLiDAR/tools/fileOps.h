@@ -2,13 +2,14 @@
 
 #include <string>
 #include <fstream>
+#include "textOps.h"
 
-bool doFileExist(const char *_fileName) {
+inline bool doFileExist(const char *_fileName) {
     std::ifstream infile(_fileName);
     return infile.good();
 }
 
-std::string getUniqueFileName( const std::string& _originalName, const std::string& _extension) {
+inline std::string getUniqueFileName( const std::string& _originalName, const std::string& _extension) {
     std::string filename = _originalName + "." + _extension;
     int index = 0;
     while ( doFileExist( filename.c_str() ) ) {
@@ -18,7 +19,7 @@ std::string getUniqueFileName( const std::string& _originalName, const std::stri
     return filename;
 }
 
-std::string getExt(const std::string& _filename) {
+inline std::string getExt(const std::string& _filename) {
     if (_filename.find_last_of(".") != std::string::npos)
         return _filename.substr(_filename.find_last_of(".") + 1);
     return "";

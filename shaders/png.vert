@@ -39,7 +39,7 @@ void main(void) {
     normal = normalize(v_position.xyz);
     #endif
 
-    vec3 color = texture2D(u_tex0, vec2(v_texcoord.x, 1.-v_texcoord.y)).rgb;
+    vec3 color = texture2D(u_tex0, vec2(v_texcoord)).rgb;
     v_color = vec4(color, 1.0);
     float depth = rgb2depth(color);
     depth = rgb2hsv(color).x;

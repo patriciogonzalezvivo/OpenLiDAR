@@ -1,5 +1,10 @@
 #pragma once
 
+inline double map(double value, double inputMin, double inputMax, double outputMin, double outputMax) {
+    double outVal = ((value - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin);
+    return outVal;
+}
+
 inline float saturate(float value) { 
     return std::max (0.0f, std::min (1.0f, value)); 
 }

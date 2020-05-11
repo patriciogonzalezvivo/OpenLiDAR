@@ -14,5 +14,8 @@ target_link_libraries (calibrate ${GPS_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} )
 add_executable (convert_pcl "convert_pcl/main.cpp" )
 target_link_libraries (convert_pcl ${PCL_LIBRARIES} )
 
-install(TARGETS 3dscan convert_pcl
+add_executable (tile_pcl "tile_pcl/main.cpp" )
+target_link_libraries (tile_pcl ${PCL_LIBRARIES} )
+
+install(TARGETS 3dscan calibrate convert_pcl tile_pcl
         RUNTIME DESTINATION bin)

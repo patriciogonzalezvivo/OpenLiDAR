@@ -21,6 +21,13 @@ inline std::string toString(const T& _value, int _width, char _fill) {
     return out.str();
 }
 
+inline int toInt(const std::string& _string) {
+    int x = 0;
+    std::istringstream cur(_string);
+    cur >> x;
+    return x;
+}
+
 inline float toFloat(const std::string& _string) {
     float x = 0;
     std::istringstream cur(_string);

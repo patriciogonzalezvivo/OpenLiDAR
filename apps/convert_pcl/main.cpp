@@ -6,22 +6,18 @@
 #include <glm/glm.hpp>
 
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/features/normal_3d.h>
-#include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/surface/mls.h>
-#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/common/transforms.h>
 
-#include "../../libs/OpenLiDAR/tools/textOps.h"
-#include "../../libs/OpenLiDAR/tools/fileOps.h"
-
-#include "../common/export.h"
+#include "../common/io.h"
 
 int main(int argc, char **argv){
 
     // Formats
     std::string in_filename = "pcl";
-    std::string in_extension = "ply";
     std::string out_filename = "out";
     std::vector<std::string> out_formats;
 
@@ -30,6 +26,7 @@ int main(int argc, char **argv){
     float   bSOR = false;
     bool    bMLS = false;
     bool bNormal = false;
+    bool bCenter = false;
 
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
@@ -56,30 +53,26 @@ int main(int argc, char **argv){
             bSOR = true;
         else if ( std::string(argv[i]) == "--normals" )
             bNormal = true;
+        else if ( std::string(argv[i]) == "--center" )
+            bCenter = true;
         else if ( std::string(argv[i]) == "--mls" )
             bMLS = true;
+        else {
+            if (in_filename == "pcl")
+                in_filename = argument;
+            else
+                out_filename = argument;
+        }
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+    if (!loadPointCloud(in_filename, *cloud))
+        return -1;
 
-    in_extension = getExt(in_filename);
     std::string out_extension = getExt(out_filename);
     if (out_extension.size() == 3) {
         out_formats.push_back(out_extension);
         out_filename = split(out_filename,'.',true)[0];
-    }
-
-    if (in_extension == "pcd") {
-        if (pcl::io::loadPCDFile<pcl::PointXYZ> (in_filename.c_str(), *cloud) == -1) {
-            PCL_ERROR ("Couldn't read file &s\n", in_filename);
-            return (-1);
-        }
-    }
-    else if (in_extension == "ply") {
-        if (pcl::io::loadPLYFile<pcl::PointXYZ> (in_filename.c_str(), *cloud) == -1) {
-            PCL_ERROR ("Couldn't read file &s\n", in_filename);
-            return (-1);
-        }
     }
 
     if (voxel > 0.0) {
@@ -102,6 +95,28 @@ int main(int argc, char **argv){
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZ> );
         sor_filter.filter (*cloud_filtered);
         *cloud = *cloud_filtered;
+    }
+
+    if (bCenter) {
+        // FIND BEST FIT BOUNDING BOX
+        // From https://codextechnicanum.blogspot.com/2015/04/find-minimum-oriented-bounding-box-of.html
+        Eigen::Vector4f pcaCentroid;
+        pcl::compute3DCentroid(*cloud, pcaCentroid);
+        // Eigen::Matrix3f covariance;
+        // computeCovarianceMatrixNormalized(*cloud, pcaCentroid, covariance);
+        // Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> eigen_solver(covariance, Eigen::ComputeEigenvectors);
+        // Eigen::Matrix3f eigenVectorsPCA = eigen_solver.eigenvectors();
+        // eigenVectorsPCA.col(2) = eigenVectorsPCA.col(0).cross(eigenVectorsPCA.col(1));
+        /// This line is necessary for proper orientation in some cases. The numbers come out the same without it, but
+        ///    the signs are different and the box doesn't get correctly oriented in some cases.
+        
+        // TRANSFORM the original cloud to the origin where the principal components correspond to the axes.
+        Eigen::Matrix4f projectionTransform(Eigen::Matrix4f::Identity());
+        // projectionTransform.block<3,3>(0,0) = eigenVectorsPCA.transpose();
+        projectionTransform.block<3,1>(0,3) = -1.f * (projectionTransform.block<3,3>(0,0) * pcaCentroid.head<3>());
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_centered (new pcl::PointCloud<pcl::PointXYZ>);
+        pcl::transformPointCloud(*cloud, *cloud_centered, projectionTransform);
+        *cloud = *cloud_centered;
     }
     
     if (bMLS) {
