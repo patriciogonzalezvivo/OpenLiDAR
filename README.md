@@ -5,13 +5,13 @@
 This project goal is to support a wide variety of sensors and controlers so people can construct their own 3D LiDAR Scanner with off-the-shelf devices. 
 Please get in touch if you have a different hardware and want to contribute your solution.
 
-The general set up consist of an affordable **LiDAR sensor** mounted on a structure that pan it around with presicion and accuracy (we call that **mount**). There are other sensors that will help your scanner to have more or better data like **GPS**, **Magnetometer** and **Camera**  
+The general set up consist of an affordable **LiDAR sensor** mounted on a structure that pan it around with precision and accuracy (we call that **mount**). There are other sensors that will help your scanner to have more or better data like **GPS**, **Magnetometer** and **Camera**  
 
 Supported **LiDAR Sensors**:
 
 | Manufacture | Device | Driver | Range | Outdoors | Angle Resolution |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `lidar/RPLidar.h` | 12m | no | non applicalbe | 
+| SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `lidar/RPLidar.h` | 12m | no | non applicable | 
 | SLAMTECH      | [RPLidar A2](https://www.slamtec.com/en/Lidar/A2) | `lidar/RPLidar.h` | 18m | no | 0.45° ~ 1.35° |
 | SLAMTECH      | [RPLidar A3](https://www.slamtec.com/en/Lidar/A3) | `lidar/RPLidar.h` | 25m / 16m (in/outdoors) | yes | 0.3375° / 0.54° |
 | SLAMTECH      | [RPLidar S1](https://www.slamtec.com/en/Lidar/S1) | `lidar/RPLidar.h` | 40m | yes | 0.391° |
@@ -49,7 +49,7 @@ Supported **Cameras**:
 
 ### Celestron/RPLidarA1 (March 2020)
 
-Because hardware is not really one of my strengths I decide to reuse existing hardware as much as possible. Avoiding 3D printing moving peaces like gears was very important because they tend to introduce error. For that I based my desing on using a motorize telescope mount which robust design have been tested extensivelly while provides maximum presicion and control. As an extra if it's properly calibrated (using their own system based on stars possition) can waranty excelent alignments of your point clouds.
+Because hardware is not really one of my strengths I decide to reuse existing hardware as much as possible. Avoiding 3D printing moving peaces like gears was very important because they tend to introduce error. For that I based my design on using a motorize telescope mount which robust design have been tested extensively while provides maximum precision and control. As an extra if it's properly calibrated (using their own system based on stars position) can warranty excelent alignments of your point clouds.
 
 
 * [RPLiDAR A1](https://www.dfrobot.com/search-RPLIDAR.html) I decide to go with the cheaper to see what the floor was how I can build it up from their
