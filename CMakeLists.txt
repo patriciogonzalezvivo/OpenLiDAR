@@ -6,9 +6,10 @@ else()
     cmake_policy(VERSION 3.15)
 endif()
 
-project(OpenLiDAR VERSION 0.1
-                  DESCRIPTION "Open 3D LiDAR Scanner "
-                  LANGUAGES CXX)
+project(OpenLiDAR)
+# project(OpenLiDAR VERSION 0.1
+#                   DESCRIPTION "Open 3D LiDAR Scanner "
+#                   LANGUAGES CXX)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
@@ -32,18 +33,29 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     endif()
 endif()
 
-add_definitions(-DDEBUG_USING_SIMULATE_DATA)
+# add_definitions(-DDEBUG_USING_SIMULATE_DATA)
 
-include(cmake/OpenLiDAR.cmake)
+# Compile dependencies
+add_subdirectory(deps)
 
-# The compiled library code is here
-# add_subdirectory(libs)
+set(OPENLIDAR_SOURCE
+    ${PROJECT_SOURCE_DIR}/src/OpenLiDAR.cpp
+)
+
+add_library(OpenLiDAR ${OPENLIDAR_SOURCE})
+
+set_target_properties(OpenLiDAR PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+)
+
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src
+)
+
+target_link_libraries(OpenLiDAR PUBLIC
+    mary
+)
 
 # The executable code is here
 add_subdirectory(apps)
-
-# Testing only available if this is the main app
-# Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
-#if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
-    add_subdirectory(tests)
-#endif()

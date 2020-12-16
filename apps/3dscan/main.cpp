@@ -1,7 +1,7 @@
 
 #include "OpenLiDAR.h"
-#include "tools/textOps.h"
-#include "tools/fileOps.h"
+#include "mary/tools/textOps.h"
+#include "mary/tools/fileOps.h"
 #include "../common/io.h"
 
 #include <pcl/filters/voxel_grid.h>

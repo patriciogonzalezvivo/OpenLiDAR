@@ -8,10 +8,9 @@
 #include <pcl/range_image/range_image_spherical.h>
 #include <pcl/visualization/common/float_image_utils.h>
 
-#include "../../libs/OpenLiDAR/tools/textOps.h"
-#include "../../libs/OpenLiDAR/tools/fileOps.h"
-
-#include "tools/colorOps.h"
+#include "mary/tools/textOps.h"
+#include "mary/tools/fileOps.h"
+#include "mary/tools/colorOps.h"
 
 template<typename PointT> 
 inline bool loadPointCloud( const std::string& _filename,

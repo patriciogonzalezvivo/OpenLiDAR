@@ -3,12 +3,12 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "drivers/mount/Celestron.h"
-#include "drivers/imu/BerryIMU.h"
-#include "drivers/gps/Gpsd.h"
+#include "mary/drivers/mount/Celestron.h"
+#include "mary/drivers/imu/BerryIMU.h"
+#include "mary/drivers/gps/Gpsd.h"
 
-#include "tools/timeOps.h"
-#include "tools/textOps.h"
+#include "mary/tools/timeOps.h"
+#include "mary/tools/textOps.h"
 
 int main(int argc, char **argv) {
     char* port = NULL;
