@@ -14,8 +14,5 @@ target_link_libraries (calibrate OpenLiDAR)
 add_executable (convert_pcl "convert_pcl/main.cpp" )
 target_link_libraries (convert_pcl ${PCL_LIBRARIES} OpenLiDAR)
 
-add_executable (tile_pcl "tile_pcl/main.cpp" )
-target_link_libraries (tile_pcl ${PCL_LIBRARIES} OpenLiDAR)
-
-install(TARGETS 3dscan calibrate convert_pcl tile_pcl
+install(TARGETS 3dscan calibrate convert_pcl
         RUNTIME DESTINATION bin)

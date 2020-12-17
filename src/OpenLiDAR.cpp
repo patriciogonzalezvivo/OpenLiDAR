@@ -11,9 +11,9 @@
 #include "mary/tools/timeOps.h"
 #include "mary/tools/textOps.h"
 
-// #include "drivers/gps/Gpsd.h"
-#include "mary/drivers/lidar/RPLidar.h"
-#include "mary/drivers/mount/Celestron.h"
+// #include "mary/gps/Gpsd.h"
+#include "mary/lidar/RPLidar.h"
+#include "mary/mount/Celestron.h"
 
 OpenLiDAR::OpenLiDAR() :
     m_mount(NULL),

@@ -3,9 +3,9 @@
 #include <sstream>
 #include <unistd.h>
 
-#include "mary/drivers/mount/Celestron.h"
-#include "mary/drivers/imu/BerryIMU.h"
-#include "mary/drivers/gps/Gpsd.h"
+#include "mary/mount/Celestron.h"
+#include "mary/imu/BerryIMU.h"
+#include "mary/gps/Gpsd.h"
 
 #include "mary/tools/timeOps.h"
 #include "mary/tools/textOps.h"

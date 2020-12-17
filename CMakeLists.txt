@@ -51,6 +51,7 @@ set_target_properties(OpenLiDAR PROPERTIES
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/deps/mary/include
 )
 
 target_link_libraries(OpenLiDAR PUBLIC

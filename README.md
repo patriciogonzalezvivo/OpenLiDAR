@@ -2,14 +2,13 @@
 
 # OpenLiDAR
 
-This project goal is to support a wide variety of sensors and controlers so people can construct their own 3D LiDAR Scanner with off-the-shelf devices. 
-Please get in touch if you have a different hardware and want to contribute your solution.
+This project goal is to support a wide variety of sensors and controlers (throught the [Mary Library](https://github.com/patriciogonzalezvivo/mary)) so people can construct their own 3D LiDAR Scanner with off-the-shelf devices. 
 
-The general set up consist of an affordable **LiDAR sensor** mounted on a structure that pan it around with presicion and accuracy (we call that **mount**). There are other sensors that will help your scanner to have more or better data like **GPS**, **Magnetometer** and **Camera**  
+The general set up consist of an affordable **LiDAR sensor** mounted on a structure that pan it around with presicion and accuracy (we call that **mount**). There are other sensors that will help your scanner to have more or better data like **GPS** and/or **Magnetometer**
 
 Supported **LiDAR Sensors**:
 
-| Manufacture | Device | Driver | Range | Outdoors | Angle Resolution |
+| Manufacture | Device | Mary Driver | Range | Outdoors | Angle Resolution |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | SLAMTECH      | [RPLidar A1](https://www.slamtec.com/en/Lidar/A1) | `lidar/RPLidar.h` | 12m | no | non applicalbe | 
 | SLAMTECH      | [RPLidar A2](https://www.slamtec.com/en/Lidar/A2) | `lidar/RPLidar.h` | 18m | no | 0.45° ~ 1.35° |
@@ -18,7 +17,7 @@ Supported **LiDAR Sensors**:
 
 Supported **Mounts**: 
 
-| Manufacture | Device | Driver | 
+| Manufacture | Device | Mary Driver | 
 | ------------- | ------------- | ------------- | 
 | Celestron     | [NexStar STL Series](https://s3.amazonaws.com/celestron-site-support-files/support_files/NexStar_SLT_manual.pdf) | `mount/Celestron.h` |
 | Celestron     | [NexStar STL Series](https://s3.amazonaws.com/celestron-site-support-files/support_files/NexStar_SLT_manual.pdf) | `mount/Celestron.h` |
@@ -36,13 +35,6 @@ Supported **Magnetometers**:
 | ------------- | ------------- |
 | OzzMaker | [BerryIMU](https://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor/) |
 | OzzMaker | [BerryGPS-IMU](https://ozzmaker.com/product/berrygps-imu/) |
-
-
-Supported **Cameras**:
-
-| Manufacture | Device |
-| ------------- | ------------- |
-| TBD | TBD |
 
 
 # Hardware Setups

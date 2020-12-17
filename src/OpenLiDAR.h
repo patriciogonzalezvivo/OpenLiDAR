@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "mary/drivers/mount/MountDriver.h"
-#include "mary/drivers/lidar/LidarDriver.h"
-// #include "mary/drivers/gps/GpsDriver.h"
+#include "mary/mount/MountDriver.h"
+#include "mary/lidar/LidarDriver.h"
+// #include "mary/gps/GpsDriver.h"
 
 struct OpenLiDARSettings {
     MountType   mountType   = CELESTRON;
