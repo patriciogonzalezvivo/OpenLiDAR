@@ -9,8 +9,8 @@
 #include <pcl/visualization/common/float_image_utils.h>
 
 #include "mary/tools/textOps.h"
-#include "mary/tools/fileOps.h"
-#include "mary/tools/colorOps.h"
+#include "fileOps.h"
+#include "colorOps.h"
 
 template<typename PointT> 
 inline bool loadPointCloud( const std::string& _filename,

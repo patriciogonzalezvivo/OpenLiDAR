@@ -1,7 +1,8 @@
 
 #include "OpenLiDAR.h"
 #include "mary/tools/textOps.h"
-#include "mary/tools/fileOps.h"
+#include "../common/fileOps.h"
+#include "../common/colorOps.h"
 #include "../common/io.h"
 
 #include <pcl/filters/voxel_grid.h>
@@ -81,7 +82,7 @@ int main(int argc, char **argv){
         if (points.size() > 0) {
 
             // Declare Cloud data
-            pcl::PointCloud<pcl::PointXYZ>::Ptr cloud( new pcl::PointCloud<pcl::PointXYZ> );
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud( new pcl::PointCloud<pcl::PointXYZRGB> );
             cloud->width    = points.size();
             cloud->height   = 1;
             cloud->is_dense = true;
@@ -91,36 +92,40 @@ int main(int argc, char **argv){
                 cloud->points[i].x = points[i].x;
                 cloud->points[i].y = points[i].y;
                 cloud->points[i].z = points[i].z;
+                unsigned char r, g, b;
+                hue2rgb(points[i].a, r, g, b); 
+                std::uint32_t rgb = packColor(r, g, b);
+                cloud->points[i].rgb = *reinterpret_cast<float*>(&rgb); 
             }
 
             if (voxel > 0.0) {
-                pcl::VoxelGrid<pcl::PointXYZ> vg_filter;
+                pcl::VoxelGrid<pcl::PointXYZRGB> vg_filter;
                 vg_filter.setInputCloud (cloud);
                 vg_filter.setLeafSize (voxel, voxel, voxel);
-                pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZ> );
+                pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered( new pcl::PointCloud<pcl::PointXYZRGB> );
                 vg_filter.filter(*cloud_filtered);
                 *cloud = *cloud_filtered;
             }
             
-            if (bNormal) {
-                std::cout << "Estimating normals" << std::endl;
-                // // Normal estimation*
-                pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> n;
-                pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
-                pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-                tree->setInputCloud (cloud);
-                n.setInputCloud (cloud);
-                n.setSearchMethod (tree);
-                n.setKSearch (10);
-                n.compute (*normals);
+            // if (bNormal) {
+            //     std::cout << "Estimating normals" << std::endl;
+            //     // // Normal estimation*
+            //     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> n;
+            //     pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
+            //     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+            //     tree->setInputCloud (cloud);
+            //     n.setInputCloud (cloud);
+            //     n.setSearchMethod (tree);
+            //     n.setKSearch (10);
+            //     n.compute (*normals);
 
-                // Concatenate the XYZ and normal fields*
-                pcl::PointCloud<pcl::PointNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointNormal>);
-                pcl::concatenateFields (*cloud, *normals, *cloud_with_normals);
+            //     // Concatenate the XYZ and normal fields*
+            //     pcl::PointCloud<pcl::PointNormal>::Ptr cloud_with_normals (new pcl::PointCloud<pcl::PointNormal>);
+            //     pcl::concatenateFields (*cloud, *normals, *cloud_with_normals);
 
-                savePointCloud(filename, formats, *cloud_with_normals);
-            }
-            else
+            //     savePointCloud(filename, formats, *cloud_with_normals);
+            // }
+            // else
                 savePointCloud(filename, formats, *cloud);
         }
 
