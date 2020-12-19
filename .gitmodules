@@ -1,3 +1,6 @@
 [submodule "deps/mary"]
 	path = deps/mary
 	url = git@github.com:patriciogonzalezvivo/mary.git
+[submodule "deps/ada"]
+	path = deps/ada
+	url = git@github.com:patriciogonzalezvivo/ada.git

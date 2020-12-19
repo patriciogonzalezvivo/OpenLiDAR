@@ -160,7 +160,7 @@ std::vector<glm::vec4> OpenLiDAR::scan(float _toDegree, float _atSpeed, bool _ve
 
                         // Add it to the point buffer
                         // points.push_back( glm::vec4(pos, delta_time) );
-                        points.push_back( glm::vec4(pos, samples[i].quality) );
+                        points.push_back( glm::vec4(pos, (1.0 - samples[i].distance/12.0) * samples[i].quality) );
                     }
                 }
 

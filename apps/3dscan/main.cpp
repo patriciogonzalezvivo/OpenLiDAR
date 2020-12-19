@@ -93,9 +93,12 @@ int main(int argc, char **argv){
                 cloud->points[i].y = points[i].y;
                 cloud->points[i].z = points[i].z;
                 unsigned char r, g, b;
-                hue2rgb(points[i].a, r, g, b); 
+                r = points[i].a * 255;
+                g = points[i].a * 255;
+                b = points[i].a * 255;
+                // hue2rgb(points[i].a, r, g, b); 
                 std::uint32_t rgb = packColor(r, g, b);
-                cloud->points[i].rgb = *reinterpret_cast<float*>(&rgb); 
+                cloud->points[i].rgb = *reinterpret_cast<float*>(&rgb);
             }
 
             if (voxel > 0.0) {
